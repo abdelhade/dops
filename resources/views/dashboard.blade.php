@@ -60,9 +60,8 @@
                     <tr>
                         <th>{{ __('dobs.col_op_number') }}</th>
                         <th>{{ __('dobs.col_date') }}</th>
-                        <th>{{ __('dobs.col_amount') }}</th>
+                        <th>{{ __('dobs.col_item') }}</th>
                         <th>{{ __('dobs.col_status') }}</th>
-                        <th>{{ __('dobs.col_items_count') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -73,16 +72,15 @@
                                     {{ $op->operation_number }}
                                 </a>
                             </td>
-                            <td>{{ $op->operation_date }}</td>
-                            <td style="font-weight: 700; color: white;">{{ number_format($op->total_amount, 2) }} {{ __('dobs.currency') }}</td>
+                            <td>{{ $op->operation_date?->format('Y-m-d') ?? $op->operation_date }}</td>
+                            <td>{{ $op->item?->name ?? __('dobs.dash') }}</td>
                             <td>
                                 <span class="badge badge-{{ strtolower($op->status) }}">{{ __('dobs.status_' . strtolower($op->status)) }}</span>
                             </td>
-                            <td>{{ $op->items_count }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="empty-state">
+                            <td colspan="4" class="empty-state">
                                 <i class="fa-solid fa-receipt"></i>
                                 {{ __('dobs.no_recent_operations') }}
                             </td>

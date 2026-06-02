@@ -21,10 +21,11 @@
                 <tr>
                     <th>{{ __('dobs.col_op_number') }}</th>
                     <th>{{ __('dobs.col_date') }}</th>
+                    <th>{{ __('dobs.col_time') }}</th>
+                    <th>{{ __('dobs.col_item') }}</th>
+                    <th>{{ __('dobs.col_quantity') }}</th>
                     <th>{{ __('dobs.col_status') }}</th>
-                    <th>{{ __('dobs.col_total_value') }}</th>
-                    <th>{{ __('dobs.col_items_selected') }}</th>
-                    <th>{{ __('dobs.col_notes_header') }}</th>
+                    <th>{{ __('dobs.operation_statement') }}</th>
                     <th style="text-align: left;">{{ __('dobs.col_actions') }}</th>
                 </tr>
             </thead>
@@ -36,21 +37,20 @@
                                 {{ $op->operation_number }}
                             </a>
                         </td>
-                        <td>{{ $op->operation_date }}</td>
+                        <td>{{ $op->operation_date?->format('Y-m-d') ?? $op->operation_date }}</td>
+                        <td>{{ $op->formattedOperationTime() ?? __('dobs.dash') }}</td>
+                        <td>{{ $op->item?->name ?? __('dobs.dash') }}</td>
+                        <td>{{ $op->quantity ?? __('dobs.dash') }}</td>
                         <td>
                             <span class="badge badge-{{ strtolower($op->status) }}">{{ __('dobs.status_' . strtolower($op->status)) }}</span>
                         </td>
-                        <td style="font-weight: 700; color: white;">{{ number_format($op->total_amount, 2) }} {{ __('dobs.currency') }}</td>
-                        <td>
-                            <span class="badge badge-secondary">{{ __('dobs.items_count', ['count' => $op->items_count]) }}</span>
-                        </td>
-                        <td style="color: var(--text-secondary); max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                            {{ $op->notes ?: __('dobs.no_notes') }}
+                        <td style="color: var(--text-secondary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            {{ $op->statement ?? $op->notes ?? __('dobs.no_notes') }}
                         </td>
                         <td>
                             <div class="actions-cell">
-                                <a href="{{ route('operations.show', $op->id) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.invoice_view') }}">
-                                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                                <a href="{{ route('operations.show', $op->id) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.view_details') }}">
+                                    <i class="fa-solid fa-eye"></i>
                                 </a>
                                 @if ($op->status !== 'Completed' && auth()->user()?->canEditRecords())
                                     <a href="{{ route('operations.edit', $op->id) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.edit') }}">
@@ -71,7 +71,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="empty-state">
+                        <td colspan="8" class="empty-state">
                             <i class="fa-solid fa-receipt"></i>
                             {{ __('dobs.no_operations') }}
                         </td>

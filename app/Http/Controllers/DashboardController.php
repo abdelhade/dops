@@ -22,7 +22,7 @@ class DashboardController extends Controller
             'total_sales' => Operation::sum('total_amount'),
         ];
 
-        $recent_operations = Operation::latest()->take(5)->get();
+        $recent_operations = Operation::with('item')->latest()->take(5)->get();
         $recent_items = Item::with(['category', 'supplier', 'paperSize'])->latest()->take(5)->get();
         
         // Items with low stock (threshold: 50)

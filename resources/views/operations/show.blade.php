@@ -12,7 +12,7 @@
     </a>
 
     <button type="button" onclick="window.print();" class="btn btn-secondary">
-        <i class="fa-solid fa-print"></i> {{ __('dobs.print_invoice') }}
+        <i class="fa-solid fa-print"></i> {{ __('dobs.print_operation') }}
     </button>
 
     @if ($operation->status !== 'Completed' && auth()->user()?->canEditRecords())
@@ -24,142 +24,128 @@
 @endsection
 
 @section('content')
-<div class="invoice-container">
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
-        <div class="glass-card">
-            <h2 class="card-title" style="margin-bottom:1.5rem;">{{ __('dobs.included_items') }}</h2>
+@php
+    $dash = __('dobs.dash');
+    $field = fn ($value) => filled($value) ? $value : $dash;
+@endphp
+
+<div class="glass-card" style="max-width: 900px; margin: 0 auto;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem 2rem;">
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_serial') }}</span>
+            <div style="font-family: monospace; font-weight: 700; color: var(--color-secondary); margin-top: 0.25rem;">{{ $operation->operation_number }}</div>
+        </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_status') }}</span>
+            <div style="margin-top: 0.35rem;">
+                <span class="badge badge-{{ strtolower($operation->status) }}">{{ __('dobs.status_' . strtolower($operation->status)) }}</span>
+            </div>
+        </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_date') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->operation_date?->format('Y-m-d') ?? $dash }}</div>
+        </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_current_time') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->formattedOperationTime() ?? $dash }}</div>
+        </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_product_1') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->item?->name ?? $dash }}</div>
+        </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.col_quantity') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $field($operation->quantity) }}</div>
+        </div>
+        <div style="grid-column: 1 / -1;">
+            <span class="stat-label">{{ __('dobs.operation_statement') }}</span>
+            <div style="margin-top: 0.25rem; white-space: pre-line; color: var(--text-secondary);">{{ $field($operation->statement ?? $operation->notes) }}</div>
+        </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_printing_press') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->printingSupplier?->name ?? $dash }}</div>
+        </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_ctp') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->ctpSupplier?->name ?? $dash }}</div>
+        </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_color_count') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $field($operation->color_count) }}</div>
+        </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_paper_material') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->material?->name ?? $dash }}</div>
+        </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_job_size') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->job_size !== null ? number_format($operation->job_size, 2) : $dash }}</div>
+        </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_pull_count') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $field($operation->pull_count) }}</div>
+        </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_quantity_per_sheet') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $field($operation->quantity_per_sheet) }}</div>
+        </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_service_1') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->service1?->name ?? $dash }}</div>
+        </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_service_2') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->service2?->name ?? $dash }}</div>
+        </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_service_3') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->service3?->name ?? $dash }}</div>
+        </div>
+    </div>
+
+    @if(!$operation->item_id && $operation->items->isNotEmpty())
+        <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
+            <h3 class="card-title" style="margin-bottom: 1rem;">{{ __('dobs.legacy_operation_items') }}</h3>
             <div class="table-container">
                 <table class="custom-table">
                     <thead>
                         <tr>
-                            <th>{{ __('dobs.col_item_details') }}</th>
-                            <th>{{ __('dobs.col_category') }}</th>
-                            <th>{{ __('dobs.col_paper_size') }}</th>
-                            <th>{{ __('dobs.col_unit_price') }}</th>
+                            <th>{{ __('dobs.col_item') }}</th>
                             <th>{{ __('dobs.col_quantity') }}</th>
+                            <th>{{ __('dobs.col_unit_price') }}</th>
                             <th>{{ __('dobs.col_notes') }}</th>
-                            <th style="text-align: left;">{{ __('dobs.col_subtotal') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($operation->items as $item)
                             <tr>
-                                <td>
-                                    <div style="font-weight: 600; color: white;">{{ $item->name }}</div>
-                                    <code style="font-size: 0.75rem; color: var(--color-secondary);">{{ $item->sku }}</code>
-                                </td>
-                                <td>{{ $item->category->name ?? __('dobs.na') }}</td>
-                                <td>{{ $item->paperSize->name ?? __('dobs.na') }}</td>
-                                <td>{{ number_format($item->pivot->unit_price, 2) }} {{ __('dobs.currency') }}</td>
+                                <td>{{ $item->name }}</td>
                                 <td>{{ $item->pivot->quantity }}</td>
-                                <td style="color:var(--text-secondary); font-size:0.85rem;">{{ $item->pivot->notes ?: __('dobs.dash') }}</td>
-                                <td style="font-weight: 700; color: white; text-align: left;">
-                                    {{ number_format($item->pivot->quantity * $item->pivot->unit_price, 2) }} {{ __('dobs.currency') }}
-                                </td>
+                                <td>{{ number_format($item->pivot->unit_price, 2) }} {{ __('dobs.currency') }}</td>
+                                <td>{{ $item->pivot->notes ?: $dash }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
-
-            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem; margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border-color);">
-                <div style="display:flex; justify-content:space-between; width:250px; font-size:0.9rem; color:var(--text-secondary);">
-                    <span>{{ __('dobs.subtotal_label') }}</span>
-                    <span>{{ number_format($operation->total_amount, 2) }} {{ __('dobs.currency') }}</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; width:250px; font-size:0.9rem; color:var(--text-secondary);">
-                    <span>{{ __('dobs.tax_zero') }}</span>
-                    <span>0.00 {{ __('dobs.currency') }}</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; width:250px; font-size:1.35rem; font-weight:800; color:var(--color-success); border-top:1px solid rgba(255,255,255,0.1); padding-top:0.5rem;">
-                    <span>{{ __('dobs.grand_total') }}</span>
-                    <span>{{ number_format($operation->total_amount, 2) }} {{ __('dobs.currency') }}</span>
-                </div>
-            </div>
         </div>
+    @endif
 
-        <div style="display:flex; flex-direction:column; gap:1.5rem;">
-            <div class="glass-card">
-                <h3 class="card-title" style="margin-bottom:1.25rem;">{{ __('dobs.operation_info') }}</h3>
-
-                <div style="display:flex; flex-direction:column; gap:1.25rem;">
-                    <div>
-                        <span class="stat-label">{{ __('dobs.operation_ref') }}</span>
-                        <div style="font-size:1.15rem; font-weight:700; font-family:monospace; color:var(--color-secondary); margin-top:0.25rem;">
-                            {{ $operation->operation_number }}
-                        </div>
-                    </div>
-
-                    <div>
-                        <span class="stat-label">{{ __('dobs.col_status') }}</span>
-                        <div style="margin-top:0.35rem;">
-                            <span class="badge badge-{{ strtolower($operation->status) }}" style="font-size: 0.85rem; padding: 0.35rem 0.85rem;">
-                                {{ __('dobs.status_' . strtolower($operation->status)) }}
-                            </span>
-                        </div>
-                        @if ($operation->status === 'Completed')
-                            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.5rem;">
-                                <i class="fa-solid fa-lock"></i> {{ __('dobs.locked_completed') }}
-                            </p>
-                        @endif
-                    </div>
-
-                    <div>
-                        <span class="stat-label">{{ __('dobs.operation_date') }}</span>
-                        <div style="font-size:0.95rem; font-weight:600; margin-top:0.25rem;">
-                            {{ $operation->operation_date }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-card" style="flex:1;">
-                <h3 class="card-title" style="margin-bottom:1rem;">{{ __('dobs.work_notes') }}</h3>
-                <div style="font-size:0.9rem; color:var(--text-secondary); white-space:pre-line;">
-                    {{ $operation->notes ?: __('dobs.no_work_notes_recorded') }}
-                </div>
-            </div>
-        </div>
-    </div>
+    @if ($operation->status === 'Completed')
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:1.5rem;">
+            <i class="fa-solid fa-lock"></i> {{ __('dobs.locked_completed') }}
+        </p>
+    @endif
 </div>
 
 <style>
     @media print {
-        body {
-            background: white !important;
-            color: black !important;
-            font-size: 12pt;
-        }
-        .sidebar, .no-print, .page-subtitle {
-            display: none !important;
-        }
-        .main-content {
-            margin-right: 0 !important;
-            margin-left: 0 !important;
-            padding: 0 !important;
-        }
-        .glass-card {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            padding: 0 !important;
-        }
-        .custom-table th {
-            color: black !important;
-            border-bottom: 2px solid black !important;
-        }
-        .custom-table td {
-            color: black !important;
-            border-bottom: 1px solid #ddd !important;
-        }
-        .badge {
-            border: 1px solid black !important;
-            color: black !important;
-            background: transparent !important;
-        }
-        .page-title {
-            color: black !important;
-        }
+        body { background: white !important; color: black !important; }
+        .sidebar, .no-print, .page-subtitle { display: none !important; }
+        .main-content { margin: 0 !important; padding: 0 !important; }
+        .glass-card { background: transparent !important; border: none !important; box-shadow: none !important; }
+        .stat-label, div { color: black !important; }
+        .badge { border: 1px solid black !important; color: black !important; background: transparent !important; }
     }
 </style>
 @endsection

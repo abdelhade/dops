@@ -139,17 +139,20 @@
         <div class="sidebar-overlay" id="sidebarOverlay" hidden aria-hidden="true"></div>
 
         <main class="main-content">
-            <header class="top-header">
+            <header class="app-head">
                 <button
                     type="button"
                     class="sidebar-toggle"
                     id="sidebarToggle"
                     aria-label="{{ __('dobs.toggle_sidebar') }}"
-                    aria-expanded="false"
+                    aria-expanded="true"
                     aria-controls="appSidebar"
                 >
                     <i class="fa-solid fa-bars" aria-hidden="true"></i>
                 </button>
+            </header>
+
+            <header class="top-header">
                 <div class="top-header-text">
                     <h1 class="page-title">@yield('header_title')</h1>
                     <p class="page-subtitle">@yield('header_subtitle', __('dobs.default_subtitle'))</p>
@@ -198,24 +201,49 @@
             var overlay = document.getElementById('sidebarOverlay');
             var mq = window.matchMedia('(max-width: 992px)');
 
-            function setOpen(open) {
+            function isMobile() {
+                return mq.matches;
+            }
+
+            function setMobileOpen(open) {
                 document.body.classList.toggle('sidebar-open', open);
                 if (overlay) {
                     overlay.hidden = !open;
                     overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
                 }
-                if (toggle) {
-                    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                updateToggleAria();
+            }
+
+            function setDesktopCollapsed(collapsed) {
+                document.body.classList.toggle('sidebar-collapsed', collapsed);
+                updateToggleAria();
+            }
+
+            function updateToggleAria() {
+                if (!toggle) {
+                    return;
                 }
+                var expanded = isMobile()
+                    ? document.body.classList.contains('sidebar-open')
+                    : !document.body.classList.contains('sidebar-collapsed');
+                toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
             }
 
             function closeSidebar() {
-                setOpen(false);
+                if (isMobile()) {
+                    setMobileOpen(false);
+                } else {
+                    setDesktopCollapsed(true);
+                }
             }
 
             if (toggle) {
                 toggle.addEventListener('click', function () {
-                    setOpen(!document.body.classList.contains('sidebar-open'));
+                    if (isMobile()) {
+                        setMobileOpen(!document.body.classList.contains('sidebar-open'));
+                    } else {
+                        setDesktopCollapsed(!document.body.classList.contains('sidebar-collapsed'));
+                    }
                 });
             }
 
@@ -231,13 +259,19 @@
                 });
             });
 
-            mq.addEventListener('change', function (e) {
-                if (!e.matches) {
-                    closeSidebar();
+            mq.addEventListener('change', function () {
+                document.body.classList.remove('sidebar-open', 'sidebar-collapsed');
+                if (overlay) {
+                    overlay.hidden = true;
+                    overlay.setAttribute('aria-hidden', 'true');
                 }
+                updateToggleAria();
             });
+
+            updateToggleAria();
         })();
     </script>
+    <script src="{{ asset('js/shortcuts.js') }}"></script>
     @yield('scripts')
 </body>
 </html>
