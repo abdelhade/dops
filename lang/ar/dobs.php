@@ -370,6 +370,7 @@ return [
 
     // Materials
     'nav_materials' => 'المواد الخام',
+    'nav_raw_stock' => 'الخامات',
     'materials_title' => 'المواد الخام',
     'materials_subtitle' => 'إدارة الخامات ومواد التغليف والتجليد.',
     'new_material' => 'مادة جديدة',

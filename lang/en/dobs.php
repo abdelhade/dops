@@ -369,6 +369,7 @@ return [
 
     // Materials
     'nav_materials' => 'Materials',
+    'nav_raw_stock' => 'Raw Stock',
     'materials_title' => 'Raw Materials',
     'materials_subtitle' => 'Manage raw materials, packaging, and binding supplies.',
     'new_material' => 'New Material',

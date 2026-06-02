@@ -37,7 +37,6 @@
                 </button>
             </div>
 
-            <div class="menu-section-title">{{ __('dobs.menu_core') }}</div>
             <ul class="nav-menu">
                 <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                     <a href="{{ route('dashboard') }}">
@@ -57,6 +56,58 @@
                         <span>{{ __('dobs.nav_items') }}</span>
                     </a>
                 </li>
+                <li class="nav-item {{ request()->routeIs('clients.*') ? 'active' : '' }}">
+                    <a href="{{ route('clients.index') }}">
+                        <i class="fa-solid fa-user-tie"></i>
+                        <span>{{ __('dobs.nav_clients') }}</span>
+                    </a>
+                </li>
+                <li class="nav-item {{ request()->routeIs('categories.*') ? 'active' : '' }}">
+                    <a href="{{ route('categories.index') }}">
+                        <i class="fa-solid fa-tags"></i>
+                        <span>{{ __('dobs.nav_categories') }}</span>
+                    </a>
+                </li>
+                <li class="nav-item {{ request()->routeIs('suppliers.*') ? 'active' : '' }}">
+                    <a href="{{ route('suppliers.index') }}">
+                        <i class="fa-solid fa-truck-field"></i>
+                        <span>{{ __('dobs.nav_suppliers') }}</span>
+                    </a>
+                </li>
+                <li class="nav-item {{ request()->routeIs('materials.*') ? 'active' : '' }}">
+                    <a href="{{ route('materials.index') }}">
+                        <i class="fa-solid fa-pallet"></i>
+                        <span>{{ __('dobs.nav_materials') }}</span>
+                    </a>
+                </li>
+                <li class="nav-item {{ request()->routeIs('paper-types.*') ? 'active' : '' }}">
+                    <a href="{{ route('paper-types.index') }}">
+                        <i class="fa-solid fa-scroll"></i>
+                        <span>{{ __('dobs.nav_raw_stock') }}</span>
+                    </a>
+                </li>
+                <li class="nav-item {{ request()->routeIs('stages.*') ? 'active' : '' }}">
+                    <a href="{{ route('stages.index') }}">
+                        <i class="fa-solid fa-bars-progress"></i>
+                        <span>{{ __('dobs.nav_stages') }}</span>
+                    </a>
+                </li>
+                <li class="nav-item {{ request()->routeIs('activities.*') ? 'active' : '' }}">
+                    <a href="{{ route('activities.index') }}">
+                        <i class="fa-solid fa-list-check"></i>
+                        <span>{{ __('dobs.nav_activities') }}</span>
+                    </a>
+                </li>
+                @auth
+                    @if (auth()->user()->canManageUsers())
+                        <li class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                            <a href="{{ route('users.index') }}">
+                                <i class="fa-solid fa-users-gear"></i>
+                                <span>{{ __('dobs.nav_users') }}</span>
+                            </a>
+                        </li>
+                    @endif
+                @endauth
             </ul>
 
             <div class="sidebar-footer">
