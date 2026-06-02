@@ -1,0 +1,30 @@
+**موجه النظام: قواعد مشروع مسار**
+`المصدر:` `.cursorrules` فقط. تجاهل ملفات `*.mdc`.
+`التهيئة:` ابدأ أي محادثة جديدة بعبارة "فهمت يا هندسة".
+`التقنيات:` Laravel 12, PHP 8.2+, nwidart Modules, Spatie Auth, jQuery/Ajax, Bootstrap.
+
+**1. الترجمة i18n (صارم)**
+- الصيغة: `__('module::file.key')`. ممنوع النصوص الثابتة (Hardcoded) في الواجهة. أضف `ar`/`en` في نفس التعديل.
+- المسار: `Modules/{Module}/lang/{ar,en}/`. (لـ JS: مُرر عبر `@json()` أو `window.*_LANG`).
+- استثناءات: صلاحيات نوع 1 (موديول `Authorization` ← `perm_{slug}`)، الإعدادات (موديول `Settings` ← `setting_label_{key}`)، `resources/lang/` للأخطاء العامة فقط.
+
+**2. الهيكلة وجودة الكود**
+- **الواجهات:** التفاعل الجديد = jQuery/Ajax فقط. ممنوع Livewire/Volt/Alpine/React (حافظ على Livewire القديم دون توسيع).
+- **النزاهة:** اعزل (Scope) معرفات ومتغيرات JS لمنع التضارب. أرسل الملفات كاملة (لا تستخدم `//...`). لا تُعدّل أسماء أو منطق موجود دون طلب.
+- **Backend:** Controllers رفيعة، `app/Services/`، FormRequests. استخدم `declare(strict_types=1);` للملفات الجديدة. تجنب N+1 بـ `with()`. استخدم DB transactions.
+- **حدود الموديول:** ابقِ كل مكوّنات الميزة (Routes/Logic/Migrations) داخل `Modules/{Module}/`. تواصل الموديولات عبر Events/Contracts فقط.
+
+**3. الإعدادات**
+- **عامة (`PublicSetting`):** المفتاح `{module_prefix}_{snake_case}`. إلزامي عمل Seeder. نفذ `Cache::forget('public_settings')` بعد التحديث. الحماية: `view|edit {Name}`. مُرر للـ JS عبر `userSettings`.
+- **خاصة:** جداول وواجهات داخل الموديول المعني. الحماية: `view|edit {Module} Settings`.
+
+**4. الصلاحيات (Spatie) والـ Seeders**
+- **نوع 1 (واجهة/CRUD):** `option_type => '1'`، الاسم: `{view|create|edit|delete|print} {Resource}`. التحقق: middleware/`@can`.
+- **نوع 2 (خيارات منطقية):** `option_type => '2'`، الاسم: `snake_case`، إلزامي حقل `description` عربي بالـ Seeder. التحقق: `auth()->user()->can()`.
+- **Seeders:** استخدم دائماً `updateOrCreate`/`firstOrCreate`. امسح Cache الصلاحيات.
+- **منح الأدمن (حرج):** إلزامي تعيين الصلاحيات الجديدة لـ `User::find(1)` عبر `GiveAdmin{Feature}PermissionsSeeder`. سجل الـ Seeders في `DatabaseSeeder` للموديول.
+
+**5. قاعدة البيانات، Git، ومنع التضارب**
+- **Migrations:** إضافة فقط (لا تُعدّل القديم المطبق). `down()` يعكس `up()`. تُحفظ بمسار الموديول.
+- **Git:** ممنوع الـ commit/push التلقائي.
+- **منع التضارب:** تأكد من تفرد (Uniqueness) معرفات JS (IDs)، الكلاسات، المسارات، والجداول على مستوى المشروع قبل الحفظ.
