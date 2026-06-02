@@ -248,6 +248,8 @@ class OperationController extends Controller
         try {
             DB::beginTransaction();
 
+            $this->logOperation($operation, OperationLog::ACTION_DELETED);
+
             $operation->items()->detach();
             $operation->delete();
 
@@ -370,6 +372,7 @@ class OperationController extends Controller
     {
         OperationLog::create([
             'operation_id' => $operation->id,
+            'operation_number' => $operation->operation_number,
             'user_id' => auth()->id(),
             'action' => $action,
             'changes' => $changes !== [] ? $changes : null,

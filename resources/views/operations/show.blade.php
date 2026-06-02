@@ -142,11 +142,12 @@
     @endif
 </div>
 
-@if ($operation->logs->isNotEmpty())
-    <div class="glass-card operation-timeline-card no-print" style="max-width: 900px; margin: 1.5rem auto 0;">
-        <h3 class="card-title" style="margin-bottom: 1.25rem;">
-            <i class="fa-solid fa-clock-rotate-left"></i> {{ __('dobs.operation_history') }}
-        </h3>
+<div class="glass-card operation-timeline-card no-print" style="max-width: 900px; margin: 1.5rem auto 0;">
+    <h3 class="card-title" style="margin-bottom: 1.25rem;">
+        <i class="fa-solid fa-clock-rotate-left"></i> {{ __('dobs.operation_history') }}
+    </h3>
+
+    @if ($operation->logs->isNotEmpty())
         <ul class="operation-timeline">
             @foreach ($operation->logs as $log)
                 <li class="operation-timeline-item">
@@ -171,8 +172,10 @@
                 </li>
             @endforeach
         </ul>
-    </div>
-@endif
+    @else
+        <p class="operation-history-empty">{{ __('dobs.operation_history_empty') }}</p>
+    @endif
+</div>
 
 <style>
     @media print {

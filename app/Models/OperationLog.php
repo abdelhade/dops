@@ -13,8 +13,11 @@ class OperationLog extends Model
 
     public const ACTION_STATUS_CHANGED = 'status_changed';
 
+    public const ACTION_DELETED = 'deleted';
+
     protected $fillable = [
         'operation_id',
+        'operation_number',
         'user_id',
         'action',
         'changes',
@@ -42,6 +45,7 @@ class OperationLog extends Model
         return match ($this->action) {
             self::ACTION_CREATED => __('dobs.log_action_created'),
             self::ACTION_STATUS_CHANGED => __('dobs.log_action_status_changed'),
+            self::ACTION_DELETED => __('dobs.log_action_deleted'),
             default => __('dobs.log_action_updated'),
         };
     }
@@ -53,6 +57,12 @@ class OperationLog extends Model
     {
         if ($this->action === self::ACTION_CREATED) {
             return [__('dobs.log_operation_registered')];
+        }
+
+        if ($this->action === self::ACTION_DELETED) {
+            $number = $this->operation_number ?? __('dobs.dash');
+
+            return [__('dobs.log_operation_deleted_detail', ['number' => $number])];
         }
 
         $lines = [];
