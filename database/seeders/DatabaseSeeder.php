@@ -206,5 +206,7 @@ class DatabaseSeeder extends Seeder
             $total2 += $oItem['quantity'] * $oItem['unit_price'];
         }
         $op2->update(['total_amount' => $total2]);
+
+        $this->call(NewEntitiesSeeder::class);
     }
 }

@@ -44,6 +44,12 @@
 
             <div class="menu-section-title">{{ __('dobs.menu_relationships') }}</div>
             <ul class="nav-menu">
+                <li class="nav-item {{ request()->routeIs('clients.*') ? 'active' : '' }}">
+                    <a href="{{ route('clients.index') }}">
+                        <i class="fa-solid fa-user-tie"></i>
+                        <span>{{ __('dobs.nav_clients') }}</span>
+                    </a>
+                </li>
                 <li class="nav-item {{ request()->routeIs('categories.*') ? 'active' : '' }}">
                     <a href="{{ route('categories.index') }}">
                         <i class="fa-solid fa-tags"></i>
@@ -56,10 +62,43 @@
                         <span>{{ __('dobs.nav_suppliers') }}</span>
                     </a>
                 </li>
-                <li class="nav-item {{ request()->routeIs('paper-sizes.*') ? 'active' : '' }}">
-                    <a href="{{ route('paper-sizes.index') }}">
-                        <i class="fa-solid fa-maximize"></i>
-                        <span>{{ __('dobs.nav_paper_sizes') }}</span>
+          
+            </ul>
+
+            <div class="menu-section-title">{{ __('dobs.menu_production') }}</div>
+            <ul class="nav-menu">
+                <li class="nav-item {{ request()->routeIs('materials.*') ? 'active' : '' }}">
+                    <a href="{{ route('materials.index') }}">
+                        <i class="fa-solid fa-pallet"></i>
+                        <span>{{ __('dobs.nav_materials') }}</span>
+                    </a>
+                </li>
+                <li class="nav-item {{ request()->routeIs('paper-types.*') ? 'active' : '' }}">
+                    <a href="{{ route('paper-types.index') }}">
+                        <i class="fa-solid fa-scroll"></i>
+                        <span>{{ __('dobs.nav_paper_types') }}</span>
+                    </a>
+                </li>
+                <li class="nav-item {{ request()->routeIs('services.*') ? 'active' : '' }}">
+                    <a href="{{ route('services.index') }}">
+                        <i class="fa-solid fa-bell-concierge"></i>
+                        <span>{{ __('dobs.nav_services') }}</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="menu-section-title">{{ __('dobs.menu_workflow') }}</div>
+            <ul class="nav-menu">
+                <li class="nav-item {{ request()->routeIs('stages.*') ? 'active' : '' }}">
+                    <a href="{{ route('stages.index') }}">
+                        <i class="fa-solid fa-bars-progress"></i>
+                        <span>{{ __('dobs.nav_stages') }}</span>
+                    </a>
+                </li>
+                <li class="nav-item {{ request()->routeIs('activities.*') ? 'active' : '' }}">
+                    <a href="{{ route('activities.index') }}">
+                        <i class="fa-solid fa-list-check"></i>
+                        <span>{{ __('dobs.nav_activities') }}</span>
                     </a>
                 </li>
             </ul>

@@ -8,6 +8,12 @@ use App\Http\Controllers\OperationController;
 use App\Http\Controllers\PaperSizeController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\PaperTypeController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\StageController;
+use App\Http\Controllers\ActivityController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -25,6 +31,12 @@ Route::middleware('auth')->group(function () {
     Route::resource('paper-sizes', PaperSizeController::class);
     Route::resource('items', ItemController::class);
     Route::resource('operations', OperationController::class);
+    Route::resource('clients', ClientController::class);
+    Route::resource('materials', MaterialController::class);
+    Route::resource('paper-types', PaperTypeController::class);
+    Route::resource('services', ServiceController::class);
+    Route::resource('stages', StageController::class);
+    Route::resource('activities', ActivityController::class);
 
     Route::middleware('role:admin')->group(function () {
         Route::resource('users', UserController::class)->except(['show']);
