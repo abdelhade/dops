@@ -736,6 +736,64 @@ body {
     margin-top: 0.2rem;
 }
 
+.operation-change-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.operation-change-row + .operation-change-row {
+    margin-top: 0.5rem;
+}
+
+.operation-change-field {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+.operation-change-values {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    font-size: 0.88rem;
+}
+
+.operation-change-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-inline-end: 0.35rem;
+}
+
+.operation-change-value {
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-sm);
+}
+
+.operation-change-value--from {
+    color: #fca5a5;
+    background: rgba(239, 68, 68, 0.12);
+    text-decoration: line-through;
+    text-decoration-color: rgba(239, 68, 68, 0.45);
+}
+
+.operation-change-value--to {
+    color: #6ee7b7;
+    background: rgba(16, 185, 129, 0.12);
+}
+
+.operation-change-arrow {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
 .operation-history-empty {
     margin: 0;
     color: var(--text-muted);

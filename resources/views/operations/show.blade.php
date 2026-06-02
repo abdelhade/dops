@@ -163,11 +163,32 @@
                             </span>
                         </div>
                         <div class="operation-timeline-action">{{ $log->actionLabel() }}</div>
-                        <ul class="operation-timeline-changes">
-                            @foreach ($log->changeLines() as $line)
-                                <li>{{ $line }}</li>
-                            @endforeach
-                        </ul>
+                        @if ($log->changeEntries() !== [])
+                            <ul class="operation-timeline-changes">
+                                @foreach ($log->changeEntries() as $entry)
+                                    <li class="operation-change-row">
+                                        <span class="operation-change-field">{{ $entry['field'] }}</span>
+                                        <span class="operation-change-values">
+                                            <span class="operation-change-was">
+                                                <span class="operation-change-label">{{ __('dobs.log_was') }}</span>
+                                                <span class="operation-change-value operation-change-value--from">{{ $entry['from'] }}</span>
+                                            </span>
+                                            <i class="fa-solid fa-arrow-left-long operation-change-arrow" aria-hidden="true"></i>
+                                            <span class="operation-change-now">
+                                                <span class="operation-change-label">{{ __('dobs.log_now') }}</span>
+                                                <span class="operation-change-value operation-change-value--to">{{ $entry['to'] }}</span>
+                                            </span>
+                                        </span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <ul class="operation-timeline-changes">
+                                @foreach ($log->changeLines() as $line)
+                                    <li>{{ $line }}</li>
+                                @endforeach
+                            </ul>
+                        @endif
                     </div>
                 </li>
             @endforeach

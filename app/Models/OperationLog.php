@@ -51,6 +51,32 @@ class OperationLog extends Model
     }
 
     /**
+     * @return list<array{field: string, from: string, to: string}>
+     */
+    public function changeEntries(): array
+    {
+        if (! in_array($this->action, [self::ACTION_UPDATED, self::ACTION_STATUS_CHANGED], true)) {
+            return [];
+        }
+
+        $entries = [];
+
+        foreach ($this->loggedChanges() as $field => $pair) {
+            if (! is_array($pair) || ! array_key_exists('from', $pair) || ! array_key_exists('to', $pair)) {
+                continue;
+            }
+
+            $entries[] = [
+                'field' => __('dobs.log_field_'.$field),
+                'from' => $this->formatValue($field, $pair['from']),
+                'to' => $this->formatValue($field, $pair['to']),
+            ];
+        }
+
+        return $entries;
+    }
+
+    /**
      * @return list<string>
      */
     public function changeLines(): array
@@ -66,25 +92,26 @@ class OperationLog extends Model
         }
 
         $lines = [];
-        $changes = $this->changes ?? [];
 
-        foreach ($changes as $field => $pair) {
-            if (! is_array($pair) || ! array_key_exists('from', $pair) || ! array_key_exists('to', $pair)) {
-                continue;
-            }
-
-            $label = __('dobs.log_field_'.$field);
-            $from = $this->formatValue($field, $pair['from']);
-            $to = $this->formatValue($field, $pair['to']);
-
+        foreach ($this->changeEntries() as $entry) {
             $lines[] = __('dobs.log_change_line', [
-                'field' => $label,
-                'from' => $from,
-                'to' => $to,
+                'field' => $entry['field'],
+                'from' => $entry['from'],
+                'to' => $entry['to'],
             ]);
         }
 
         return $lines !== [] ? $lines : [__('dobs.log_no_field_details')];
+    }
+
+    /**
+     * @return array<string, array{from: mixed, to: mixed}>
+     */
+    private function loggedChanges(): array
+    {
+        $changes = $this->getAttribute('changes');
+
+        return is_array($changes) ? $changes : [];
     }
 
     private function formatValue(string $field, mixed $value): string
