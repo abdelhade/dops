@@ -6,9 +6,11 @@
 @section('header_subtitle', __('dobs.categories_subtitle'))
 
 @section('header_actions')
-<a href="{{ route('categories.create') }}" class="btn btn-primary">
-    <i class="fa-solid fa-plus"></i> {{ __('dobs.new_category') }}
-</a>
+    @if (auth()->user()?->canCreateRecords())
+        <a href="{{ route('categories.create') }}" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> {{ __('dobs.new_category') }}
+        </a>
+    @endif
 @endsection
 
 @section('content')
@@ -38,21 +40,12 @@
                             <span class="badge badge-secondary">{{ __('dobs.items_count', ['count' => $category->items_count]) }}</span>
                         </td>
                         <td>
-                            <div class="actions-cell">
-                                <a href="{{ route('categories.show', $category->id) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.view') }}">
-                                    <i class="fa-solid fa-eye"></i>
-                                </a>
-                                <a href="{{ route('categories.edit', $category->id) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.edit') }}">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </a>
-                                <form action="{{ route('categories.destroy', $category->id) }}" method="POST" onsubmit="return confirm(@json(__('dobs.confirm_delete_category')));" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm" title="{{ __('dobs.delete') }}">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
+                            @include('partials.crud-actions', [
+                                'showRoute' => route('categories.show', $category->id),
+                                'editRoute' => route('categories.edit', $category->id),
+                                'destroyRoute' => route('categories.destroy', $category->id),
+                                'confirmMessage' => __('dobs.confirm_delete_category'),
+                            ])
                         </td>
                     </tr>
                 @empty

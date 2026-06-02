@@ -21,6 +21,8 @@ class PaperSizeController extends Controller
      */
     public function create()
     {
+        $this->authorizeCreate();
+
         return view('paper_sizes.create');
     }
 
@@ -29,6 +31,8 @@ class PaperSizeController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorizeCreate();
+
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:paper_sizes,name',
             'width' => 'nullable|numeric|min:0',
@@ -54,6 +58,8 @@ class PaperSizeController extends Controller
      */
     public function edit(PaperSize $paperSize)
     {
+        $this->authorizeEdit();
+
         return view('paper_sizes.edit', compact('paperSize'));
     }
 
@@ -62,6 +68,8 @@ class PaperSizeController extends Controller
      */
     public function update(Request $request, PaperSize $paperSize)
     {
+        $this->authorizeEdit();
+
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:paper_sizes,name,' . $paperSize->id,
             'width' => 'nullable|numeric|min:0',
@@ -78,6 +86,8 @@ class PaperSizeController extends Controller
      */
     public function destroy(PaperSize $paperSize)
     {
+        $this->authorizeDelete();
+
         $paperSize->delete();
         return redirect()->route('paper-sizes.index')->with('success', __('dobs.flash_paper_size_deleted'));
     }

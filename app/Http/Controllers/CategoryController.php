@@ -21,6 +21,8 @@ class CategoryController extends Controller
      */
     public function create()
     {
+        $this->authorizeCreate();
+
         return view('categories.create');
     }
 
@@ -29,6 +31,8 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorizeCreate();
+
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
             'description' => 'nullable|string',
@@ -53,6 +57,8 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
+        $this->authorizeEdit();
+
         return view('categories.edit', compact('category'));
     }
 
@@ -61,6 +67,8 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
+        $this->authorizeEdit();
+
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
             'description' => 'nullable|string',
@@ -76,6 +84,8 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
+        $this->authorizeDelete();
+
         $category->delete();
         return redirect()->route('categories.index')->with('success', __('dobs.flash_category_deleted'));
     }

@@ -6,9 +6,11 @@
 @section('header_subtitle', __('dobs.operations_subtitle'))
 
 @section('header_actions')
-<a href="{{ route('operations.create') }}" class="btn btn-primary">
-    <i class="fa-solid fa-plus"></i> {{ __('dobs.new_operation') }}
-</a>
+    @if (auth()->user()?->canCreateRecords())
+        <a href="{{ route('operations.create') }}" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> {{ __('dobs.new_operation') }}
+        </a>
+    @endif
 @endsection
 
 @section('content')
@@ -50,18 +52,20 @@
                                 <a href="{{ route('operations.show', $op->id) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.invoice_view') }}">
                                     <i class="fa-solid fa-file-invoice-dollar"></i>
                                 </a>
-                                @if ($op->status !== 'Completed')
+                                @if ($op->status !== 'Completed' && auth()->user()?->canEditRecords())
                                     <a href="{{ route('operations.edit', $op->id) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.edit') }}">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
                                 @endif
-                                <form action="{{ route('operations.destroy', $op->id) }}" method="POST" onsubmit="return confirm(@json(__('dobs.confirm_delete_operation')));" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm" title="{{ __('dobs.delete') }}">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </form>
+                                @if (auth()->user()?->canDeleteRecords())
+                                    <form action="{{ route('operations.destroy', $op->id) }}" method="POST" onsubmit="return confirm(@json(__('dobs.confirm_delete_operation')));" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm" title="{{ __('dobs.delete') }}">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </td>
                     </tr>

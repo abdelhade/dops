@@ -10,9 +10,11 @@
     <a href="{{ route('paper-sizes.index') }}" class="btn btn-secondary">
         <i class="fa-solid fa-arrow-right"></i> {{ __('dobs.back') }}
     </a>
-    <a href="{{ route('paper-sizes.edit', $paperSize->id) }}" class="btn btn-primary">
-        <i class="fa-solid fa-pen-to-square"></i> {{ __('dobs.edit') }}
-    </a>
+    @if (auth()->user()?->canEditRecords())
+        <a href="{{ route('paper-sizes.edit', $paperSize->id) }}" class="btn btn-primary">
+            <i class="fa-solid fa-pen-to-square"></i> {{ __('dobs.edit') }}
+        </a>
+    @endif
 </div>
 @endsection
 

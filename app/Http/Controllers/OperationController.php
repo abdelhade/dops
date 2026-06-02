@@ -23,6 +23,8 @@ class OperationController extends Controller
      */
     public function create()
     {
+        $this->authorizeCreate();
+
         $items = Item::orderBy('name')->get();
         
         // Auto-generate operation number: OP-YYYYMMDD-RAND
@@ -36,6 +38,8 @@ class OperationController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorizeCreate();
+
         $validated = $request->validate([
             'operation_number' => 'required|string|max:100|unique:operations,operation_number',
             'operation_date' => 'required|date',
@@ -103,6 +107,8 @@ class OperationController extends Controller
      */
     public function edit(Operation $operation)
     {
+        $this->authorizeEdit();
+
         if ($operation->status === 'Completed') {
             return redirect()->route('operations.index')
                 ->with('error', __('dobs.flash_operation_completed_locked'));
@@ -119,6 +125,8 @@ class OperationController extends Controller
      */
     public function update(Request $request, Operation $operation)
     {
+        $this->authorizeEdit();
+
         if ($operation->status === 'Completed') {
             return redirect()->route('operations.index')
                 ->with('error', __('dobs.flash_operation_completed_locked'));
@@ -185,6 +193,8 @@ class OperationController extends Controller
      */
     public function destroy(Operation $operation)
     {
+        $this->authorizeDelete();
+
         try {
             DB::beginTransaction();
             

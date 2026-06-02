@@ -24,6 +24,8 @@ class ItemController extends Controller
      */
     public function create()
     {
+        $this->authorizeCreate();
+
         $categories = Category::orderBy('name')->get();
         $suppliers = Supplier::orderBy('name')->get();
         $paperSizes = PaperSize::orderBy('name')->get();
@@ -36,6 +38,8 @@ class ItemController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorizeCreate();
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'sku' => 'nullable|string|max:100|unique:items,sku',
@@ -71,6 +75,8 @@ class ItemController extends Controller
      */
     public function edit(Item $item)
     {
+        $this->authorizeEdit();
+
         $categories = Category::orderBy('name')->get();
         $suppliers = Supplier::orderBy('name')->get();
         $paperSizes = PaperSize::orderBy('name')->get();
@@ -83,6 +89,8 @@ class ItemController extends Controller
      */
     public function update(Request $request, Item $item)
     {
+        $this->authorizeEdit();
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'sku' => 'nullable|string|max:100|unique:items,sku,' . $item->id,
@@ -108,6 +116,8 @@ class ItemController extends Controller
      */
     public function destroy(Item $item)
     {
+        $this->authorizeDelete();
+
         $item->delete();
         return redirect()->route('items.index')->with('success', __('dobs.flash_item_deleted'));
     }

@@ -6,9 +6,11 @@
 @section('header_subtitle', __('dobs.suppliers_subtitle'))
 
 @section('header_actions')
-<a href="{{ route('suppliers.create') }}" class="btn btn-primary">
-    <i class="fa-solid fa-plus"></i> {{ __('dobs.new_supplier') }}
-</a>
+    @if (auth()->user()?->canCreateRecords())
+        <a href="{{ route('suppliers.create') }}" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> {{ __('dobs.new_supplier') }}
+        </a>
+    @endif
 @endsection
 
 @section('content')
@@ -38,21 +40,12 @@
                         <td>{{ $supplier->phone ?? __('dobs.na') }}</td>
                         <td style="color: var(--text-secondary);">{{ $supplier->address ?? __('dobs.na') }}</td>
                         <td>
-                            <div class="actions-cell">
-                                <a href="{{ route('suppliers.show', $supplier->id) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.view') }}">
-                                    <i class="fa-solid fa-eye"></i>
-                                </a>
-                                <a href="{{ route('suppliers.edit', $supplier->id) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.edit') }}">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </a>
-                                <form action="{{ route('suppliers.destroy', $supplier->id) }}" method="POST" onsubmit="return confirm(@json(__('dobs.confirm_delete_supplier')));" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm" title="{{ __('dobs.delete') }}">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
+                            @include('partials.crud-actions', [
+                                'showRoute' => route('suppliers.show', $supplier->id),
+                                'editRoute' => route('suppliers.edit', $supplier->id),
+                                'destroyRoute' => route('suppliers.destroy', $supplier->id),
+                                'confirmMessage' => __('dobs.confirm_delete_supplier'),
+                            ])
                         </td>
                     </tr>
                 @empty

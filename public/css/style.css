@@ -719,6 +719,82 @@ html[dir="rtl"] .actions-cell {
     margin-top: 2rem;
 }
 
+/* Guest / Login */
+.guest-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1.5rem;
+}
+
+.guest-wrapper {
+    width: 100%;
+    max-width: 440px;
+}
+
+.login-card {
+    padding: 2rem;
+}
+
+.login-brand {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-brand h1 {
+    font-size: 1.5rem;
+    margin-top: 1rem;
+}
+
+.login-brand p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-top: 0.35rem;
+}
+
+.login-form .form-group {
+    margin-bottom: 1.25rem;
+}
+
+.remember-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.btn-block-logout {
+    width: 100%;
+    margin-top: 0.75rem;
+    justify-content: center;
+}
+
+.logout-form {
+    margin-top: 0.5rem;
+}
+
+.badge-role-admin {
+    background: rgba(139, 92, 246, 0.25);
+    color: #c4b5fd;
+    border: 1px solid rgba(139, 92, 246, 0.4);
+}
+
+.badge-role-manager {
+    background: rgba(6, 182, 212, 0.2);
+    color: #67e8f9;
+    border: 1px solid rgba(6, 182, 212, 0.35);
+}
+
+.badge-role-data_entry {
+    background: rgba(16, 185, 129, 0.2);
+    color: #6ee7b7;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
 html[dir="rtl"] th[style*="text-align: right"],
 html[dir="rtl"] td[style*="text-align: right"] {
     text-align: left !important;

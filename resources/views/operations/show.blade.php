@@ -15,7 +15,7 @@
         <i class="fa-solid fa-print"></i> {{ __('dobs.print_invoice') }}
     </button>
 
-    @if ($operation->status !== 'Completed')
+    @if ($operation->status !== 'Completed' && auth()->user()?->canEditRecords())
         <a href="{{ route('operations.edit', $operation->id) }}" class="btn btn-primary">
             <i class="fa-solid fa-pen-to-square"></i> {{ __('dobs.edit_operation') }}
         </a>

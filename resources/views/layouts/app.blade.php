@@ -64,14 +64,36 @@
                 </li>
             </ul>
 
+            @auth
+                @if (auth()->user()->canManageUsers())
+                    <div class="menu-section-title">{{ __('dobs.menu_admin') }}</div>
+                    <ul class="nav-menu">
+                        <li class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                            <a href="{{ route('users.index') }}">
+                                <i class="fa-solid fa-users-gear"></i>
+                                <span>{{ __('dobs.nav_users') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                @endif
+            @endauth
+
             <div class="sidebar-footer">
-                <div class="user-profile">
-                    <div class="avatar">AD</div>
-                    <div class="user-info">
-                        <span class="user-name">{{ __('dobs.user_name') }}</span>
-                        <span class="user-role">{{ __('dobs.user_role') }}</span>
+                @auth
+                    <div class="user-profile">
+                        <div class="avatar">{{ auth()->user()->initials() }}</div>
+                        <div class="user-info">
+                            <span class="user-name">{{ auth()->user()->name }}</span>
+                            <span class="user-role">{{ auth()->user()->roleLabel() }}</span>
+                        </div>
                     </div>
-                </div>
+                    <form action="{{ route('logout') }}" method="POST" class="logout-form">
+                        @csrf
+                        <button type="submit" class="btn btn-secondary btn-sm btn-block-logout">
+                            <i class="fa-solid fa-right-from-bracket"></i> {{ __('dobs.logout') }}
+                        </button>
+                    </form>
+                @endauth
             </div>
         </aside>
 

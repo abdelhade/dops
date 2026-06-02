@@ -21,6 +21,8 @@ class SupplierController extends Controller
      */
     public function create()
     {
+        $this->authorizeCreate();
+
         return view('suppliers.create');
     }
 
@@ -29,6 +31,8 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorizeCreate();
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255',
@@ -55,6 +59,8 @@ class SupplierController extends Controller
      */
     public function edit(Supplier $supplier)
     {
+        $this->authorizeEdit();
+
         return view('suppliers.edit', compact('supplier'));
     }
 
@@ -63,6 +69,8 @@ class SupplierController extends Controller
      */
     public function update(Request $request, Supplier $supplier)
     {
+        $this->authorizeEdit();
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255',
@@ -80,6 +88,8 @@ class SupplierController extends Controller
      */
     public function destroy(Supplier $supplier)
     {
+        $this->authorizeDelete();
+
         $supplier->delete();
         return redirect()->route('suppliers.index')->with('success', __('dobs.flash_supplier_deleted'));
     }

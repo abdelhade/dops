@@ -16,6 +16,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(AdminUserSeeder::class);
+
         // 1. Create categories
         $categories = [
             ['name' => 'Coated Paper', 'description' => 'Glossy or matte coated paper for premium printing.'],

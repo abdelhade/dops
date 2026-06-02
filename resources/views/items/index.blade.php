@@ -6,9 +6,11 @@
 @section('header_subtitle', __('dobs.items_subtitle'))
 
 @section('header_actions')
-<a href="{{ route('items.create') }}" class="btn btn-primary">
-    <i class="fa-solid fa-plus"></i> {{ __('dobs.new_item') }}
-</a>
+    @if (auth()->user()?->canCreateRecords())
+        <a href="{{ route('items.create') }}" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> {{ __('dobs.new_item') }}
+        </a>
+    @endif
 @endsection
 
 @section('content')
@@ -74,21 +76,12 @@
                             @endif
                         </td>
                         <td>
-                            <div class="actions-cell">
-                                <a href="{{ route('items.show', $item->id) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.view') }}">
-                                    <i class="fa-solid fa-eye"></i>
-                                </a>
-                                <a href="{{ route('items.edit', $item->id) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.edit') }}">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </a>
-                                <form action="{{ route('items.destroy', $item->id) }}" method="POST" onsubmit="return confirm(@json(__('dobs.confirm_delete_item')));" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm" title="{{ __('dobs.delete') }}">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
+                            @include('partials.crud-actions', [
+                                'showRoute' => route('items.show', $item->id),
+                                'editRoute' => route('items.edit', $item->id),
+                                'destroyRoute' => route('items.destroy', $item->id),
+                                'confirmMessage' => __('dobs.confirm_delete_item'),
+                            ])
                         </td>
                     </tr>
                 @empty
