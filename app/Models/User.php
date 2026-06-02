@@ -74,11 +74,13 @@ class User extends Authenticatable
         return in_array($this->role, [self::ROLE_ADMIN, self::ROLE_MANAGER, self::ROLE_DATA_ENTRY], true);
     }
 
+    /** Admin and manager only; data entry cannot edit. */
     public function canEditRecords(): bool
     {
         return in_array($this->role, [self::ROLE_ADMIN, self::ROLE_MANAGER], true);
     }
 
+    /** Admin only; manager and data entry cannot delete. */
     public function canDeleteRecords(): bool
     {
         return $this->isAdmin();

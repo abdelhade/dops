@@ -12,6 +12,8 @@
 @endsection
 
 @section('content')
+@include('partials.role-permissions-hint')
+
 <div class="glass-card" style="max-width: 600px; margin: 0 auto;">
     <form action="{{ route('users.store') }}" method="POST">
         @csrf
