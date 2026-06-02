@@ -4,6 +4,7 @@ return [
     'app_name' => 'دوبس للطباعة',
     'app_tagline' => 'إدارة الطباعة والمخزون',
     'default_subtitle' => 'إدارة السجلات وسير العمل.',
+    'toggle_sidebar' => 'فتح وإغلاق القائمة',
 
     'nav_dashboard' => 'لوحة التحكم',
     'nav_operations' => 'العمليات',

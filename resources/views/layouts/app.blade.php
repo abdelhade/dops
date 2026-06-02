@@ -14,7 +14,7 @@
 </head>
 <body>
     <div class="app-container">
-        <aside class="sidebar">
+        <aside class="sidebar" id="appSidebar">
             <div class="brand">
                 <div class="brand-icon">D</div>
                 <span class="brand-name">{{ __('dobs.app_name') }}</span>
@@ -136,9 +136,21 @@
             </div>
         </aside>
 
+        <div class="sidebar-overlay" id="sidebarOverlay" hidden aria-hidden="true"></div>
+
         <main class="main-content">
             <header class="top-header">
-                <div>
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    id="sidebarToggle"
+                    aria-label="{{ __('dobs.toggle_sidebar') }}"
+                    aria-expanded="false"
+                    aria-controls="appSidebar"
+                >
+                    <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                </button>
+                <div class="top-header-text">
                     <h1 class="page-title">@yield('header_title')</h1>
                     <p class="page-subtitle">@yield('header_subtitle', __('dobs.default_subtitle'))</p>
                 </div>
@@ -180,6 +192,52 @@
         </main>
     </div>
 
+    <script>
+        (function () {
+            var toggle = document.getElementById('sidebarToggle');
+            var overlay = document.getElementById('sidebarOverlay');
+            var mq = window.matchMedia('(max-width: 992px)');
+
+            function setOpen(open) {
+                document.body.classList.toggle('sidebar-open', open);
+                if (overlay) {
+                    overlay.hidden = !open;
+                    overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+                }
+                if (toggle) {
+                    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                }
+            }
+
+            function closeSidebar() {
+                setOpen(false);
+            }
+
+            if (toggle) {
+                toggle.addEventListener('click', function () {
+                    setOpen(!document.body.classList.contains('sidebar-open'));
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', closeSidebar);
+            }
+
+            document.querySelectorAll('.sidebar .nav-item a').forEach(function (link) {
+                link.addEventListener('click', function () {
+                    if (mq.matches) {
+                        closeSidebar();
+                    }
+                });
+            });
+
+            mq.addEventListener('change', function (e) {
+                if (!e.matches) {
+                    closeSidebar();
+                }
+            });
+        })();
+    </script>
     @yield('scripts')
 </body>
 </html>

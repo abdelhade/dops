@@ -4,6 +4,7 @@ return [
     'app_name' => 'Dobs Print',
     'app_tagline' => 'Printing & Inventory Management',
     'default_subtitle' => 'Manage records and workflows.',
+    'toggle_sidebar' => 'Toggle navigation menu',
 
     'nav_dashboard' => 'Dashboard',
     'nav_operations' => 'Operations',
