@@ -12,7 +12,7 @@
 @endsection
 
 @section('content')
-<div class="glass-card" style="max-width: 900px; margin: 0 auto;">
+<div class="glass-card operation-form-card">
     <form action="{{ route('operations.store') }}" method="POST" id="operation-form">
         @csrf
 
@@ -29,6 +29,7 @@
 @endsection
 
 @section('scripts')
+<script src="{{ asset('js/operation-form.js') }}?v={{ @filemtime(public_path('js/operation-form.js')) ?: 1 }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         if (@json(!isset($operation))) {
@@ -38,7 +39,7 @@
             const display = document.getElementById('operation_time_display');
             const hidden = document.getElementById('operation_time');
             if (display && hidden) {
-                display.value = timeStr;
+                display.textContent = timeStr;
                 hidden.value = timeStr;
             }
         }

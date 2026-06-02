@@ -5,6 +5,8 @@ return [
     'app_tagline' => 'Printing & Inventory Management',
     'default_subtitle' => 'Manage records and workflows.',
     'toggle_sidebar' => 'Toggle navigation menu',
+    'toggle_theme_monokai' => 'Switch to White Monokai theme',
+    'toggle_theme_dark' => 'Switch to dark theme',
 
     'nav_dashboard' => 'Dashboard',
     'nav_operations' => 'Operations',

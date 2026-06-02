@@ -5,6 +5,8 @@ return [
     'app_tagline' => 'إدارة الطباعة والمخزون',
     'default_subtitle' => 'إدارة السجلات وسير العمل.',
     'toggle_sidebar' => 'فتح وإغلاق القائمة',
+    'toggle_theme_monokai' => 'التبديل إلى ثيم White Monokai',
+    'toggle_theme_dark' => 'التبديل إلى الوضع الداكن',
 
     'nav_dashboard' => 'لوحة التحكم',
     'nav_operations' => 'العمليات',

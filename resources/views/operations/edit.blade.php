@@ -12,7 +12,7 @@
 @endsection
 
 @section('content')
-<div class="glass-card" style="max-width: 900px; margin: 0 auto;">
+<div class="glass-card operation-form-card">
     <form action="{{ route('operations.update', $operation->id) }}" method="POST" id="operation-form">
         @csrf
         @method('PUT')
@@ -27,4 +27,8 @@
         </div>
     </form>
 </div>
+@endsection
+
+@section('scripts')
+<script src="{{ asset('js/operation-form.js') }}?v={{ @filemtime(public_path('js/operation-form.js')) ?: 1 }}"></script>
 @endsection

@@ -3,17 +3,32 @@
 return [
     'required' => 'حقل :attribute مطلوب.',
     'string' => 'حقل :attribute يجب أن يكون نصاً.',
-    'max' => [
-        'string' => 'حقل :attribute يجب ألا يتجاوز :max حرفاً.',
-    ],
-    'unique' => 'قيمة :attribute مستخدمة مسبقاً.',
+    'integer' => 'حقل :attribute يجب أن يكون عدداً صحيحاً.',
     'numeric' => 'حقل :attribute يجب أن يكون رقماً.',
-    'min' => [
-        'numeric' => 'حقل :attribute يجب ألا يقل عن :min.',
-    ],
+    'email' => 'حقل :attribute يجب أن يكون بريداً إلكترونياً صالحاً.',
     'array' => 'حقل :attribute يجب أن يكون مصفوفة.',
     'date' => 'حقل :attribute ليس تاريخاً صالحاً.',
-    'email' => 'حقل :attribute يجب أن يكون بريداً إلكترونياً صالحاً.',
+    'date_format' => 'حقل :attribute لا يطابق الصيغة :format.',
+    'exists' => 'القيمة المحددة لحقل :attribute غير صالحة.',
+    'in' => 'القيمة المحددة لحقل :attribute غير صالحة.',
+    'unique' => 'قيمة :attribute مستخدمة مسبقاً.',
+    'confirmed' => 'تأكيد حقل :attribute غير متطابق.',
+
+    'max' => [
+        'array' => 'حقل :attribute يجب ألا يحتوي على أكثر من :max عناصر.',
+        'file' => 'حقل :attribute يجب ألا يتجاوز :max كيلوبايت.',
+        'numeric' => 'حقل :attribute يجب ألا يكون أكبر من :max.',
+        'string' => 'حقل :attribute يجب ألا يتجاوز :max حرفاً.',
+        'integer' => 'حقل :attribute يجب ألا يكون أكبر من :max.',
+    ],
+
+    'min' => [
+        'array' => 'حقل :attribute يجب أن يحتوي على :min عناصر على الأقل.',
+        'file' => 'حقل :attribute يجب ألا يقل عن :min كيلوبايت.',
+        'numeric' => 'حقل :attribute يجب ألا يقل عن :min.',
+        'string' => 'حقل :attribute يجب ألا يقل عن :min حرفاً.',
+        'integer' => 'حقل :attribute يجب ألا يقل عن :min.',
+    ],
 
     'attributes' => [
         'name' => 'الاسم',
@@ -49,5 +64,12 @@ return [
         'address' => 'العنوان',
         'width' => 'العرض',
         'height' => 'الارتفاع',
+        'password' => 'كلمة المرور',
+        'role' => 'الدور',
+        'code' => 'الكود',
+        'unit' => 'الوحدة',
+        'sort_order' => 'ترتيب العرض',
+        'weight_gsm' => 'الوزن (جم)',
+        'finish' => 'التشطيب',
     ],
 ];

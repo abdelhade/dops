@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="monokai">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,15 +9,32 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ @filemtime(public_path('css/style.css')) ?: 1 }}">
+    <script>
+        (function () {
+            if (localStorage.getItem('dobs-theme') === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
     @yield('styles')
 </head>
 <body>
     <div class="app-container">
         <aside class="sidebar" id="appSidebar">
-            <div class="brand">
-                <div class="brand-icon">D</div>
-                <span class="brand-name">{{ __('dobs.app_name') }}</span>
+            <div class="sidebar-top">
+                <div class="brand">
+                    <div class="brand-icon">D</div>
+                    <span class="brand-name">{{ __('dobs.app_name') }}</span>
+                </div>
+                <button
+                    type="button"
+                    class="sidebar-close"
+                    id="sidebarClose"
+                    aria-label="{{ __('dobs.toggle_sidebar') }}"
+                >
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
             </div>
 
             <div class="menu-section-title">{{ __('dobs.menu_core') }}</div>
@@ -136,28 +153,36 @@
             </div>
         </aside>
 
-        <div class="sidebar-overlay" id="sidebarOverlay" hidden aria-hidden="true"></div>
+        <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
 
         <main class="main-content">
-            <header class="app-head">
+            <header class="top-header">
                 <button
                     type="button"
                     class="sidebar-toggle"
                     id="sidebarToggle"
                     aria-label="{{ __('dobs.toggle_sidebar') }}"
-                    aria-expanded="true"
+                    aria-expanded="false"
                     aria-controls="appSidebar"
                 >
                     <i class="fa-solid fa-bars" aria-hidden="true"></i>
                 </button>
-            </header>
-
-            <header class="top-header">
                 <div class="top-header-text">
                     <h1 class="page-title">@yield('header_title')</h1>
                     <p class="page-subtitle">@yield('header_subtitle', __('dobs.default_subtitle'))</p>
                 </div>
                 <div class="header-actions">
+                    <button
+                        type="button"
+                        class="theme-toggle"
+                        id="themeToggle"
+                        data-label-monokai="{{ __('dobs.toggle_theme_monokai') }}"
+                        data-label-dark="{{ __('dobs.toggle_theme_dark') }}"
+                        aria-label="{{ __('dobs.toggle_theme_dark') }}"
+                    >
+                        <i class="fa-solid fa-sun theme-icon-dark" aria-hidden="true" hidden></i>
+                        <i class="fa-solid fa-moon theme-icon-monokai" aria-hidden="true"></i>
+                    </button>
                     @yield('header_actions')
                 </div>
             </header>
@@ -195,82 +220,9 @@
         </main>
     </div>
 
-    <script>
-        (function () {
-            var toggle = document.getElementById('sidebarToggle');
-            var overlay = document.getElementById('sidebarOverlay');
-            var mq = window.matchMedia('(max-width: 992px)');
-
-            function isMobile() {
-                return mq.matches;
-            }
-
-            function setMobileOpen(open) {
-                document.body.classList.toggle('sidebar-open', open);
-                if (overlay) {
-                    overlay.hidden = !open;
-                    overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
-                }
-                updateToggleAria();
-            }
-
-            function setDesktopCollapsed(collapsed) {
-                document.body.classList.toggle('sidebar-collapsed', collapsed);
-                updateToggleAria();
-            }
-
-            function updateToggleAria() {
-                if (!toggle) {
-                    return;
-                }
-                var expanded = isMobile()
-                    ? document.body.classList.contains('sidebar-open')
-                    : !document.body.classList.contains('sidebar-collapsed');
-                toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-            }
-
-            function closeSidebar() {
-                if (isMobile()) {
-                    setMobileOpen(false);
-                } else {
-                    setDesktopCollapsed(true);
-                }
-            }
-
-            if (toggle) {
-                toggle.addEventListener('click', function () {
-                    if (isMobile()) {
-                        setMobileOpen(!document.body.classList.contains('sidebar-open'));
-                    } else {
-                        setDesktopCollapsed(!document.body.classList.contains('sidebar-collapsed'));
-                    }
-                });
-            }
-
-            if (overlay) {
-                overlay.addEventListener('click', closeSidebar);
-            }
-
-            document.querySelectorAll('.sidebar .nav-item a').forEach(function (link) {
-                link.addEventListener('click', function () {
-                    if (mq.matches) {
-                        closeSidebar();
-                    }
-                });
-            });
-
-            mq.addEventListener('change', function () {
-                document.body.classList.remove('sidebar-open', 'sidebar-collapsed');
-                if (overlay) {
-                    overlay.hidden = true;
-                    overlay.setAttribute('aria-hidden', 'true');
-                }
-                updateToggleAria();
-            });
-
-            updateToggleAria();
-        })();
-    </script>
+    <script src="{{ asset('js/theme.js') }}?v={{ @filemtime(public_path('js/theme.js')) ?: 1 }}"></script>
+    <script src="{{ asset('js/sidebar.js') }}?v={{ @filemtime(public_path('js/sidebar.js')) ?: 1 }}"></script>
+    <script src="{{ asset('js/autofocus.js') }}?v={{ @filemtime(public_path('js/autofocus.js')) ?: 1 }}"></script>
     <script src="{{ asset('js/shortcuts.js') }}"></script>
     @yield('scripts')
 </body>

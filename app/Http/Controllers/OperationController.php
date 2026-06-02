@@ -26,7 +26,7 @@ class OperationController extends Controller
     {
         $this->authorizeCreate();
 
-        $opNumber = 'OP-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
+        $opNumber = 'off-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
 
         return view('operations.create', array_merge(
             $this->formOptions(),
@@ -209,7 +209,7 @@ class OperationController extends Controller
             'material_id' => $validated['material_id'] ?? null,
             'job_size' => $validated['job_size'] ?? null,
             'pull_count' => $validated['pull_count'] ?? null,
-            'quantity_per_sheet' => $validated['quantity_per_sheet'] ?? null,
+            'quantity_per_sheet' => $this->calcQuantityPerSheet($validated),
             'service_1_id' => $validated['service_1_id'] ?? null,
             'service_2_id' => $validated['service_2_id'] ?? null,
             'service_3_id' => $validated['service_3_id'] ?? null,
@@ -226,5 +226,20 @@ class OperationController extends Controller
         if ($item) {
             $item->decrement('stock', $quantity);
         }
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    private function calcQuantityPerSheet(array $validated): ?int
+    {
+        $jobSize = $validated['job_size'] ?? null;
+        $pullCount = $validated['pull_count'] ?? null;
+
+        if ($jobSize === null || $pullCount === null || (float) $jobSize <= 0) {
+            return null;
+        }
+
+        return (int) ceil((int) $pullCount / (float) $jobSize);
     }
 }

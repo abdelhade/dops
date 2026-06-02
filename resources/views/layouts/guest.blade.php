@@ -12,6 +12,7 @@
     <div class="guest-wrapper">
         @yield('content')
     </div>
+    <script src="{{ asset('js/autofocus.js') }}?v={{ @filemtime(public_path('js/autofocus.js')) ?: 1 }}"></script>
     <script src="{{ asset('js/shortcuts.js') }}"></script>
 </body>
 </html>
