@@ -11,6 +11,10 @@
         <i class="fa-solid fa-arrow-right"></i> {{ __('dobs.back_to_list') }}
     </a>
 
+    <a href="{{ route('operations.export', $operation) }}" class="btn btn-secondary">
+        <i class="fa-solid fa-file-excel"></i> {{ __('dobs.download_excel') }}
+    </a>
+
     <button type="button" onclick="window.print();" class="btn btn-secondary">
         <i class="fa-solid fa-print"></i> {{ __('dobs.print_operation') }}
     </button>
@@ -137,6 +141,38 @@
         </p>
     @endif
 </div>
+
+@if ($operation->logs->isNotEmpty())
+    <div class="glass-card operation-timeline-card no-print" style="max-width: 900px; margin: 1.5rem auto 0;">
+        <h3 class="card-title" style="margin-bottom: 1.25rem;">
+            <i class="fa-solid fa-clock-rotate-left"></i> {{ __('dobs.operation_history') }}
+        </h3>
+        <ul class="operation-timeline">
+            @foreach ($operation->logs as $log)
+                <li class="operation-timeline-item">
+                    <div class="operation-timeline-marker" aria-hidden="true"></div>
+                    <div class="operation-timeline-body">
+                        <div class="operation-timeline-meta">
+                            <time datetime="{{ $log->created_at->toIso8601String() }}">
+                                {{ $log->created_at->format('Y-m-d H:i') }}
+                            </time>
+                            <span class="operation-timeline-user">
+                                <i class="fa-solid fa-user"></i>
+                                {{ $log->user?->name ?? __('dobs.system_user') }}
+                            </span>
+                        </div>
+                        <div class="operation-timeline-action">{{ $log->actionLabel() }}</div>
+                        <ul class="operation-timeline-changes">
+                            @foreach ($log->changeLines() as $line)
+                                <li>{{ $line }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
 <style>
     @media print {

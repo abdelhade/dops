@@ -42,7 +42,28 @@
                         <td>{{ $op->item?->name ?? __('dobs.dash') }}</td>
                         <td>{{ $op->quantity ?? __('dobs.dash') }}</td>
                         <td>
-                            <span class="badge badge-{{ strtolower($op->status) }}">{{ __('dobs.status_' . strtolower($op->status)) }}</span>
+                            @if (auth()->user()?->canEditRecords())
+                                <form
+                                    action="{{ route('operations.update-status', $op) }}"
+                                    method="POST"
+                                    class="operation-status-form"
+                                >
+                                    @csrf
+                                    @method('PATCH')
+                                    <select
+                                        name="status"
+                                        class="form-control form-control-sm operation-status-select badge-{{ strtolower($op->status) }}"
+                                        aria-label="{{ __('dobs.operation_status') }}"
+                                        onchange="this.form.submit()"
+                                    >
+                                        <option value="Draft" @selected($op->status === 'Draft')>{{ __('dobs.status_draft') }}</option>
+                                        <option value="Processing" @selected($op->status === 'Processing')>{{ __('dobs.status_processing') }}</option>
+                                        <option value="Completed" @selected($op->status === 'Completed')>{{ __('dobs.status_completed') }}</option>
+                                    </select>
+                                </form>
+                            @else
+                                <span class="badge badge-{{ strtolower($op->status) }}">{{ __('dobs.status_' . strtolower($op->status)) }}</span>
+                            @endif
                         </td>
                         <td style="color: var(--text-secondary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                             {{ $op->statement ?? $op->notes ?? __('dobs.no_notes') }}

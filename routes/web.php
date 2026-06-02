@@ -30,6 +30,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('suppliers', SupplierController::class);
     Route::resource('paper-sizes', PaperSizeController::class);
     Route::resource('items', ItemController::class);
+    Route::patch('operations/{operation}/status', [OperationController::class, 'updateStatus'])->name('operations.update-status');
+    Route::get('operations/{operation}/export', [OperationController::class, 'export'])->name('operations.export');
     Route::resource('operations', OperationController::class);
     Route::resource('clients', ClientController::class);
     Route::resource('materials', MaterialController::class);

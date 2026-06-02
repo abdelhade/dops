@@ -1,0 +1,121 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class OperationLog extends Model
+{
+    public const ACTION_CREATED = 'created';
+
+    public const ACTION_UPDATED = 'updated';
+
+    public const ACTION_STATUS_CHANGED = 'status_changed';
+
+    protected $fillable = [
+        'operation_id',
+        'user_id',
+        'action',
+        'changes',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'changes' => 'array',
+        ];
+    }
+
+    public function operation(): BelongsTo
+    {
+        return $this->belongsTo(Operation::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function actionLabel(): string
+    {
+        return match ($this->action) {
+            self::ACTION_CREATED => __('dobs.log_action_created'),
+            self::ACTION_STATUS_CHANGED => __('dobs.log_action_status_changed'),
+            default => __('dobs.log_action_updated'),
+        };
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function changeLines(): array
+    {
+        if ($this->action === self::ACTION_CREATED) {
+            return [__('dobs.log_operation_registered')];
+        }
+
+        $lines = [];
+        $changes = $this->changes ?? [];
+
+        foreach ($changes as $field => $pair) {
+            if (! is_array($pair) || ! array_key_exists('from', $pair) || ! array_key_exists('to', $pair)) {
+                continue;
+            }
+
+            $label = __('dobs.log_field_'.$field);
+            $from = $this->formatValue($field, $pair['from']);
+            $to = $this->formatValue($field, $pair['to']);
+
+            $lines[] = __('dobs.log_change_line', [
+                'field' => $label,
+                'from' => $from,
+                'to' => $to,
+            ]);
+        }
+
+        return $lines !== [] ? $lines : [__('dobs.log_no_field_details')];
+    }
+
+    private function formatValue(string $field, mixed $value): string
+    {
+        if ($value === null || $value === '') {
+            return __('dobs.dash');
+        }
+
+        if ($field === 'status') {
+            return __('dobs.status_'.strtolower((string) $value));
+        }
+
+        if (in_array($field, ['item_id', 'printing_supplier_id', 'ctp_supplier_id', 'material_id', 'service_1_id', 'service_2_id', 'service_3_id'], true)) {
+            return $this->resolveRelationName($field, $value);
+        }
+
+        if ($field === 'operation_date' && $value) {
+            try {
+                return \Illuminate\Support\Carbon::parse($value)->format('Y-m-d');
+            } catch (\Throwable) {
+                return (string) $value;
+            }
+        }
+
+        if ($field === 'operation_time' && is_string($value)) {
+            return substr($value, 0, 5);
+        }
+
+        return (string) $value;
+    }
+
+    private function resolveRelationName(string $field, mixed $id): string
+    {
+        $id = (int) $id;
+
+        return match ($field) {
+            'item_id' => Item::find($id)?->name ?? (string) $id,
+            'printing_supplier_id', 'ctp_supplier_id' => Supplier::find($id)?->name ?? (string) $id,
+            'material_id' => Material::find($id)?->name ?? (string) $id,
+            'service_1_id', 'service_2_id', 'service_3_id' => Service::find($id)?->name ?? (string) $id,
+            default => (string) $id,
+        };
+    }
+}

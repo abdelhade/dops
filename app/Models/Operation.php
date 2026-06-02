@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Operation extends Model
 {
@@ -51,6 +52,11 @@ class Operation extends Model
     public function service3(): BelongsTo
     {
         return $this->belongsTo(Service::class, 'service_3_id');
+    }
+
+    public function logs(): HasMany
+    {
+        return $this->hasMany(OperationLog::class)->latest();
     }
 
     /** @deprecated Legacy multi-item pivot; kept for older records. */
