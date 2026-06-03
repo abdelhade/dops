@@ -14,9 +14,13 @@
 @endsection
 
 @section('content')
+<div class="glass-card" style="margin-bottom: 1rem; padding: 1rem;">
+    @include('operations._filters')
+</div>
+
 <div class="glass-card">
-    <div class="table-container">
-        <table class="custom-table">
+    <div class="table-container" style="overflow-x: auto; white-space: nowrap;">
+        <table class="custom-table" style="min-width: 1800px;">
             <thead>
                 <tr>
                     <th>{{ __('dobs.col_op_number') }}</th>
@@ -24,6 +28,16 @@
                     <th>{{ __('dobs.col_time') }}</th>
                     <th>{{ __('dobs.col_item') }}</th>
                     <th>{{ __('dobs.col_quantity') }}</th>
+                    <th>{{ __('dobs.operation_printing_press') }}</th>
+                    <th>{{ __('dobs.operation_ctp') }}</th>
+                    <th>{{ __('dobs.operation_color_count') }}</th>
+                    <th>{{ __('dobs.operation_paper_material') }}</th>
+                    <th>{{ __('dobs.operation_job_size') }}</th>
+                    <th>{{ __('dobs.operation_pull_count') }}</th>
+                    <th>{{ __('dobs.operation_quantity_per_sheet') }}</th>
+                    <th>{{ __('dobs.operation_service_1') }}</th>
+                    <th>{{ __('dobs.operation_service_2') }}</th>
+                    <th>{{ __('dobs.operation_service_3') }}</th>
                     <th>{{ __('dobs.col_status') }}</th>
                     <th>{{ __('dobs.operation_statement') }}</th>
                     <th style="text-align: left;">{{ __('dobs.col_actions') }}</th>
@@ -41,7 +55,23 @@
                         <td>{{ $op->formattedOperationTime() ?? __('dobs.dash') }}</td>
                         <td>{{ $op->item?->name ?? __('dobs.dash') }}</td>
                         <td>{{ $op->quantity ?? __('dobs.dash') }}</td>
+                        <td>{{ $op->printingSupplier?->name ?? __('dobs.dash') }}</td>
+                        <td>{{ $op->ctpSupplier?->name ?? __('dobs.dash') }}</td>
+                        <td>{{ $op->color_count ?? __('dobs.dash') }}</td>
+                        <td>{{ $op->material?->name ?? __('dobs.dash') }}</td>
+                        <td>{{ $op->job_size ?? __('dobs.dash') }}</td>
+                        <td>{{ $op->pull_count ?? __('dobs.dash') }}</td>
+                        <td>{{ $op->quantity_per_sheet ?? __('dobs.dash') }}</td>
+                        <td>{{ $op->service1?->name ?? __('dobs.dash') }}</td>
+                        <td>{{ $op->service2?->name ?? __('dobs.dash') }}</td>
+                        <td>{{ $op->service3?->name ?? __('dobs.dash') }}</td>
                         <td>
+                            @php
+                                $isCompleted = false;
+                                if ($op->operationStatus) {
+                                    $isCompleted = in_array(strtolower($op->operationStatus->name), ['completed', 'مكتمل', 'منتهي']);
+                                }
+                            @endphp
                             @if (auth()->user()?->canEditRecords())
                                 <form
                                     action="{{ route('operations.update-status', $op) }}"
@@ -51,18 +81,23 @@
                                     @csrf
                                     @method('PATCH')
                                     <select
-                                        name="status"
-                                        class="form-control form-control-sm operation-status-select badge-{{ strtolower($op->status) }}"
+                                        name="operation_status_id"
+                                        class="form-control form-control-sm operation-status-select"
+                                        style="background-color: {{ $op->operationStatus?->color ?? '#333' }}; color: white;"
                                         aria-label="{{ __('dobs.operation_status') }}"
                                         onchange="this.form.submit()"
                                     >
-                                        <option value="Draft" @selected($op->status === 'Draft')>{{ __('dobs.status_draft') }}</option>
-                                        <option value="Processing" @selected($op->status === 'Processing')>{{ __('dobs.status_processing') }}</option>
-                                        <option value="Completed" @selected($op->status === 'Completed')>{{ __('dobs.status_completed') }}</option>
+                                        @foreach(App\Models\OperationStatus::orderBy('sort_order')->get() as $statusOpt)
+                                            <option value="{{ $statusOpt->id }}" @selected($op->operation_status_id == $statusOpt->id)>
+                                                {{ $statusOpt->name }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </form>
                             @else
-                                <span class="badge badge-{{ strtolower($op->status) }}">{{ __('dobs.status_' . strtolower($op->status)) }}</span>
+                                <span class="badge" style="background-color: {{ $op->operationStatus?->color ?? '#6c757d' }}; color: white;">
+                                    {{ $op->operationStatus?->name ?? __('dobs.dash') }}
+                                </span>
                             @endif
                         </td>
                         <td style="color: var(--text-secondary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
@@ -73,9 +108,14 @@
                                 <a href="{{ route('operations.show', $op->id) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.view_details') }}">
                                     <i class="fa-solid fa-eye"></i>
                                 </a>
-                                @if ($op->status !== 'Completed' && auth()->user()?->canEditRecords())
+                                @if (!$isCompleted && auth()->user()?->canEditRecords())
                                     <a href="{{ route('operations.edit', $op->id) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.edit') }}">
                                         <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                @endif
+                                @if (auth()->user()?->canCreateRecords())
+                                    <a href="{{ route('operations.create', ['copy_from' => $op->id]) }}" class="btn btn-secondary btn-sm" title="نسخ العملية">
+                                        <i class="fa-solid fa-copy"></i>
                                     </a>
                                 @endif
                                 @if (auth()->user()?->canDeleteRecords())
@@ -92,7 +132,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="empty-state">
+                        <td colspan="18" class="empty-state">
                             <i class="fa-solid fa-receipt"></i>
                             {{ __('dobs.no_operations') }}
                         </td>
@@ -101,5 +141,11 @@
             </tbody>
         </table>
     </div>
+    
+    @if($operations->hasPages())
+        <div style="padding: 1rem; border-top: 1px solid var(--border-color);">
+            {{ $operations->links() }}
+        </div>
+    @endif
 </div>
 @endsection

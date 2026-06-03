@@ -1,6 +1,6 @@
 @php
     $isEdit = isset($operation);
-    $op = $operation ?? null;
+    $op = $operation ?? $op ?? null;
     $defaultTime = old('operation_time', $op?->formattedOperationTime() ?? now()->format('H:i'));
 @endphp
 
@@ -27,11 +27,17 @@
         </div>
 
         <div class="form-group">
-            <label for="status" class="form-label">{{ __('dobs.operation_status') }} <span class="text-required">*</span></label>
-            <select name="status" id="status" class="form-control" required>
-                <option value="Draft" {{ old('status', $op?->status ?? 'Draft') == 'Draft' ? 'selected' : '' }}>{{ __('dobs.status_draft') }}</option>
-                <option value="Processing" {{ old('status', $op?->status ?? '') == 'Processing' ? 'selected' : '' }}>{{ __('dobs.status_processing') }}</option>
-                <option value="Completed" {{ old('status', $op?->status ?? '') == 'Completed' ? 'selected' : '' }}>{{ __('dobs.status_completed') }}</option>
+            <label for="operation_status_id" class="form-label">{{ __('dobs.operation_status') }} <span class="text-required">*</span></label>
+            <select name="operation_status_id" id="operation_status_id" class="form-control" required>
+                @if(isset($operationStatuses) && $operationStatuses->count() > 0)
+                    @foreach($operationStatuses as $statusOpt)
+                        <option value="{{ $statusOpt->id }}" {{ (string) old('operation_status_id', $op?->operation_status_id) === (string) $statusOpt->id ? 'selected' : '' }}>
+                            {{ $statusOpt->name }}
+                        </option>
+                    @endforeach
+                @else
+                    <option value="" disabled selected>{{ __('dobs.no_statuses') }}</option>
+                @endif
             </select>
         </div>
     </div>

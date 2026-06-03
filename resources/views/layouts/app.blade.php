@@ -50,6 +50,12 @@
                         <span>{{ __('dobs.nav_operations') }}</span>
                     </a>
                 </li>
+                <li class="nav-item {{ request()->routeIs('operation-statuses.*') ? 'active' : '' }}">
+                    <a href="{{ route('operation-statuses.index') }}">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                        <span>{{ __('dobs.nav_operation_statuses') }}</span>
+                    </a>
+                </li>
                 <li class="nav-item {{ request()->routeIs('items.*') ? 'active' : '' }}">
                     <a href="{{ route('items.index') }}">
                         <i class="fa-solid fa-box-open"></i>
@@ -84,6 +90,12 @@
                     <a href="{{ route('paper-types.index') }}">
                         <i class="fa-solid fa-scroll"></i>
                         <span>{{ __('dobs.nav_raw_stock') }}</span>
+                    </a>
+                </li>
+                <li class="nav-item {{ request()->routeIs('services.*') ? 'active' : '' }}">
+                    <a href="{{ route('services.index') }}">
+                        <i class="fa-solid fa-handshake"></i>
+                        <span>{{ __('dobs.nav_services') }}</span>
                     </a>
                 </li>
                 <li class="nav-item {{ request()->routeIs('stages.*') ? 'active' : '' }}">

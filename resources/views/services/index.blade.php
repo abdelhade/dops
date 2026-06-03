@@ -21,7 +21,7 @@
                 <tr>
                     <th style="width: 5%">{{ __('dobs.col_id') }}</th>
                     <th style="width: 40%">{{ __('dobs.service_name') }}</th>
-                    <th style="width: 30%">{{ __('dobs.col_price') }}</th>
+                    <th style="width: 30%">{{ __('dobs.description') }}</th>
                     <th style="width: 25; text-align: left;">{{ __('dobs.col_actions') }}</th>
                 </tr>
             </thead>
@@ -34,7 +34,7 @@
                                 {{ $service->name }}
                             </a>
                         </td>
-                        <td style="font-weight: 700; color: white;">{{ number_format($service->price, 2) }} {{ __('dobs.currency') }}</td>
+                        <td style="color: var(--text-secondary);">{{ Str::limit($service->description, 50) ?: __('dobs.dash') }}</td>
                         <td>
                             @include('partials.crud-actions', [
                                 'showRoute' => route('services.show', $service->id),

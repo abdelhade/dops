@@ -59,6 +59,11 @@ class Operation extends Model
         return $this->hasMany(OperationLog::class)->latest();
     }
 
+    public function operationStatus(): BelongsTo
+    {
+        return $this->belongsTo(OperationStatus::class);
+    }
+
     /** @deprecated Legacy multi-item pivot; kept for older records. */
     public function items(): BelongsToMany
     {

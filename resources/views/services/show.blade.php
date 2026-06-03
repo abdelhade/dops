@@ -26,16 +26,10 @@
             {{ __('dobs.service_details') }}
         </h2>
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
             <div>
                 <span class="stat-label">{{ __('dobs.service_name') }}</span>
                 <div style="font-size:1.15rem; font-weight:600; margin-top:0.25rem;">{{ $service->name }}</div>
-            </div>
-            <div>
-                <span class="stat-label">{{ __('dobs.col_price') }}</span>
-                <div style="font-size:1.5rem; font-weight:700; color:var(--color-secondary); margin-top:0.25rem;">
-                    {{ number_format($service->price, 2) }} {{ __('dobs.currency') }}
-                </div>
             </div>
         </div>
 

@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\OperationController;
+use App\Http\Controllers\OperationStatusController;
 use App\Http\Controllers\PaperSizeController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
@@ -39,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('services', ServiceController::class);
     Route::resource('stages', StageController::class);
     Route::resource('activities', ActivityController::class);
+    Route::resource('operation-statuses', OperationStatusController::class)->except(['show']);
 
     Route::middleware('role:admin')->group(function () {
         Route::resource('users', UserController::class)->except(['show']);

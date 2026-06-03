@@ -22,25 +22,7 @@
             <input type="text" name="name" id="name" class="form-control" placeholder="{{ __('dobs.material_name_placeholder') }}" value="{{ old('name', $material->name) }}" required>
         </div>
 
-        <div class="form-group">
-            <label for="code" class="form-label">{{ __('dobs.material_code') }}</label>
-            <input type="text" name="code" id="code" class="form-control" placeholder="{{ __('dobs.material_code_placeholder') }}" value="{{ old('code', $material->code) }}">
-        </div>
 
-        <div class="form-group">
-            <label for="unit" class="form-label">{{ __('dobs.unit') }} <span style="color: var(--color-danger)">*</span></label>
-            <input type="text" name="unit" id="unit" class="form-control" placeholder="{{ __('dobs.unit_placeholder') }}" value="{{ old('unit', $material->unit) }}" required>
-        </div>
-
-        <div class="form-group">
-            <label for="price" class="form-label">{{ __('dobs.price_per_unit') }} <span style="color: var(--color-danger)">*</span></label>
-            <input type="number" step="0.01" name="price" id="price" class="form-control" placeholder="{{ __('dobs.zero_decimal') }}" value="{{ old('price', $material->price) }}" required>
-        </div>
-
-        <div class="form-group">
-            <label for="stock" class="form-label">{{ __('dobs.stock_level') }} <span style="color: var(--color-danger)">*</span></label>
-            <input type="number" name="stock" id="stock" class="form-control" placeholder="{{ __('dobs.qty_placeholder') }}" value="{{ old('stock', $material->stock) }}" required>
-        </div>
 
         <div class="form-group">
             <label for="description" class="form-label">{{ __('dobs.description') }}</label>

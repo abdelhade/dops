@@ -12,10 +12,10 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         User::updateOrCreate(
-            ['email' => 'admin@dobs.local'],
+            ['email' => 'admin@dops.com'],
             [
                 'name' => 'مدير النظام',
-                'password' => 'password',
+                'password' => '00000000',
                 'role' => User::ROLE_ADMIN,
             ]
         );

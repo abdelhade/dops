@@ -20,12 +20,9 @@
             <thead>
                 <tr>
                     <th style="width: 5%">{{ __('dobs.col_id') }}</th>
-                    <th style="width: 25%">{{ __('dobs.material_name') }}</th>
-                    <th style="width: 15%">{{ __('dobs.material_code') }}</th>
-                    <th style="width: 15%">{{ __('dobs.unit') }}</th>
-                    <th style="width: 15%">{{ __('dobs.col_price') }}</th>
-                    <th style="width: 10%">{{ __('dobs.col_stock') }}</th>
-                    <th style="width: 15; text-align: left;">{{ __('dobs.col_actions') }}</th>
+                    <th style="width: 30%">{{ __('dobs.material_name') }}</th>
+                    <th style="width: 45%">{{ __('dobs.description') }}</th>
+                    <th style="width: 20%; text-align: left;">{{ __('dobs.col_actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -37,10 +34,7 @@
                                 {{ $material->name }}
                             </a>
                         </td>
-                        <td><code style="color: var(--color-secondary);">{{ $material->code ?? __('dobs.na') }}</code></td>
-                        <td>{{ $material->unit }}</td>
-                        <td style="font-weight: 700; color: white;">{{ number_format($material->price, 2) }} {{ __('dobs.currency') }}</td>
-                        <td>{{ $material->stock }}</td>
+                        <td style="color: var(--text-secondary);">{{ Str::limit($material->description, 50) ?: __('dobs.dash') }}</td>
                         <td>
                             @include('partials.crud-actions', [
                                 'showRoute' => route('materials.show', $material->id),
@@ -52,7 +46,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="empty-state">
+                        <td colspan="4" class="empty-state">
                             <i class="fa-solid fa-pallet"></i>
                             {{ __('dobs.no_materials') }}
                         </td>

@@ -6,6 +6,7 @@ use App\Models\Item;
 use App\Models\Material;
 use App\Models\Operation;
 use App\Models\OperationLog;
+use App\Models\OperationStatus;
 use App\Models\Service;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class OperationController extends Controller
 {
     /** @var list<string> */
     private const TRACKABLE_FIELDS = [
-        'status',
+        'operation_status_id',
         'operation_number',
         'operation_date',
         'operation_time',
@@ -36,13 +37,65 @@ class OperationController extends Controller
         'service_3_id',
     ];
 
-    public function index()
+    public function index(Request $request)
     {
-        $operations = Operation::with('item')
-            ->latest()
-            ->get();
+        $query = Operation::with([
+            'item', 'operationStatus', 'printingSupplier', 'ctpSupplier',
+            'material', 'service1', 'service2', 'service3'
+        ]);
 
-        return view('operations.index', compact('operations'));
+        if ($request->filled('operation_number')) {
+            $query->where('operation_number', 'like', '%' . $request->operation_number . '%');
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('operation_date', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('operation_date', '<=', $request->date_to);
+        }
+        if ($request->filled('item_id')) {
+            $query->where('item_id', $request->item_id);
+        }
+        if ($request->filled('operation_status_id')) {
+            $query->where('operation_status_id', $request->operation_status_id);
+        }
+        if ($request->filled('printing_supplier_id')) {
+            $query->where('printing_supplier_id', $request->printing_supplier_id);
+        }
+        if ($request->filled('ctp_supplier_id')) {
+            $query->where('ctp_supplier_id', $request->ctp_supplier_id);
+        }
+        if ($request->filled('material_id')) {
+            $query->where('material_id', $request->material_id);
+        }
+        if ($request->filled('color_count')) {
+            $query->where('color_count', $request->color_count);
+        }
+        if ($request->filled('service_id')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('service_1_id', $request->service_id)
+                  ->orWhere('service_2_id', $request->service_id)
+                  ->orWhere('service_3_id', $request->service_id);
+            });
+        }
+        if ($request->filled('statement')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('statement', 'like', '%' . $request->statement . '%')
+                  ->orWhere('notes', 'like', '%' . $request->statement . '%');
+            });
+        }
+
+        $operations = $query->latest()->paginate(50)->withQueryString();
+
+        $items = Item::orderBy('name')->get();
+        $suppliers = Supplier::orderBy('name')->get();
+        $materials = Material::orderBy('name')->get();
+        $services = Service::orderBy('name')->get();
+        $operationStatuses = OperationStatus::orderBy('sort_order')->get();
+
+        return view('operations.index', compact(
+            'operations', 'items', 'suppliers', 'materials', 'services', 'operationStatuses'
+        ));
     }
 
     public function create()
@@ -51,9 +104,20 @@ class OperationController extends Controller
 
         $opNumber = 'off-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
 
+        $op = null;
+        if (request()->has('copy_from')) {
+            $op = Operation::find(request('copy_from'));
+            if ($op) {
+                $op = $op->replicate();
+                $op->operation_number = null;
+                $op->operation_date = null;
+                $op->operation_time = null;
+            }
+        }
+
         return view('operations.create', array_merge(
             $this->formOptions(),
-            ['opNumber' => $opNumber]
+            ['opNumber' => $opNumber, 'op' => $op]
         ));
     }
 
@@ -68,7 +132,8 @@ class OperationController extends Controller
 
             $operation = Operation::create($this->mapValidatedToAttributes($validated));
 
-            if ($validated['status'] === 'Completed') {
+            $status = OperationStatus::find($validated['operation_status_id']);
+            if ($status && in_array(strtolower($status->name), ['completed', 'مكتمل', 'منتهي'])) {
                 $this->deductItemStock($validated['item_id'], (int) $validated['quantity']);
             }
 
@@ -98,6 +163,7 @@ class OperationController extends Controller
             'items.category',
             'items.paperSize',
             'logs.user',
+            'operationStatus',
         ]);
 
         return view('operations.show', compact('operation'));
@@ -107,7 +173,7 @@ class OperationController extends Controller
     {
         $this->authorizeEdit();
 
-        if ($operation->status === 'Completed') {
+        if ($this->isCompleted($operation)) {
             return redirect()->route('operations.index')
                 ->with('error', __('dobs.flash_operation_completed_locked'));
         }
@@ -122,7 +188,7 @@ class OperationController extends Controller
     {
         $this->authorizeEdit();
 
-        if ($operation->status === 'Completed') {
+        if ($this->isCompleted($operation)) {
             return redirect()->route('operations.index')
                 ->with('error', __('dobs.flash_operation_completed_locked'));
         }
@@ -133,11 +199,11 @@ class OperationController extends Controller
             DB::beginTransaction();
 
             $before = $operation->only(self::TRACKABLE_FIELDS);
-            $oldStatus = $operation->status;
+            $oldStatusId = $operation->operation_status_id;
 
             $operation->update($this->mapValidatedToAttributes($validated));
 
-            $this->applyStatusTransition($operation, $validated['status'], $oldStatus);
+            $this->applyStatusTransition($operation, $validated['operation_status_id'], $oldStatusId);
 
             $changes = $this->diffChanges($before, $operation->only(self::TRACKABLE_FIELDS));
             if ($changes !== []) {
@@ -159,24 +225,24 @@ class OperationController extends Controller
         $this->authorizeEdit();
 
         $validated = $request->validate([
-            'status' => 'required|in:Draft,Processing,Completed',
+            'operation_status_id' => 'required|exists:operation_statuses,id',
         ]);
 
-        $newStatus = $validated['status'];
-        $oldStatus = $operation->status;
+        $newStatusId = $validated['operation_status_id'];
+        $oldStatusId = $operation->operation_status_id;
 
-        if ($oldStatus === $newStatus) {
+        if ($oldStatusId == $newStatusId) {
             return redirect()->route('operations.index');
         }
 
         try {
             DB::beginTransaction();
 
-            $operation->update(['status' => $newStatus]);
-            $this->applyStatusTransition($operation, $newStatus, $oldStatus);
+            $operation->update(['operation_status_id' => $newStatusId]);
+            $this->applyStatusTransition($operation, $newStatusId, $oldStatusId);
 
             $this->logOperation($operation, OperationLog::ACTION_STATUS_CHANGED, [
-                'status' => ['from' => $oldStatus, 'to' => $newStatus],
+                'operation_status_id' => ['from' => $oldStatusId, 'to' => $newStatusId],
             ]);
 
             DB::commit();
@@ -203,13 +269,14 @@ class OperationController extends Controller
             'service1',
             'service2',
             'service3',
+            'operationStatus',
         ]);
 
         $filename = 'operation-' . preg_replace('/[^\w\-]+/', '_', $operation->operation_number) . '.csv';
 
         $rows = [
             [__('dobs.operation_serial'), $operation->operation_number],
-            [__('dobs.operation_status'), __('dobs.status_'.strtolower($operation->status))],
+            [__('dobs.operation_status'), $operation->operationStatus?->name ?? ''],
             [__('dobs.operation_date'), $operation->operation_date?->format('Y-m-d') ?? ''],
             [__('dobs.operation_current_time'), $operation->formattedOperationTime() ?? ''],
             [__('dobs.operation_product_1'), $operation->item?->name ?? ''],
@@ -273,6 +340,7 @@ class OperationController extends Controller
             'suppliers' => Supplier::orderBy('name')->get(),
             'materials' => Material::orderBy('name')->get(),
             'services' => Service::orderBy('name')->get(),
+            'operationStatuses' => OperationStatus::orderBy('sort_order')->get(),
         ];
     }
 
@@ -305,7 +373,7 @@ class OperationController extends Controller
             'service_1_id' => 'nullable|exists:services,id',
             'service_2_id' => 'nullable|exists:services,id',
             'service_3_id' => 'nullable|exists:services,id',
-            'status' => 'required|in:Draft,Processing,Completed',
+            'operation_status_id' => 'required|exists:operation_statuses,id',
         ];
     }
 
@@ -332,19 +400,37 @@ class OperationController extends Controller
             'service_1_id' => $validated['service_1_id'] ?? null,
             'service_2_id' => $validated['service_2_id'] ?? null,
             'service_3_id' => $validated['service_3_id'] ?? null,
-            'status' => $validated['status'],
+            'operation_status_id' => $validated['operation_status_id'],
             'notes' => $validated['statement'] ?? null,
             'total_amount' => 0,
         ];
     }
 
-    private function applyStatusTransition(Operation $operation, string $newStatus, string $oldStatus): void
+    private function applyStatusTransition(Operation $operation, ?int $newStatusId, ?int $oldStatusId): void
     {
-        if ($oldStatus !== 'Completed' && $newStatus === 'Completed') {
+        $oldIsCompleted = false;
+        if ($oldStatusId) {
+            $oldStatus = OperationStatus::find($oldStatusId);
+            $oldIsCompleted = $oldStatus && in_array(strtolower($oldStatus->name), ['completed', 'مكتمل', 'منتهي']);
+        }
+
+        $newIsCompleted = false;
+        if ($newStatusId) {
+            $newStatus = OperationStatus::find($newStatusId);
+            $newIsCompleted = $newStatus && in_array(strtolower($newStatus->name), ['completed', 'مكتمل', 'منتهي']);
+        }
+
+        if (!$oldIsCompleted && $newIsCompleted) {
             $this->deductItemStock((int) $operation->item_id, (int) $operation->quantity);
-        } elseif ($oldStatus === 'Completed' && $newStatus !== 'Completed') {
+        } elseif ($oldIsCompleted && !$newIsCompleted) {
             $this->restoreItemStock((int) $operation->item_id, (int) $operation->quantity);
         }
+    }
+    
+    private function isCompleted(Operation $operation): bool
+    {
+        $status = $operation->operationStatus;
+        return $status && in_array(strtolower($status->name), ['completed', 'مكتمل', 'منتهي']);
     }
 
     private function deductItemStock(int $itemId, int $quantity): void

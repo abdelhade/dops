@@ -36,12 +36,12 @@ class MaterialController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:100',
-            'unit' => 'required|string|max:50',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
             'description' => 'nullable|string',
         ]);
+
+        $validated['unit'] = '-';
+        $validated['price'] = 0;
+        $validated['stock'] = 0;
 
         Material::create($validated);
 
@@ -74,10 +74,6 @@ class MaterialController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:100',
-            'unit' => 'required|string|max:50',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
             'description' => 'nullable|string',
         ]);
 

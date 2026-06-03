@@ -22,10 +22,7 @@
             <input type="text" name="name" id="name" class="form-control" placeholder="{{ __('dobs.service_name_placeholder') }}" value="{{ old('name', $service->name) }}" required>
         </div>
 
-        <div class="form-group">
-            <label for="price" class="form-label">{{ __('dobs.col_price') }} <span style="color: var(--color-danger)">*</span></label>
-            <input type="number" step="0.01" name="price" id="price" class="form-control" placeholder="{{ __('dobs.zero_decimal') }}" value="{{ old('price', $service->price) }}" required>
-        </div>
+
 
         <div class="form-group">
             <label for="description" class="form-label">{{ __('dobs.description') }}</label>

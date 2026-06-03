@@ -19,7 +19,13 @@
         <i class="fa-solid fa-print"></i> {{ __('dobs.print_operation') }}
     </button>
 
-    @if ($operation->status !== 'Completed' && auth()->user()?->canEditRecords())
+    @php
+        $isCompleted = false;
+        if ($operation->operationStatus) {
+            $isCompleted = in_array(strtolower($operation->operationStatus->name), ['completed', 'مكتمل', 'منتهي']);
+        }
+    @endphp
+    @if (!$isCompleted && auth()->user()?->canEditRecords())
         <a href="{{ route('operations.edit', $operation->id) }}" class="btn btn-primary">
             <i class="fa-solid fa-pen-to-square"></i> {{ __('dobs.edit_operation') }}
         </a>
@@ -42,7 +48,9 @@
         <div>
             <span class="stat-label">{{ __('dobs.operation_status') }}</span>
             <div style="margin-top: 0.35rem;">
-                <span class="badge badge-{{ strtolower($operation->status) }}">{{ __('dobs.status_' . strtolower($operation->status)) }}</span>
+                <span class="badge" style="background-color: {{ $operation->operationStatus?->color ?? '#6c757d' }}; color: white;">
+                    {{ $operation->operationStatus?->name ?? __('dobs.dash') }}
+                </span>
             </div>
         </div>
         <div>
@@ -135,7 +143,7 @@
         </div>
     @endif
 
-    @if ($operation->status === 'Completed')
+    @if ($isCompleted)
         <p style="font-size:0.8rem; color:var(--text-muted); margin-top:1.5rem;">
             <i class="fa-solid fa-lock"></i> {{ __('dobs.locked_completed') }}
         </p>
@@ -155,7 +163,7 @@
                     <div class="operation-timeline-body">
                         <div class="operation-timeline-meta">
                             <time datetime="{{ $log->created_at->toIso8601String() }}">
-                                {{ $log->created_at->format('Y-m-d H:i') }}
+                                {{ $log->created_at->format('Y-m-d h:i A') }}
                             </time>
                             <span class="operation-timeline-user">
                                 <i class="fa-solid fa-user"></i>
