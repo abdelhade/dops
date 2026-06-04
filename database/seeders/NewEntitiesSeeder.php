@@ -7,7 +7,6 @@ use App\Models\Material;
 use App\Models\PaperType;
 use App\Models\Service;
 use App\Models\Stage;
-use App\Models\Activity;
 use Illuminate\Database\Seeder;
 
 class NewEntitiesSeeder extends Seeder
@@ -68,14 +67,5 @@ class NewEntitiesSeeder extends Seeder
             Stage::firstOrCreate(['name' => $stage['name']], $stage);
         }
 
-        // Seed Activities
-        $activities = [
-            ['name' => 'فرز الألوان وإرسال اللوحات للمطبعة', 'description' => 'نشاط فني للتأكد من جودة الألوان CMYK وتجهيز ألواح الزنك.'],
-            ['name' => 'معايرة ألوان الماكينة وبدء التشغيل', 'description' => 'ضبط التغذية وتطابق وجه وظهر المطبوع على الماكينة.'],
-            ['name' => 'فرز المطبوع واستبعاد التالف', 'description' => 'نشاط فحص جودة يتم يدوياً أو آلياً قبل الانتقال للمرحلة التالية.'],
-        ];
-        foreach ($activities as $activity) {
-            Activity::firstOrCreate(['name' => $activity['name']], $activity);
-        }
     }
 }

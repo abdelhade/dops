@@ -5,10 +5,23 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Support\SpreadsheetExporter;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ClientController extends Controller
 {
+    private function clientHeaders(): array
+    {
+        return [
+            __('dobs.client_name'),
+            __('dobs.phone'),
+            __('dobs.email'),
+            __('dobs.address'),
+            __('dobs.col_notes_header'),
+        ];
+    }
     /**
      * Display a listing of the resource.
      */
@@ -93,5 +106,61 @@ class ClientController extends Controller
         $client->delete();
 
         return redirect()->route('clients.index')->with('success', __('dobs.flash_client_deleted'));
+    }
+
+    public function export(SpreadsheetExporter $exporter): StreamedResponse
+    {
+        $headers = $this->clientHeaders();
+        $rows = Client::latest()->get()->map(fn (Client $c) => [
+            $c->name,
+            $c->phone ?? '',
+            $c->email ?? '',
+            $c->address ?? '',
+            $c->notes ?? '',
+        ])->all();
+
+        return $exporter->downloadXlsx('clients', $headers, $rows);
+    }
+
+    public function template(SpreadsheetExporter $exporter): StreamedResponse
+    {
+        return $exporter->downloadTemplate('clients', $this->clientHeaders(), [
+            __('dobs.import_sample_client_name'),
+            '0500000000',
+            'client@example.com',
+            __('dobs.import_sample_address'),
+            '',
+        ]);
+    }
+
+    public function import(Request $request, SpreadsheetExporter $exporter): RedirectResponse
+    {
+        $this->authorizeCreate();
+
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ]);
+
+        $imported = 0;
+
+        foreach ($exporter->readDataRows($request->file('file')) as $row) {
+            $name = $row[0] ?? '';
+            if ($name === '') {
+                continue;
+            }
+
+            Client::create([
+                'name' => $name,
+                'phone' => $row[1] ?? null,
+                'email' => ($row[2] ?? '') !== '' ? $row[2] : null,
+                'address' => ($row[3] ?? '') !== '' ? $row[3] : null,
+                'notes' => ($row[4] ?? '') !== '' ? $row[4] : null,
+            ]);
+            $imported++;
+        }
+
+        return redirect()
+            ->route('clients.index')
+            ->with('success', __('dobs.flash_import_success', ['count' => $imported]));
     }
 }

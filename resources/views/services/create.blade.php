@@ -12,6 +12,10 @@
 @endsection
 
 @section('content')
+@include('partials.spreadsheet-import', [
+    'templateRoute' => route('services.template'),
+    'importRoute' => route('services.import'),
+])
 <div class="glass-card" style="max-width: 600px; margin: 0 auto;">
     <form action="{{ route('services.store') }}" method="POST">
         @csrf

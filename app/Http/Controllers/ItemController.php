@@ -6,10 +6,26 @@ use App\Models\Item;
 use App\Models\Category;
 use App\Models\Supplier;
 use App\Models\PaperSize;
+use App\Support\SpreadsheetExporter;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ItemController extends Controller
 {
+    private function itemHeaders(): array
+    {
+        return [
+            __('dobs.item_name'),
+            __('dobs.col_sku'),
+            __('dobs.item_description'),
+            __('dobs.col_category'),
+            __('dobs.col_supplier'),
+            __('dobs.col_paper_size'),
+            __('dobs.col_price'),
+            __('dobs.col_stock'),
+        ];
+    }
     /**
      * Display a listing of the resource.
      */
@@ -120,5 +136,78 @@ class ItemController extends Controller
 
         $item->delete();
         return redirect()->route('items.index')->with('success', __('dobs.flash_item_deleted'));
+    }
+
+    public function export(SpreadsheetExporter $exporter): StreamedResponse
+    {
+        $items = Item::with(['category', 'supplier', 'paperSize'])->latest()->get();
+        $rows = $items->map(fn (Item $item) => [
+            $item->name,
+            $item->sku ?? '',
+            $item->description ?? '',
+            $item->category?->name ?? '',
+            $item->supplier?->name ?? '',
+            $item->paperSize?->name ?? '',
+            $item->price,
+            $item->stock,
+        ])->all();
+
+        return $exporter->downloadXlsx('items', $this->itemHeaders(), $rows);
+    }
+
+    public function template(SpreadsheetExporter $exporter): StreamedResponse
+    {
+        return $exporter->downloadTemplate('items', $this->itemHeaders(), [
+            __('dobs.import_sample_item_name'),
+            '',
+            '',
+            '',
+            '',
+            '',
+            '0',
+            '0',
+        ]);
+    }
+
+    public function import(Request $request, SpreadsheetExporter $exporter): RedirectResponse
+    {
+        $this->authorizeCreate();
+
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ]);
+
+        $categories = Category::pluck('id', 'name');
+        $suppliers = Supplier::pluck('id', 'name');
+        $paperSizes = PaperSize::pluck('id', 'name');
+        $imported = 0;
+
+        foreach ($exporter->readDataRows($request->file('file')) as $row) {
+            $name = $row[0] ?? '';
+            if ($name === '') {
+                continue;
+            }
+
+            $sku = ($row[1] ?? '') !== '' ? $row[1] : 'SKU-' . strtoupper(uniqid());
+            $categoryName = $row[3] ?? '';
+            $supplierName = $row[4] ?? '';
+            $paperSizeName = $row[5] ?? '';
+
+            Item::create([
+                'name' => $name,
+                'sku' => $sku,
+                'description' => ($row[2] ?? '') !== '' ? $row[2] : null,
+                'category_id' => $categoryName !== '' ? $categories[$categoryName] ?? null : null,
+                'supplier_id' => $supplierName !== '' ? $suppliers[$supplierName] ?? null : null,
+                'paper_size_id' => $paperSizeName !== '' ? $paperSizes[$paperSizeName] ?? null : null,
+                'price' => is_numeric($row[6] ?? '') ? (float) $row[6] : 0,
+                'stock' => is_numeric($row[7] ?? '') ? (int) $row[7] : 0,
+            ]);
+            $imported++;
+        }
+
+        return redirect()
+            ->route('items.index')
+            ->with('success', __('dobs.flash_import_success', ['count' => $imported]));
     }
 }

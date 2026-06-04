@@ -30,16 +30,30 @@ Route::middleware('auth')->group(function () {
     Route::resource('categories', CategoryController::class);
     Route::resource('suppliers', SupplierController::class);
     Route::resource('paper-sizes', PaperSizeController::class);
-    Route::resource('items', ItemController::class);
     Route::patch('operations/{operation}/status', [OperationController::class, 'updateStatus'])->name('operations.update-status');
     Route::get('operations/{operation}/export', [OperationController::class, 'export'])->name('operations.export');
     Route::resource('operations', OperationController::class);
+    Route::get('clients/export', [ClientController::class, 'export'])->name('clients.export');
+    Route::get('clients/template', [ClientController::class, 'template'])->name('clients.template');
+    Route::post('clients/import', [ClientController::class, 'import'])->name('clients.import');
     Route::resource('clients', ClientController::class);
+
+    Route::get('items/export', [ItemController::class, 'export'])->name('items.export');
+    Route::get('items/template', [ItemController::class, 'template'])->name('items.template');
+    Route::post('items/import', [ItemController::class, 'import'])->name('items.import');
+    Route::resource('items', ItemController::class);
+
+    Route::get('materials/export', [MaterialController::class, 'export'])->name('materials.export');
+    Route::get('materials/template', [MaterialController::class, 'template'])->name('materials.template');
+    Route::post('materials/import', [MaterialController::class, 'import'])->name('materials.import');
     Route::resource('materials', MaterialController::class);
     Route::resource('paper-types', PaperTypeController::class);
+    Route::get('services/export', [ServiceController::class, 'export'])->name('services.export');
+    Route::get('services/template', [ServiceController::class, 'template'])->name('services.template');
+    Route::post('services/import', [ServiceController::class, 'import'])->name('services.import');
     Route::resource('services', ServiceController::class);
     Route::resource('stages', StageController::class);
-    Route::resource('activities', ActivityController::class);
+    Route::get('activities', [ActivityController::class, 'index'])->name('activities.index');
     Route::resource('operation-statuses', OperationStatusController::class)->except(['show']);
 
     Route::middleware('role:admin')->group(function () {

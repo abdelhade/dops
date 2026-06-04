@@ -13,8 +13,13 @@
     @endif
 @endsection
 
+@section('styles')
+    @include('partials.print-styles')
+@endsection
+
 @section('content')
-<div class="glass-card">
+@include('partials.list-export-print', ['exportRoute' => route('items.export')])
+<div class="glass-card printable-area">
     <div class="table-container">
         <table class="custom-table">
             <thead>

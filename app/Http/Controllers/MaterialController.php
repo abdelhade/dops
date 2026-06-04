@@ -5,10 +5,20 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Material;
+use App\Support\SpreadsheetExporter;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MaterialController extends Controller
 {
+    private function materialHeaders(): array
+    {
+        return [
+            __('dobs.material_name'),
+            __('dobs.description'),
+        ];
+    }
     /**
      * Display a listing of the resource.
      */
@@ -91,5 +101,54 @@ class MaterialController extends Controller
         $material->delete();
 
         return redirect()->route('materials.index')->with('success', __('dobs.flash_material_deleted'));
+    }
+
+    public function export(SpreadsheetExporter $exporter): StreamedResponse
+    {
+        $rows = Material::latest()->get()->map(fn (Material $m) => [
+            $m->name,
+            $m->description ?? '',
+        ])->all();
+
+        return $exporter->downloadXlsx('materials', $this->materialHeaders(), $rows);
+    }
+
+    public function template(SpreadsheetExporter $exporter): StreamedResponse
+    {
+        return $exporter->downloadTemplate('materials', $this->materialHeaders(), [
+            __('dobs.import_sample_material_name'),
+            __('dobs.import_sample_description'),
+        ]);
+    }
+
+    public function import(Request $request, SpreadsheetExporter $exporter): RedirectResponse
+    {
+        $this->authorizeCreate();
+
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ]);
+
+        $imported = 0;
+
+        foreach ($exporter->readDataRows($request->file('file')) as $row) {
+            $name = $row[0] ?? '';
+            if ($name === '') {
+                continue;
+            }
+
+            Material::create([
+                'name' => $name,
+                'description' => ($row[1] ?? '') !== '' ? $row[1] : null,
+                'unit' => '-',
+                'price' => 0,
+                'stock' => 0,
+            ]);
+            $imported++;
+        }
+
+        return redirect()
+            ->route('materials.index')
+            ->with('success', __('dobs.flash_import_success', ['count' => $imported]));
     }
 }
