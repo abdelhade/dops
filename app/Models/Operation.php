@@ -72,6 +72,23 @@ class Operation extends Model
             ->withTimestamps();
     }
 
+    public static function nextOperationNumber(): string
+    {
+        $max = static::query()
+            ->pluck('operation_number')
+            ->map(function (string $number) {
+                if (preg_match('/^OFF(\d+)$/i', $number, $matches)) {
+                    return (int) $matches[1];
+                }
+
+                return null;
+            })
+            ->filter()
+            ->max();
+
+        return 'OFF' . (($max ?? 0) + 1);
+    }
+
     public function formattedOperationTime(): ?string
     {
         if (! $this->operation_time) {

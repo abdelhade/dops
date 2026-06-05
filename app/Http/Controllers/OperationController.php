@@ -102,7 +102,7 @@ class OperationController extends Controller
     {
         $this->authorizeCreate();
 
-        $opNumber = 'OFF';
+        $opNumber = Operation::nextOperationNumber();
 
         $op = null;
         if (request()->has('copy_from')) {
