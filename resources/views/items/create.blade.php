@@ -16,6 +16,8 @@
     'templateRoute' => route('items.template'),
     'importRoute' => route('items.import'),
     'maxWidth' => '850px',
+    'compact' => true,
+    'importId' => 'items',
 ])
 <div class="glass-card" style="max-width: 850px; margin: 0 auto;">
     <form action="{{ route('items.store') }}" method="POST">

@@ -14,8 +14,37 @@
 @endsection
 
 @section('content')
-<div class="glass-card" style="margin-bottom: 1rem; padding: 1rem;">
-    @include('operations._filters')
+@php
+    $operationFilterKeys = [
+        'operation_number', 'date_from', 'date_to', 'item_id', 'operation_status_id',
+        'printing_supplier_id', 'ctp_supplier_id', 'paper_type_id', 'color_count', 'service_id', 'statement',
+    ];
+    $hasActiveFilters = collect($operationFilterKeys)->contains(fn ($key) => request()->filled($key));
+@endphp
+
+<div class="operations-filters-card glass-card">
+    <button
+        type="button"
+        class="btn btn-secondary btn-sm operations-filters-toggle"
+        id="operations-filters-toggle"
+        aria-expanded="{{ $hasActiveFilters ? 'true' : 'false' }}"
+        aria-controls="operations-filters-panel"
+    >
+        <i class="fa-solid fa-filter"></i>
+        <span>{{ __('dobs.filters') }}</span>
+        @if ($hasActiveFilters)
+            <span class="operations-filters-badge" aria-hidden="true"></span>
+        @endif
+        <i class="fa-solid fa-chevron-down operations-filters-chevron"></i>
+    </button>
+
+    <div
+        id="operations-filters-panel"
+        class="operations-filters-panel"
+        @unless($hasActiveFilters) hidden @endunless
+    >
+        @include('operations._filters')
+    </div>
 </div>
 
 <div class="glass-card">
@@ -58,7 +87,7 @@
                         <td>{{ $op->printingSupplier?->name ?? __('dobs.dash') }}</td>
                         <td>{{ $op->ctpSupplier?->name ?? __('dobs.dash') }}</td>
                         <td>{{ $op->color_count ?? __('dobs.dash') }}</td>
-                        <td>{{ $op->material?->name ?? __('dobs.dash') }}</td>
+                        <td>{{ $op->paperType?->name ?? __('dobs.dash') }}</td>
                         <td>{{ $op->job_size ?? __('dobs.dash') }}</td>
                         <td>{{ $op->pull_count ?? __('dobs.dash') }}</td>
                         <td>{{ $op->quantity_per_sheet ?? __('dobs.dash') }}</td>
@@ -148,4 +177,25 @@
         </div>
     @endif
 </div>
+@endsection
+
+@section('scripts')
+<script>
+(function () {
+    const toggle = document.getElementById('operations-filters-toggle');
+    const panel = document.getElementById('operations-filters-panel');
+    if (!toggle || !panel) return;
+
+    toggle.addEventListener('click', function () {
+        const open = panel.hidden;
+        panel.hidden = !open;
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        toggle.classList.toggle('is-open', open);
+    });
+
+    if (toggle.getAttribute('aria-expanded') === 'true') {
+        toggle.classList.add('is-open');
+    }
+})();
+</script>
 @endsection

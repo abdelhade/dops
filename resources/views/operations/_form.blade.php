@@ -101,12 +101,12 @@
         </div>
 
         <div class="form-group">
-            <label for="material_id" class="form-label">{{ __('dobs.operation_paper_material') }}</label>
-            <select name="material_id" id="material_id" class="form-control">
-                <option value="">{{ __('dobs.select_material') }}</option>
-                @foreach($materials as $material)
-                    <option value="{{ $material->id }}" {{ (string) old('material_id', $op?->material_id) === (string) $material->id ? 'selected' : '' }}>
-                        {{ $material->name }}
+            <label for="paper_type_id" class="form-label">{{ __('dobs.operation_paper_material') }}</label>
+            <select name="paper_type_id" id="paper_type_id" class="form-control">
+                <option value="">{{ __('dobs.select_paper_type') }}</option>
+                @foreach($paperTypes as $paperType)
+                    <option value="{{ $paperType->id }}" {{ (string) old('paper_type_id', $op?->paper_type_id) === (string) $paperType->id ? 'selected' : '' }}>
+                        {{ $paperType->name }}
                     </option>
                 @endforeach
             </select>

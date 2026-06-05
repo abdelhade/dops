@@ -34,9 +34,9 @@ class Operation extends Model
         return $this->belongsTo(Supplier::class, 'ctp_supplier_id');
     }
 
-    public function material(): BelongsTo
+    public function paperType(): BelongsTo
     {
-        return $this->belongsTo(Material::class);
+        return $this->belongsTo(PaperType::class);
     }
 
     public function service1(): BelongsTo

@@ -87,7 +87,7 @@
         </div>
         <div>
             <span class="stat-label">{{ __('dobs.operation_paper_material') }}</span>
-            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->material?->name ?? $dash }}</div>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->paperType?->name ?? $dash }}</div>
         </div>
         <div>
             <span class="stat-label">{{ __('dobs.operation_job_size') }}</span>

@@ -49,6 +49,7 @@ return [
         'ctp_supplier_id' => 'CTP',
         'color_count' => 'عدد الألوان',
         'material_id' => 'نوع الورق',
+        'paper_type_id' => 'نوع الورق',
         'job_size' => 'مقاس الشغل',
         'pull_count' => 'عدد السحبات',
         'quantity_per_sheet' => 'الكمية بالفرخ',

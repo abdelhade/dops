@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Item;
-use App\Models\Material;
+use App\Models\PaperType;
 use App\Models\Operation;
 use App\Models\OperationLog;
 use App\Models\OperationStatus;
@@ -28,7 +28,7 @@ class OperationController extends Controller
         'printing_supplier_id',
         'ctp_supplier_id',
         'color_count',
-        'material_id',
+        'paper_type_id',
         'job_size',
         'pull_count',
         'quantity_per_sheet',
@@ -41,7 +41,7 @@ class OperationController extends Controller
     {
         $query = Operation::with([
             'item', 'operationStatus', 'printingSupplier', 'ctpSupplier',
-            'material', 'service1', 'service2', 'service3'
+            'paperType', 'service1', 'service2', 'service3'
         ]);
 
         if ($request->filled('operation_number')) {
@@ -65,8 +65,8 @@ class OperationController extends Controller
         if ($request->filled('ctp_supplier_id')) {
             $query->where('ctp_supplier_id', $request->ctp_supplier_id);
         }
-        if ($request->filled('material_id')) {
-            $query->where('material_id', $request->material_id);
+        if ($request->filled('paper_type_id')) {
+            $query->where('paper_type_id', $request->paper_type_id);
         }
         if ($request->filled('color_count')) {
             $query->where('color_count', $request->color_count);
@@ -89,12 +89,12 @@ class OperationController extends Controller
 
         $items = Item::orderBy('name')->get();
         $suppliers = Supplier::orderBy('name')->get();
-        $materials = Material::orderBy('name')->get();
+        $paperTypes = PaperType::orderBy('name')->get();
         $services = Service::orderBy('name')->get();
         $operationStatuses = OperationStatus::orderBy('sort_order')->get();
 
         return view('operations.index', compact(
-            'operations', 'items', 'suppliers', 'materials', 'services', 'operationStatuses'
+            'operations', 'items', 'suppliers', 'paperTypes', 'services', 'operationStatuses'
         ));
     }
 
@@ -156,7 +156,7 @@ class OperationController extends Controller
             'item.paperSize',
             'printingSupplier',
             'ctpSupplier',
-            'material',
+            'paperType',
             'service1',
             'service2',
             'service3',
@@ -265,7 +265,7 @@ class OperationController extends Controller
             'item',
             'printingSupplier',
             'ctpSupplier',
-            'material',
+            'paperType',
             'service1',
             'service2',
             'service3',
@@ -285,7 +285,7 @@ class OperationController extends Controller
             [__('dobs.operation_printing_press'), $operation->printingSupplier?->name ?? ''],
             [__('dobs.operation_ctp'), $operation->ctpSupplier?->name ?? ''],
             [__('dobs.operation_color_count'), $operation->color_count ?? ''],
-            [__('dobs.operation_paper_material'), $operation->material?->name ?? ''],
+            [__('dobs.operation_paper_material'), $operation->paperType?->name ?? ''],
             [__('dobs.operation_job_size'), $operation->job_size ?? ''],
             [__('dobs.operation_pull_count'), $operation->pull_count ?? ''],
             [__('dobs.operation_quantity_per_sheet'), $operation->quantity_per_sheet ?? ''],
@@ -338,7 +338,7 @@ class OperationController extends Controller
         return [
             'items' => Item::orderBy('name')->get(),
             'suppliers' => Supplier::orderBy('name')->get(),
-            'materials' => Material::orderBy('name')->get(),
+            'paperTypes' => PaperType::orderBy('name')->get(),
             'services' => Service::orderBy('name')->get(),
             'operationStatuses' => OperationStatus::orderBy('sort_order')->get(),
         ];
@@ -366,7 +366,7 @@ class OperationController extends Controller
             'printing_supplier_id' => 'nullable|exists:suppliers,id',
             'ctp_supplier_id' => 'nullable|exists:suppliers,id',
             'color_count' => 'required|integer|min:1|max:10',
-            'material_id' => 'nullable|exists:materials,id',
+            'paper_type_id' => 'nullable|exists:paper_types,id',
             'job_size' => 'nullable|numeric|min:0',
             'pull_count' => 'nullable|integer|min:0',
             'quantity_per_sheet' => 'nullable|integer|min:0',
@@ -393,7 +393,7 @@ class OperationController extends Controller
             'printing_supplier_id' => $validated['printing_supplier_id'] ?? null,
             'ctp_supplier_id' => $validated['ctp_supplier_id'] ?? null,
             'color_count' => $validated['color_count'],
-            'material_id' => $validated['material_id'] ?? null,
+            'paper_type_id' => $validated['paper_type_id'] ?? null,
             'job_size' => $validated['job_size'] ?? null,
             'pull_count' => $validated['pull_count'] ?? null,
             'quantity_per_sheet' => $this->calcQuantityPerSheet($validated),

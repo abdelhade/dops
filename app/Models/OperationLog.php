@@ -120,7 +120,7 @@ class OperationLog extends Model
             return __('dobs.dash');
         }
 
-        if (in_array($field, ['operation_status_id', 'item_id', 'printing_supplier_id', 'ctp_supplier_id', 'material_id', 'service_1_id', 'service_2_id', 'service_3_id'], true)) {
+        if (in_array($field, ['operation_status_id', 'item_id', 'printing_supplier_id', 'ctp_supplier_id', 'paper_type_id', 'material_id', 'service_1_id', 'service_2_id', 'service_3_id'], true)) {
             return $this->resolveRelationName($field, $value);
         }
 
@@ -147,6 +147,7 @@ class OperationLog extends Model
             'operation_status_id' => OperationStatus::find($id)?->name ?? (string) $id,
             'item_id' => Item::find($id)?->name ?? (string) $id,
             'printing_supplier_id', 'ctp_supplier_id' => Supplier::find($id)?->name ?? (string) $id,
+            'paper_type_id' => PaperType::find($id)?->name ?? (string) $id,
             'material_id' => Material::find($id)?->name ?? (string) $id,
             'service_1_id', 'service_2_id', 'service_3_id' => Service::find($id)?->name ?? (string) $id,
             default => (string) $id,

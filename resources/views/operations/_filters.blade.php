@@ -58,10 +58,10 @@
 
         <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label" style="font-size: 0.85rem;">{{ __('dobs.operation_paper_material') }}</label>
-            <select name="material_id" class="form-control form-control-sm">
+            <select name="paper_type_id" class="form-control form-control-sm">
                 <option value="">-- الكل --</option>
-                @foreach($materials as $material)
-                    <option value="{{ $material->id }}" @selected(request('material_id') == $material->id)>{{ $material->name }}</option>
+                @foreach($paperTypes as $paperType)
+                    <option value="{{ $paperType->id }}" @selected(request('paper_type_id') == $paperType->id)>{{ $paperType->name }}</option>
                 @endforeach
             </select>
         </div>

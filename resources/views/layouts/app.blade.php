@@ -83,7 +83,7 @@
                 <li class="nav-item {{ request()->routeIs('paper-types.*') ? 'active' : '' }}">
                     <a href="{{ route('paper-types.index') }}">
                         <i class="fa-solid fa-scroll"></i>
-                        <span>{{ __('dobs.nav_raw_stock') }}</span>
+                        <span>{{ __('dobs.nav_paper_types') }}</span>
                     </a>
                 </li>
                 <li class="nav-item {{ request()->routeIs('services.*') ? 'active' : '' }}">
