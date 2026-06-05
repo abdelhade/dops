@@ -7,6 +7,155 @@
 
 @section('styles')
 <style>
+    .report-filters-card {
+        margin-bottom: 1.25rem;
+        padding: 1.1rem 1.25rem;
+        border: 1px solid var(--border-color);
+        background: linear-gradient(180deg, rgba(31, 41, 55, 0.55) 0%, rgba(17, 24, 39, 0.75) 100%);
+    }
+
+    .report-filters-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.85rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .report-filters-card-title {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .report-filters-card-title i {
+        color: var(--color-secondary);
+    }
+
+    .report-filters-card-hint {
+        margin: 0.25rem 0 0;
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+    }
+
+    .report-filters-primary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: flex-end;
+        justify-content: space-between;
+    }
+
+    .report-filters-primary-fields {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.85rem;
+        flex: 1;
+        min-width: min(100%, 520px);
+    }
+
+    .report-filter-field {
+        margin-bottom: 0;
+        min-width: 160px;
+    }
+
+    .report-filter-field-dates {
+        width: 170px;
+    }
+
+    .report-filter-field-search {
+        flex: 1;
+        min-width: 220px;
+    }
+
+    .report-filter-search-wrap {
+        position: relative;
+    }
+
+    .report-filter-search-wrap i {
+        position: absolute;
+        top: 50%;
+        right: 0.85rem;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        pointer-events: none;
+    }
+
+    .report-filter-search-wrap .form-control {
+        padding-right: 2.35rem;
+    }
+
+    .report-filters-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .report-filters-advanced {
+        margin-top: 0.9rem;
+        border-top: 1px dashed var(--border-color);
+        padding-top: 0.75rem;
+    }
+
+    .report-filters-advanced-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        cursor: pointer;
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        list-style: none;
+        user-select: none;
+    }
+
+    .report-filters-advanced-toggle::-webkit-details-marker {
+        display: none;
+    }
+
+    .report-filters-advanced[open] .report-filters-advanced-toggle {
+        color: var(--color-secondary);
+        margin-bottom: 0.85rem;
+    }
+
+    .report-filters-advanced-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.85rem;
+    }
+
+    .report-filter-field-wide {
+        grid-column: 1 / -1;
+    }
+
+    .report-awaiting-card {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        border: 1px dashed var(--border-color);
+        background: rgba(17, 24, 39, 0.45);
+    }
+
+    .report-awaiting-card i {
+        font-size: 2.5rem;
+        color: var(--color-secondary);
+        margin-bottom: 1rem;
+        opacity: 0.85;
+    }
+
+    .report-awaiting-card p {
+        margin: 0;
+        color: var(--text-secondary);
+        max-width: 34rem;
+        margin-inline: auto;
+        line-height: 1.7;
+    }
+
     .zanka-report-wrap {
         background: #fff;
         color: #000;
@@ -111,6 +260,21 @@
         color: #555;
     }
 
+    @media (max-width: 768px) {
+        .report-filters-primary {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .report-filters-actions {
+            width: 100%;
+        }
+
+        .report-filters-actions .btn {
+            flex: 1;
+        }
+    }
+
     @media print {
         @page {
             size: landscape;
@@ -122,7 +286,7 @@
             color: black !important;
         }
 
-        .sidebar, .no-print, .page-subtitle, .top-header, .top-header .header-actions, .alert {
+        .sidebar, .no-print, .page-subtitle, .top-header, .top-header .header-actions, .alert, .report-filters-card, .report-awaiting-card {
             display: none !important;
         }
 
@@ -166,7 +330,7 @@
 
 @section('content')
 @php
-    $hasActiveFilters = request()->filled('date_from') || request()->filled('date_to');
+    $filtersApplied = $filtersApplied ?? false;
     $dateFrom = request('date_from');
     $dateTo = request('date_to');
     $dash = __('dobs.dash');
@@ -182,182 +346,141 @@
     }
 @endphp
 
-<div class="no-print" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
-    <button type="button" class="btn btn-secondary" onclick="window.print()">
-        <i class="fa-solid fa-print"></i> {{ __('dobs.print') }}
-    </button>
+@if ($filtersApplied)
+    <div class="no-print" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+        <button type="button" class="btn btn-secondary" onclick="window.print()">
+            <i class="fa-solid fa-print"></i> {{ __('dobs.print') }}
+        </button>
+    </div>
+@endif
+
+<div class="glass-card report-filters-card no-print">
+    <div class="report-filters-card-header">
+        <div>
+            <h2 class="report-filters-card-title">
+                <i class="fa-solid fa-filter" aria-hidden="true"></i>
+                {{ __('dobs.report_filters_title') }}
+            </h2>
+            <p class="report-filters-card-hint">{{ __('dobs.report_filters_hint') }}</p>
+        </div>
+    </div>
+
+    @include('reports._filters', [
+        'filterAction' => route('reports.paper-materials-summary'),
+        'clearFiltersUrl' => route('reports.paper-materials-summary'),
+    ])
 </div>
 
-<div class="operations-filters-card glass-card no-print">
-    <button
-        type="button"
-        class="btn btn-secondary btn-sm operations-filters-toggle"
-        id="report-filters-toggle"
-        aria-expanded="{{ $hasActiveFilters ? 'true' : 'false' }}"
-        aria-controls="report-filters-panel"
-    >
-        <i class="fa-solid fa-filter"></i>
-        <span>{{ __('dobs.filters') }}</span>
-        @if ($hasActiveFilters)
-            <span class="operations-filters-badge" aria-hidden="true"></span>
+@if (! $filtersApplied)
+    <div class="glass-card report-awaiting-card no-print">
+        <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+        <p>{{ __('dobs.report_awaiting_filters') }}</p>
+    </div>
+@else
+    <div class="glass-card zanka-report-wrap">
+        <div class="zanka-report-header">
+            <h2 class="zanka-report-title">{{ __('dobs.report_zanka_list_title') }}</h2>
+            <div class="zanka-report-dates">{{ $dateRangeLabel }}</div>
+        </div>
+
+        <div class="table-container" style="overflow-x: auto;">
+            <table class="zanka-report-table">
+                <thead>
+                    <tr>
+                        <th class="col-date">{{ __('dobs.col_date') }}</th>
+                        <th class="col-num">{{ __('dobs.report_col_row_num') }}</th>
+                        <th class="col-statement">{{ __('dobs.report_col_statement') }}</th>
+                        <th class="col-ctp">{{ __('dobs.operation_ctp') }}</th>
+                        <th class="col-colors">{{ __('dobs.report_col_colors') }}</th>
+                        <th class="col-press">{{ __('dobs.operation_printing_press') }}</th>
+                        <th class="col-paper">{{ __('dobs.report_col_paper_type') }}</th>
+                        <th class="col-size">{{ __('dobs.report_col_job_sheet_size') }}</th>
+                        <th class="col-size">{{ __('dobs.report_col_zanka_size') }}</th>
+                        <th class="col-qty">{{ __('dobs.report_col_pull_runs') }}</th>
+                        <th class="col-qty">{{ __('dobs.report_col_total_pulls') }}</th>
+                        <th class="col-qty">{{ __('dobs.report_col_qty_per_sheet') }}</th>
+                        <th class="col-services">{{ __('dobs.report_col_services') }}</th>
+                        <th class="col-supplier">{{ __('dobs.report_col_supplier') }}</th>
+                        <th class="col-status">{{ __('dobs.report_col_status_short') }}</th>
+                        <th class="col-serial">{{ __('dobs.report_col_serial') }}</th>
+                        <th class="col-notes">{{ __('dobs.report_col_notes') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($operations as $index => $op)
+                        @php
+                            $dimension = $op->reportPaperDimension();
+                            $jobSizeLabel = $dimension ? $dimension . '-' : ($op->job_size !== null ? number_format((float) $op->job_size, 0) : '');
+                            $sheetSizeLabel = $dimension ?? ($op->job_size !== null ? number_format((float) $op->job_size, 0) : '');
+                            $services = $op->reportServicesLabel();
+                            $totalPulls = $op->reportTotalPullQuantity();
+                            $statusName = $op->operationStatus?->name ?? '';
+                            $statusShort = $statusName !== '' ? mb_substr($statusName, 0, 1) : $dash;
+                            $notes = trim((string) ($op->statement ?? $op->notes ?? ''));
+                        @endphp
+                        <tr>
+                            <td class="col-date">{{ $op->operation_date?->format('Y-m-d') ?? $dash }}</td>
+                            <td class="col-num">{{ $index + 1 }}</td>
+                            <td class="col-statement">{{ $op->item?->name ?? $dash }}</td>
+                            <td class="col-ctp">{{ $op->ctpSupplier?->name ?? $dash }}</td>
+                            <td class="col-colors">{{ $op->color_count ?? $dash }}</td>
+                            <td class="col-press">{{ $op->printingSupplier?->name ?? $dash }}</td>
+                            <td class="col-paper">{{ $op->paperType?->name ?? $dash }}</td>
+                            <td class="col-size">{{ $jobSizeLabel !== '' ? $jobSizeLabel : $dash }}</td>
+                            <td class="col-size">{{ $sheetSizeLabel !== '' ? $sheetSizeLabel : $dash }}</td>
+                            <td class="col-qty">{{ $op->pull_count ?? $dash }}</td>
+                            <td class="col-qty">{{ $totalPulls ?? $dash }}</td>
+                            <td class="col-qty">{{ $op->quantity_per_sheet ?? $dash }}</td>
+                            <td class="col-services">{{ $services !== '' ? $services : $dash }}</td>
+                            <td class="col-supplier">{{ $dash }}</td>
+                            <td class="col-status">{{ $statusShort }}</td>
+                            <td class="col-serial">{{ $op->operation_number }}</td>
+                            <td class="col-notes">{{ $notes !== '' ? $notes : $dash }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="17" class="empty-state">
+                                {{ __('dobs.report_no_data') }}
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        @if ($rows->isNotEmpty())
+            <table class="zanka-report-table zanka-summary-table">
+                <thead>
+                    <tr>
+                        <th>{{ __('dobs.report_paper_name') }}</th>
+                        <th>{{ __('dobs.report_col_total_pulls') }}</th>
+                        <th>{{ __('dobs.report_col_qty_per_sheet') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($rows as $row)
+                        <tr>
+                            <td>{{ $row->paper_type_name }}</td>
+                            <td>{{ number_format($row->total_pull_count) }}</td>
+                            <td>{{ number_format($row->total_quantity_per_sheet) }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>{{ __('dobs.report_totals') }}</th>
+                        <th>{{ number_format($totals->total_pull_count) }}</th>
+                        <th>{{ number_format($totals->total_quantity_per_sheet) }}</th>
+                    </tr>
+                </tfoot>
+            </table>
         @endif
-        <i class="fa-solid fa-chevron-down operations-filters-chevron"></i>
-    </button>
 
-    <div
-        id="report-filters-panel"
-        class="operations-filters-panel"
-        @unless($hasActiveFilters) hidden @endunless
-    >
-        <form method="GET" action="{{ route('reports.paper-materials-summary') }}" class="filters-form">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end;">
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label" style="font-size: 0.85rem;">{{ __('dobs.date_from') }}</label>
-                    <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
-                </div>
-
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label" style="font-size: 0.85rem;">{{ __('dobs.date_to') }}</label>
-                    <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
-                </div>
-
-                <div class="form-group" style="margin-bottom: 0; display: flex; gap: 0.5rem;">
-                    <button type="submit" class="btn btn-primary btn-sm" style="flex: 1;">
-                        <i class="fa-solid fa-filter"></i> {{ __('dobs.apply_filters') }}
-                    </button>
-                    <a href="{{ route('reports.paper-materials-summary') }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.clear_filters') }}">
-                        <i class="fa-solid fa-xmark"></i>
-                    </a>
-                </div>
-            </div>
-        </form>
+        <div class="zanka-report-footer">
+            <span>{{ __('dobs.report_footer_copyright') }}</span>
+            <span>{{ now()->format('n/j/y, g:i A') }}</span>
+            <span>{{ __('dobs.app_name') }}</span>
+        </div>
     </div>
-</div>
-
-<div class="glass-card zanka-report-wrap">
-    <div class="zanka-report-header">
-        <h2 class="zanka-report-title">{{ __('dobs.report_zanka_list_title') }}</h2>
-        <div class="zanka-report-dates">{{ $dateRangeLabel }}</div>
-    </div>
-
-    <div class="table-container" style="overflow-x: auto;">
-        <table class="zanka-report-table">
-            <thead>
-                <tr>
-                    <th class="col-date">{{ __('dobs.col_date') }}</th>
-                    <th class="col-num">{{ __('dobs.report_col_row_num') }}</th>
-                    <th class="col-statement">{{ __('dobs.report_col_statement') }}</th>
-                    <th class="col-ctp">{{ __('dobs.operation_ctp') }}</th>
-                    <th class="col-colors">{{ __('dobs.report_col_colors') }}</th>
-                    <th class="col-press">{{ __('dobs.operation_printing_press') }}</th>
-                    <th class="col-paper">{{ __('dobs.report_col_paper_type') }}</th>
-                    <th class="col-size">{{ __('dobs.report_col_job_sheet_size') }}</th>
-                    <th class="col-size">{{ __('dobs.report_col_zanka_size') }}</th>
-                    <th class="col-qty">{{ __('dobs.report_col_pull_runs') }}</th>
-                    <th class="col-qty">{{ __('dobs.report_col_total_pulls') }}</th>
-                    <th class="col-qty">{{ __('dobs.report_col_qty_per_sheet') }}</th>
-                    <th class="col-services">{{ __('dobs.report_col_services') }}</th>
-                    <th class="col-supplier">{{ __('dobs.report_col_supplier') }}</th>
-                    <th class="col-status">{{ __('dobs.report_col_status_short') }}</th>
-                    <th class="col-serial">{{ __('dobs.report_col_serial') }}</th>
-                    <th class="col-notes">{{ __('dobs.report_col_notes') }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($operations as $index => $op)
-                    @php
-                        $dimension = $op->reportPaperDimension();
-                        $jobSizeLabel = $dimension ? $dimension . '-' : ($op->job_size !== null ? number_format((float) $op->job_size, 0) : '');
-                        $sheetSizeLabel = $dimension ?? ($op->job_size !== null ? number_format((float) $op->job_size, 0) : '');
-                        $services = $op->reportServicesLabel();
-                        $totalPulls = $op->reportTotalPullQuantity();
-                        $statusName = $op->operationStatus?->name ?? '';
-                        $statusShort = $statusName !== '' ? mb_substr($statusName, 0, 1) : $dash;
-                        $notes = trim((string) ($op->statement ?? $op->notes ?? ''));
-                    @endphp
-                    <tr>
-                        <td class="col-date">{{ $op->operation_date?->format('Y-m-d') ?? $dash }}</td>
-                        <td class="col-num">{{ $index + 1 }}</td>
-                        <td class="col-statement">{{ $op->item?->name ?? $dash }}</td>
-                        <td class="col-ctp">{{ $op->ctpSupplier?->name ?? $dash }}</td>
-                        <td class="col-colors">{{ $op->color_count ?? $dash }}</td>
-                        <td class="col-press">{{ $op->printingSupplier?->name ?? $dash }}</td>
-                        <td class="col-paper">{{ $op->paperType?->name ?? $dash }}</td>
-                        <td class="col-size">{{ $jobSizeLabel !== '' ? $jobSizeLabel : $dash }}</td>
-                        <td class="col-size">{{ $sheetSizeLabel !== '' ? $sheetSizeLabel : $dash }}</td>
-                        <td class="col-qty">{{ $op->pull_count ?? $dash }}</td>
-                        <td class="col-qty">{{ $totalPulls ?? $dash }}</td>
-                        <td class="col-qty">{{ $op->quantity_per_sheet ?? $dash }}</td>
-                        <td class="col-services">{{ $services !== '' ? $services : $dash }}</td>
-                        <td class="col-supplier">{{ $dash }}</td>
-                        <td class="col-status">{{ $statusShort }}</td>
-                        <td class="col-serial">{{ $op->operation_number }}</td>
-                        <td class="col-notes">{{ $notes !== '' ? $notes : $dash }}</td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="17" class="empty-state">
-                            {{ __('dobs.report_no_data') }}
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    @if ($rows->isNotEmpty())
-        <table class="zanka-report-table zanka-summary-table">
-            <thead>
-                <tr>
-                    <th>{{ __('dobs.report_paper_name') }}</th>
-                    <th>{{ __('dobs.report_col_total_pulls') }}</th>
-                    <th>{{ __('dobs.report_col_qty_per_sheet') }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($rows as $row)
-                    <tr>
-                        <td>{{ $row->paper_type_name }}</td>
-                        <td>{{ number_format($row->total_pull_count) }}</td>
-                        <td>{{ number_format($row->total_quantity_per_sheet) }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th>{{ __('dobs.report_totals') }}</th>
-                    <th>{{ number_format($totals->total_pull_count) }}</th>
-                    <th>{{ number_format($totals->total_quantity_per_sheet) }}</th>
-                </tr>
-            </tfoot>
-        </table>
-    @endif
-
-    <div class="zanka-report-footer">
-        <span>{{ __('dobs.report_footer_copyright') }}</span>
-        <span>{{ now()->format('n/j/y, g:i A') }}</span>
-        <span>{{ __('dobs.app_name') }}</span>
-    </div>
-</div>
-@endsection
-
-@section('scripts')
-<script>
-(function () {
-    const toggle = document.getElementById('report-filters-toggle');
-    const panel = document.getElementById('report-filters-panel');
-    if (!toggle || !panel) return;
-
-    toggle.addEventListener('click', function () {
-        const open = panel.hidden;
-        panel.hidden = !open;
-        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-        toggle.classList.toggle('is-open', open);
-    });
-
-    if (toggle.getAttribute('aria-expanded') === 'true') {
-        toggle.classList.add('is-open');
-    }
-})();
-</script>
+@endif
 @endsection

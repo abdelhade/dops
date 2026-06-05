@@ -1,6 +1,18 @@
-<form method="GET" action="{{ route('operations.index') }}" class="filters-form">
+@php
+    $filterAction = $filterAction ?? route('operations.index');
+    $clearFiltersUrl = $clearFiltersUrl ?? route('operations.index');
+@endphp
+
+<form method="GET" action="{{ $filterAction }}" class="filters-form">
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end;">
-        
+
+        @if (!empty($showGlobalSearch))
+            <div class="form-group" style="margin-bottom: 0; grid-column: 1 / -1;">
+                <label class="form-label" style="font-size: 0.85rem;">{{ __('dobs.report_global_search') }}</label>
+                <input type="text" name="search" class="form-control form-control-sm" value="{{ request('search') }}" placeholder="{{ __('dobs.report_global_search_placeholder') }}">
+            </div>
+        @endif
+
         <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label" style="font-size: 0.85rem;">{{ __('dobs.col_op_number') }}</label>
             <input type="text" name="operation_number" class="form-control form-control-sm" value="{{ request('operation_number') }}" placeholder="بحث بالرقم...">
@@ -93,7 +105,7 @@
 
         <div class="form-group" style="margin-bottom: 0; display: flex; gap: 0.5rem;">
             <button type="submit" class="btn btn-primary btn-sm" style="flex: 1;"><i class="fa-solid fa-filter"></i> فلترة</button>
-            <a href="{{ route('operations.index') }}" class="btn btn-secondary btn-sm" title="مسح الفلاتر"><i class="fa-solid fa-xmark"></i></a>
+            <a href="{{ $clearFiltersUrl }}" class="btn btn-secondary btn-sm" title="مسح الفلاتر"><i class="fa-solid fa-xmark"></i></a>
         </div>
 
     </div>
