@@ -98,6 +98,24 @@
                         <span>{{ __('dobs.nav_activities') }}</span>
                     </a>
                 </li>
+                <li class="nav-group {{ request()->routeIs('reports.*') ? 'is-open active' : '' }}">
+                    <button
+                        type="button"
+                        class="nav-group-toggle"
+                        aria-expanded="{{ request()->routeIs('reports.*') ? 'true' : 'false' }}"
+                    >
+                        <i class="fa-solid fa-chart-column"></i>
+                        <span>{{ __('dobs.nav_reports') }}</span>
+                        <i class="fa-solid fa-chevron-down nav-group-chevron" aria-hidden="true"></i>
+                    </button>
+                    <ul class="nav-submenu">
+                        <li class="nav-subitem {{ request()->routeIs('reports.paper-materials-summary') ? 'active' : '' }}">
+                            <a href="{{ route('reports.paper-materials-summary') }}">
+                                <span>{{ __('dobs.report_paper_materials_summary') }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
                 @auth
                     @if (auth()->user()->canManageUsers())
                         <li class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">

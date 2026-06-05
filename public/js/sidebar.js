@@ -74,11 +74,23 @@
         overlay.addEventListener('click', closeSidebar);
     }
 
-    document.querySelectorAll('.sidebar .nav-item a').forEach(function (link) {
+    document.querySelectorAll('.sidebar .nav-item a, .sidebar .nav-subitem a').forEach(function (link) {
         link.addEventListener('click', function () {
             if (isMobile()) {
                 closeSidebar();
             }
+        });
+    });
+
+    document.querySelectorAll('.sidebar .nav-group-toggle').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var group = button.closest('.nav-group');
+            if (!group) {
+                return;
+            }
+            var open = !group.classList.contains('is-open');
+            group.classList.toggle('is-open', open);
+            button.setAttribute('aria-expanded', open ? 'true' : 'false');
         });
     });
 

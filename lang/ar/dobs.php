@@ -513,4 +513,17 @@ return [
     'import_sample_service_name' => 'تجليد حراري',
     'import_sample_item_name' => 'صنف مثال',
     'import_sample_description' => 'وصف اختياري',
+
+    // Reports
+    'nav_reports' => 'التقارير',
+    'report_paper_materials_summary' => 'تقرير مجمع الخامات',
+    'report_paper_materials_summary_subtitle' => 'مجموع السحبات والكمية بالفرخ لكل نوع ورق من العمليات.',
+    'report_operations_count' => 'عدد العمليات',
+    'report_totals' => 'الإجمالي',
+    'report_no_data' => 'لا توجد بيانات للفترة المحددة.',
+    'report_unspecified_paper_type' => 'غير محدد',
+    'date_from' => 'من تاريخ',
+    'date_to' => 'إلى تاريخ',
+    'apply_filters' => 'فلترة',
+    'clear_filters' => 'مسح الفلاتر',
 ];

@@ -15,6 +15,7 @@ use App\Http\Controllers\PaperTypeController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\StageController;
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -54,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('services', ServiceController::class);
     Route::resource('stages', StageController::class);
     Route::get('activities', [ActivityController::class, 'index'])->name('activities.index');
+    Route::get('reports/paper-materials-summary', [ReportController::class, 'paperMaterialsSummary'])->name('reports.paper-materials-summary');
     Route::resource('operation-statuses', OperationStatusController::class)->except(['show']);
 
     Route::middleware('role:admin')->group(function () {

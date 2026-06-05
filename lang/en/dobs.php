@@ -492,4 +492,17 @@ return [
     'import_sample_service_name' => 'Thermal binding',
     'import_sample_item_name' => 'Sample item',
     'import_sample_description' => 'Optional description',
+
+    // Reports
+    'nav_reports' => 'Reports',
+    'report_paper_materials_summary' => 'Paper Materials Summary',
+    'report_paper_materials_summary_subtitle' => 'Total pulls and quantity per ream by paper type from operations.',
+    'report_operations_count' => 'Operations count',
+    'report_totals' => 'Totals',
+    'report_no_data' => 'No data for the selected period.',
+    'report_unspecified_paper_type' => 'Unspecified',
+    'date_from' => 'From date',
+    'date_to' => 'To date',
+    'apply_filters' => 'Apply filters',
+    'clear_filters' => 'Clear filters',
 ];
