@@ -8,7 +8,7 @@
     <div class="form-row form-row-4">
         <div class="form-group">
             <label for="operation_number" class="form-label">{{ __('dobs.operation_serial') }} <span class="text-required">*</span></label>
-            <input type="text" name="operation_number" id="operation_number" class="form-control form-control-mono" value="{{ old('operation_number', $op?->operation_number ?? $opNumber) }}" readonly required>
+            <input type="text" name="operation_number" id="operation_number" class="form-control form-control-mono" value="{{ old('operation_number', $op?->operation_number ?? $opNumber) }}" required>
         </div>
 
         <div class="form-group">

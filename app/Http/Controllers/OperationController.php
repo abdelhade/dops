@@ -102,7 +102,7 @@ class OperationController extends Controller
     {
         $this->authorizeCreate();
 
-        $opNumber = 'off-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
+        $opNumber = 'OFF';
 
         $op = null;
         if (request()->has('copy_from')) {
