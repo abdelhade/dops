@@ -517,7 +517,9 @@ return [
     // Reports
     'nav_reports' => 'التقارير',
     'report_paper_materials_summary' => 'تقرير مجمع الخامات',
-    'report_paper_materials_summary_subtitle' => 'مجموع السحبات والكمية بالفرخ لكل نوع ورق من العمليات.',
+    'report_paper_materials_summary_subtitle' => 'قائمة العمليات وجدول مجمّع للسحبات والكمية بالفرخ لكل نوع ورق.',
+    'report_operations_list' => 'العمليات',
+    'report_summary_section' => 'الملخص المجمع',
     'report_operations_count' => 'عدد العمليات',
     'report_totals' => 'الإجمالي',
     'report_no_data' => 'لا توجد بيانات للفترة المحددة.',

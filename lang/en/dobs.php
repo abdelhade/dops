@@ -496,7 +496,9 @@ return [
     // Reports
     'nav_reports' => 'Reports',
     'report_paper_materials_summary' => 'Paper Materials Summary',
-    'report_paper_materials_summary_subtitle' => 'Total pulls and quantity per ream by paper type from operations.',
+    'report_paper_materials_summary_subtitle' => 'Operations list and aggregated pulls and quantity per ream by paper type.',
+    'report_operations_list' => 'Operations',
+    'report_summary_section' => 'Summary',
     'report_operations_count' => 'Operations count',
     'report_totals' => 'Totals',
     'report_no_data' => 'No data for the selected period.',

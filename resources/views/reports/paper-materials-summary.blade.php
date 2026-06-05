@@ -66,7 +66,61 @@
     </div>
 </div>
 
-<div class="glass-card printable-area">
+<div class="glass-card printable-area report-section-card">
+    <h2 class="report-section-title">
+        <i class="fa-solid fa-list" aria-hidden="true"></i>
+        {{ __('dobs.report_operations_list') }}
+    </h2>
+    <div class="table-container" style="overflow-x: auto;">
+        <table class="custom-table report-operations-table">
+            <thead>
+                <tr>
+                    <th>{{ __('dobs.col_op_number') }}</th>
+                    <th>{{ __('dobs.col_date') }}</th>
+                    <th>{{ __('dobs.col_item') }}</th>
+                    <th>{{ __('dobs.operation_paper_material') }}</th>
+                    <th>{{ __('dobs.operation_pull_count') }}</th>
+                    <th>{{ __('dobs.operation_quantity_per_sheet') }}</th>
+                    <th>{{ __('dobs.col_status') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($operations as $op)
+                    <tr>
+                        <td>
+                            <a href="{{ route('operations.show', $op->id) }}" class="report-op-link">
+                                {{ $op->operation_number }}
+                            </a>
+                        </td>
+                        <td>{{ $op->operation_date?->format('Y-m-d') ?? __('dobs.dash') }}</td>
+                        <td>{{ $op->item?->name ?? __('dobs.dash') }}</td>
+                        <td>{{ $op->paperType?->name ?? __('dobs.dash') }}</td>
+                        <td>{{ $op->pull_count ?? __('dobs.dash') }}</td>
+                        <td>{{ $op->quantity_per_sheet ?? __('dobs.dash') }}</td>
+                        <td>
+                            <span class="badge" style="background-color: {{ $op->operationStatus?->color ?? '#6c757d' }}; color: white;">
+                                {{ $op->operationStatus?->name ?? __('dobs.dash') }}
+                            </span>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <i class="fa-solid fa-receipt"></i>
+                            {{ __('dobs.no_operations') }}
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="glass-card printable-area report-section-card">
+    <h2 class="report-section-title">
+        <i class="fa-solid fa-chart-column" aria-hidden="true"></i>
+        {{ __('dobs.report_summary_section') }}
+    </h2>
     <div class="table-container">
         <table class="custom-table">
             <thead>
