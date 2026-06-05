@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\Item;
 use App\Models\PaperType;
 use App\Models\Operation;
@@ -19,6 +20,7 @@ class OperationController extends Controller
     /** @var list<string> */
     private const TRACKABLE_FIELDS = [
         'operation_status_id',
+        'client_id',
         'operation_number',
         'operation_date',
         'operation_time',
@@ -40,7 +42,7 @@ class OperationController extends Controller
     public function index(Request $request)
     {
         $query = Operation::with([
-            'item', 'operationStatus', 'printingSupplier', 'ctpSupplier',
+            'client', 'item', 'operationStatus', 'printingSupplier', 'ctpSupplier',
             'paperType', 'service1', 'service2', 'service3'
         ]);
 
@@ -152,6 +154,7 @@ class OperationController extends Controller
     public function show(Operation $operation)
     {
         $operation->load([
+            'client',
             'item.category',
             'item.paperSize',
             'printingSupplier',
@@ -262,6 +265,7 @@ class OperationController extends Controller
     public function export(Operation $operation): StreamedResponse
     {
         $operation->load([
+            'client',
             'item',
             'printingSupplier',
             'ctpSupplier',
@@ -279,6 +283,7 @@ class OperationController extends Controller
             [__('dobs.operation_status'), $operation->operationStatus?->name ?? ''],
             [__('dobs.operation_date'), $operation->operation_date?->format('Y-m-d') ?? ''],
             [__('dobs.operation_current_time'), $operation->formattedOperationTime() ?? ''],
+            [__('dobs.operation_client'), $operation->client?->name ?? ''],
             [__('dobs.operation_product_1'), $operation->item?->name ?? ''],
             [__('dobs.col_quantity'), $operation->quantity ?? ''],
             [__('dobs.operation_statement'), $operation->statement ?? $operation->notes ?? ''],
@@ -336,6 +341,7 @@ class OperationController extends Controller
     private function formOptions(): array
     {
         return [
+            'clients' => Client::orderBy('name')->get(),
             'items' => Item::orderBy('name')->get(),
             'suppliers' => Supplier::orderBy('name')->get(),
             'paperTypes' => PaperType::orderBy('name')->get(),
@@ -360,6 +366,7 @@ class OperationController extends Controller
             ],
             'operation_date' => 'required|date',
             'operation_time' => 'required|date_format:H:i',
+            'client_id' => 'nullable|exists:clients,id',
             'item_id' => 'required|exists:items,id',
             'quantity' => 'required|integer|min:1',
             'statement' => 'nullable|string',
@@ -387,6 +394,7 @@ class OperationController extends Controller
             'operation_number' => $validated['operation_number'],
             'operation_date' => $validated['operation_date'],
             'operation_time' => $validated['operation_time'] . ':00',
+            'client_id' => $validated['client_id'] ?? null,
             'item_id' => $validated['item_id'],
             'quantity' => $validated['quantity'],
             'statement' => $validated['statement'] ?? null,

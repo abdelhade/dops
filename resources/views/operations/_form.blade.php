@@ -42,6 +42,18 @@
         </div>
     </div>
 
+    <div class="form-group">
+        <label for="client_id" class="form-label">{{ __('dobs.operation_client') }}</label>
+        <select name="client_id" id="client_id" class="form-control">
+            <option value="">{{ __('dobs.select_client') }}</option>
+            @foreach($clients as $client)
+                <option value="{{ $client->id }}" {{ (string) old('client_id', $op?->client_id) === (string) $client->id ? 'selected' : '' }}>
+                    {{ $client->name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+
     <div class="form-row form-row-product">
         <div class="form-group">
             <label for="item_id" class="form-label">{{ __('dobs.operation_product_1') }} <span class="text-required">*</span></label>

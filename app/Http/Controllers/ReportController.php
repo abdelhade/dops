@@ -13,8 +13,13 @@ class ReportController extends Controller
         $query = $this->filteredOperationsQuery($request);
 
         $operations = (clone $query)
-            ->with(['item', 'paperType', 'operationStatus'])
-            ->latest()
+            ->with([
+                'item', 'paperType', 'operationStatus',
+                'printingSupplier', 'ctpSupplier',
+                'service1', 'service2', 'service3',
+            ])
+            ->orderBy('operation_date')
+            ->orderBy('id')
             ->get();
 
         $rows = (clone $query)
@@ -22,9 +27,8 @@ class ReportController extends Controller
             ->select(
                 'operations.paper_type_id',
                 'paper_types.name as paper_type_name',
-                DB::raw('COALESCE(SUM(operations.pull_count), 0) as total_pull_count'),
+                DB::raw('COALESCE(SUM(COALESCE(operations.pull_count, 0) * COALESCE(operations.quantity_per_sheet, 0)), 0) as total_pull_count'),
                 DB::raw('COALESCE(SUM(operations.quantity_per_sheet), 0) as total_quantity_per_sheet'),
-                DB::raw('COUNT(*) as operations_count'),
             )
             ->groupBy('operations.paper_type_id', 'paper_types.name')
             ->orderByRaw('paper_types.name IS NULL, paper_types.name')
@@ -38,7 +42,6 @@ class ReportController extends Controller
         $totals = (object) [
             'total_pull_count' => (int) $rows->sum('total_pull_count'),
             'total_quantity_per_sheet' => (int) $rows->sum('total_quantity_per_sheet'),
-            'operations_count' => (int) $rows->sum('operations_count'),
         ];
 
         return view('reports.paper-materials-summary', compact('operations', 'rows', 'totals'));

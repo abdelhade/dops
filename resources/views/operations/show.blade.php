@@ -62,6 +62,10 @@
             <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->formattedOperationTime() ?? $dash }}</div>
         </div>
         <div>
+            <span class="stat-label">{{ __('dobs.operation_client') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->client?->name ?? $dash }}</div>
+        </div>
+        <div>
             <span class="stat-label">{{ __('dobs.operation_product_1') }}</span>
             <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->item?->name ?? $dash }}</div>
         </div>

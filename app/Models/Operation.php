@@ -19,6 +19,11 @@ class Operation extends Model
         ];
     }
 
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(Client::class);
+    }
+
     public function item(): BelongsTo
     {
         return $this->belongsTo(Item::class);
@@ -70,6 +75,37 @@ class Operation extends Model
         return $this->belongsToMany(Item::class, 'operation_items')
             ->withPivot('quantity', 'unit_price', 'notes')
             ->withTimestamps();
+    }
+
+    public function reportPaperDimension(): ?string
+    {
+        $name = $this->paperType?->name;
+
+        if ($name && preg_match('/(\d+\*\d+)/', $name, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
+    }
+
+    public function reportServicesLabel(): string
+    {
+        $services = collect([
+            $this->service1?->name,
+            $this->service2?->name,
+            $this->service3?->name,
+        ])->filter()->values();
+
+        return $services->isNotEmpty() ? $services->implode('+') : '';
+    }
+
+    public function reportTotalPullQuantity(): ?int
+    {
+        if ($this->pull_count === null || $this->quantity_per_sheet === null) {
+            return null;
+        }
+
+        return (int) $this->pull_count * (int) $this->quantity_per_sheet;
     }
 
     public static function nextOperationNumber(): string
