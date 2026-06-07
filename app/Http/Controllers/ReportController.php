@@ -186,4 +186,93 @@ class ReportController extends Controller
 
         return $query;
     }
+
+    public function operationsKanban(Request $request)
+    {
+        $statuses = OperationStatus::orderBy('sort_order')->get();
+
+        return view('reports.operations-kanban', compact('statuses'));
+    }
+
+    public function operationsKanbanLoad(Request $request)
+    {
+        $validated = $request->validate([
+            'operation_status_id' => 'required|exists:operation_statuses,id',
+            'page' => 'nullable|integer|min:1',
+            'search' => 'nullable|string|max:200',
+            'date_from' => 'nullable|date',
+            'date_to' => 'nullable|date',
+        ]);
+
+        $perPage = 12;
+        $page = (int) ($validated['page'] ?? 1);
+
+        $query = Operation::query()
+            ->where('operation_status_id', $validated['operation_status_id'])
+            ->with([
+                'client', 'item', 'paperType', 'printingSupplier',
+                'service1', 'service2', 'service3',
+            ]);
+
+        if ($request->filled('search')) {
+            $term = '%' . $request->search . '%';
+            $query->where(function ($q) use ($term) {
+                $q->where('operation_number', 'like', $term)
+                    ->orWhere('statement', 'like', $term)
+                    ->orWhere('notes', 'like', $term)
+                    ->orWhereHas('client', fn ($clientQuery) => $clientQuery->where('name', 'like', $term))
+                    ->orWhereHas('item', fn ($itemQuery) => $itemQuery->where('name', 'like', $term));
+            });
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('operation_date', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('operation_date', '<=', $request->date_to);
+        }
+
+        $paginated = $query
+            ->orderByDesc('operation_date')
+            ->orderByDesc('id')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'operations' => collect($paginated->items())
+                ->map(fn (Operation $operation) => $this->serializeKanbanOperation($operation))
+                ->values()
+                ->all(),
+            'has_more' => $paginated->hasMorePages(),
+            'next_page' => $paginated->currentPage() + 1,
+            'total' => $paginated->total(),
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function serializeKanbanOperation(Operation $operation): array
+    {
+        $services = collect([
+            $operation->service1?->name,
+            $operation->service2?->name,
+            $operation->service3?->name,
+        ])->filter()->values()->all();
+
+        return [
+            'id' => $operation->id,
+            'operation_number' => $operation->operation_number,
+            'operation_date' => $operation->operation_date?->format('Y-m-d'),
+            'operation_time' => $operation->formattedOperationTime(),
+            'client_name' => $operation->client?->name,
+            'item_name' => $operation->item?->name,
+            'quantity' => $operation->quantity,
+            'color_count' => $operation->color_count,
+            'pull_count' => $operation->pull_count,
+            'statement' => $operation->statement ?? $operation->notes,
+            'paper_type_name' => $operation->paperType?->name,
+            'printing_supplier_name' => $operation->printingSupplier?->name,
+            'services' => $services,
+            'show_url' => route('operations.show', $operation->id),
+        ];
+    }
 }

@@ -30,9 +30,24 @@
             </div>
 
             <div class="form-group">
+                <label class="form-label">{{ __('dobs.status_days') }} <span class="text-danger">{{ __('dobs.required_mark') }}</span></label>
+                <input type="number" name="days" min="1" step="1" class="form-control @error('days') is-invalid @enderror" value="{{ old('days', 1) }}" required>
+                @error('days')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+
+            <div class="form-group">
                 <label class="form-label">{{ __('dobs.status_color') }}</label>
                 <input type="color" name="color" class="form-control @error('color') is-invalid @enderror" value="{{ old('color', '#3498db') }}">
                 @error('color')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">{{ __('dobs.status_is_end') }}</label>
+                <div style="display: flex; align-items: center; gap: 0.5rem; min-height: 42px;">
+                    <input type="checkbox" name="is_end" value="1" id="is_end" {{ old('is_end') ? 'checked' : '' }}>
+                    <label for="is_end" style="margin: 0; cursor: pointer;">{{ __('dobs.status_is_end_hint') }}</label>
+                </div>
+                @error('is_end')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
             </div>
             
             <div class="form-group" style="grid-column: 1 / -1;">

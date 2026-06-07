@@ -20,10 +20,12 @@
             <thead>
                 <tr>
                     <th style="width: 5%">{{ __('dobs.col_id') }}</th>
-                    <th style="width: 30%">{{ __('dobs.status_name') }}</th>
-                    <th style="width: 20%">{{ __('dobs.status_color') }}</th>
-                    <th style="width: 20%">{{ __('dobs.sort_order') }}</th>
-                    <th style="width: 25; text-align: left;">{{ __('dobs.col_actions') }}</th>
+                    <th style="width: 25%">{{ __('dobs.status_name') }}</th>
+                    <th style="width: 15%">{{ __('dobs.status_color') }}</th>
+                    <th style="width: 10%">{{ __('dobs.sort_order') }}</th>
+                    <th style="width: 10%">{{ __('dobs.status_days') }}</th>
+                    <th style="width: 10%">{{ __('dobs.status_is_end') }}</th>
+                    <th style="width: 25%; text-align: left;">{{ __('dobs.col_actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -46,6 +48,18 @@
                             </span>
                         </td>
                         <td>
+                            <span class="badge badge-secondary" style="font-size: 0.9rem;">
+                                {{ $status->days }}
+                            </span>
+                        </td>
+                        <td>
+                            @if ($status->is_end)
+                                <span class="badge badge-success">{{ __('dobs.yes') }}</span>
+                            @else
+                                <span class="badge badge-secondary">{{ __('dobs.no') }}</span>
+                            @endif
+                        </td>
+                        <td>
                             @include('partials.crud-actions', [
                                 'editRoute' => route('operation-statuses.edit', $status->id),
                                 'destroyRoute' => route('operation-statuses.destroy', $status->id),
@@ -55,7 +69,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="empty-state">
+                        <td colspan="7" class="empty-state">
                             <i class="fa-solid fa-bars-progress"></i>
                             {{ __('dobs.no_statuses') }}
                         </td>

@@ -29,8 +29,18 @@ class OperationStatusController extends Controller
             'name' => 'required|string|max:255',
             'color' => 'nullable|string|max:50',
             'sort_order' => 'required|integer',
+            'days' => 'required|integer|min:1',
+            'is_end' => 'nullable|boolean',
             'description' => 'nullable|string',
         ]);
+
+        $validated['is_end'] = $request->boolean('is_end');
+
+        if ($validated['is_end'] && OperationStatus::where('is_end', true)->exists()) {
+            return back()
+                ->withErrors(['is_end' => __('dobs.status_is_end_unique')])
+                ->withInput();
+        }
 
         OperationStatus::create($validated);
 
@@ -51,8 +61,18 @@ class OperationStatusController extends Controller
             'name' => 'required|string|max:255',
             'color' => 'nullable|string|max:50',
             'sort_order' => 'required|integer',
+            'days' => 'required|integer|min:1',
+            'is_end' => 'nullable|boolean',
             'description' => 'nullable|string',
         ]);
+
+        $validated['is_end'] = $request->boolean('is_end');
+
+        if ($validated['is_end'] && OperationStatus::where('is_end', true)->where('id', '!=', $operationStatus->id)->exists()) {
+            return back()
+                ->withErrors(['is_end' => __('dobs.status_is_end_unique')])
+                ->withInput();
+        }
 
         $operationStatus->update($validated);
 

@@ -11,7 +11,13 @@ class OperationStatus extends Model
         'name',
         'color',
         'sort_order',
+        'days',
+        'is_end',
         'description',
+    ];
+
+    protected $casts = [
+        'is_end' => 'boolean',
     ];
 
     public function operations(): HasMany

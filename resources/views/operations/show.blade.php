@@ -162,63 +162,99 @@
     @endif
 </div>
 
-<div class="operation-print-sheet print-only">
-    <div class="operation-print-header">
-        <h2 class="operation-print-title">{{ __('dobs.dobs_print_system') }}</h2>
+<div class="operation-print-card print-only">
+    <header class="operation-print-header">
+        <div class="operation-print-brand">{{ __('dobs.app_name') }}</div>
+        <h1 class="operation-print-title">{{ __('dobs.nav_operations') }} — {{ $operation->operation_number }}</h1>
         <div class="operation-print-meta">
-            {{ $operation->operation_number }}
-            @if ($operation->operation_date)
-                — {{ $operation->operation_date->format('Y-m-d') }}
+            <span>{{ __('dobs.operation_date') }}: {{ $operation->operation_date?->format('Y-m-d') ?? $dash }}</span>
+            @if ($operation->formattedOperationTime())
+                <span>{{ __('dobs.operation_current_time') }}: {{ $operation->formattedOperationTime() }}</span>
             @endif
+        </div>
+    </header>
+
+    <div class="operation-print-body">
+        <div class="operation-print-grid">
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_serial') }}</span>
+                <span class="operation-print-value operation-print-value-mono">{{ $operation->operation_number }}</span>
+            </div>
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_date') }}</span>
+                <span class="operation-print-value">{{ $operation->operation_date?->format('Y-m-d') ?? $dash }}</span>
+            </div>
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_client') }}</span>
+                <span class="operation-print-value">{{ $operation->client?->name ?? $dash }}</span>
+            </div>
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_product_1') }}</span>
+                <span class="operation-print-value">{{ $operation->item?->name ?? $dash }}</span>
+            </div>
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.col_quantity') }}</span>
+                <span class="operation-print-value">{{ $field($operation->quantity) }}</span>
+            </div>
+            <div class="operation-print-field operation-print-field-full">
+                <span class="operation-print-label">{{ __('dobs.operation_statement') }}</span>
+                <span class="operation-print-value operation-print-value-block">{{ $field($operation->statement) }}</span>
+            </div>
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_printing_press') }}</span>
+                <span class="operation-print-value">{{ $operation->printingSupplier?->name ?? $dash }}</span>
+            </div>
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_ctp') }}</span>
+                <span class="operation-print-value">{{ $operation->ctpSupplier?->name ?? $dash }}</span>
+            </div>
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_color_count') }}</span>
+                <span class="operation-print-value">{{ $field($operation->color_count) }}</span>
+            </div>
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_paper_material') }}</span>
+                <span class="operation-print-value">{{ $operation->paperType?->name ?? $dash }}</span>
+            </div>
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_job_size') }}</span>
+                <span class="operation-print-value">{{ $jobSizeLabel !== '' ? $jobSizeLabel : $dash }}</span>
+            </div>
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_pull_count') }}</span>
+                <span class="operation-print-value">{{ $field($operation->pull_count) }}</span>
+            </div>
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_quantity_per_sheet') }}</span>
+                <span class="operation-print-value">{{ $field($operation->quantity_per_sheet) }}</span>
+            </div>
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_service_1') }}</span>
+                <span class="operation-print-value">{{ $operation->service1?->name ?? $dash }}</span>
+            </div>
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_service_2') }}</span>
+                <span class="operation-print-value">{{ $operation->service2?->name ?? $dash }}</span>
+            </div>
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_service_3') }}</span>
+                <span class="operation-print-value">{{ $operation->service3?->name ?? $dash }}</span>
+            </div>
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_status') }}</span>
+                <span class="operation-print-value">{{ $operation->operationStatus?->name ?? $dash }}</span>
+            </div>
+            <div class="operation-print-field operation-print-field-full">
+                <span class="operation-print-label">{{ __('dobs.operation_notes') }}</span>
+                <span class="operation-print-value operation-print-value-block">{{ $notes !== '' ? $notes : $dash }}</span>
+            </div>
         </div>
     </div>
 
-    <table class="zanka-report-table">
-        <thead>
-            <tr>
-                <th class="col-serial">{{ __('dobs.operation_serial') }}</th>
-                <th class="col-date">{{ __('dobs.col_date') }}</th>
-                <th class="col-client">{{ __('dobs.operation_client') }}</th>
-                <th class="col-item">{{ __('dobs.log_field_item_id') }}</th>
-                <th class="col-qty">{{ __('dobs.col_quantity') }}</th>
-                <th class="col-statement">{{ __('dobs.operation_statement') }}</th>
-                <th class="col-press">{{ __('dobs.operation_printing_press') }}</th>
-                <th class="col-ctp">{{ __('dobs.operation_ctp') }}</th>
-                <th class="col-colors">{{ __('dobs.operation_color_count') }}</th>
-                <th class="col-paper">{{ __('dobs.operation_paper_material') }}</th>
-                <th class="col-size">{{ __('dobs.operation_job_size') }}</th>
-                <th class="col-pull">{{ __('dobs.operation_pull_count') }}</th>
-                <th class="col-qty-sheet">{{ __('dobs.operation_quantity_per_sheet') }}</th>
-                <th class="col-service">{{ __('dobs.operation_service_1') }}</th>
-                <th class="col-service">{{ __('dobs.operation_service_2') }}</th>
-                <th class="col-service">{{ __('dobs.operation_service_3') }}</th>
-                <th class="col-status">{{ __('dobs.operation_status') }}</th>
-                <th class="col-notes">{{ __('dobs.operation_notes') }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td class="col-serial">{{ $operation->operation_number }}</td>
-                <td class="col-date">{{ $operation->operation_date?->format('Y-m-d') ?? $dash }}</td>
-                <td class="col-client">{{ $operation->client?->name ?? $dash }}</td>
-                <td class="col-item">{{ $operation->item?->name ?? $dash }}</td>
-                <td class="col-qty">{{ $operation->quantity ?? $dash }}</td>
-                <td class="col-statement">{{ $operation->statement ?? $dash }}</td>
-                <td class="col-press">{{ $operation->printingSupplier?->name ?? $dash }}</td>
-                <td class="col-ctp">{{ $operation->ctpSupplier?->name ?? $dash }}</td>
-                <td class="col-colors">{{ $operation->color_count ?? $dash }}</td>
-                <td class="col-paper">{{ $operation->paperType?->name ?? $dash }}</td>
-                <td class="col-size">{{ $jobSizeLabel !== '' ? $jobSizeLabel : $dash }}</td>
-                <td class="col-pull">{{ $operation->pull_count ?? $dash }}</td>
-                <td class="col-qty-sheet">{{ $operation->quantity_per_sheet ?? $dash }}</td>
-                <td class="col-service">{{ $operation->service1?->name ?? $dash }}</td>
-                <td class="col-service">{{ $operation->service2?->name ?? $dash }}</td>
-                <td class="col-service">{{ $operation->service3?->name ?? $dash }}</td>
-                <td class="col-status">{{ $operation->operationStatus?->name ?? $dash }}</td>
-                <td class="col-notes">{{ $notes !== '' ? $notes : $dash }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <footer class="operation-print-footer">
+        <span>{{ __('dobs.operation_printed_at', ['datetime' => now()->format('Y-m-d H:i')]) }}</span>
+        <span>{{ __('dobs.report_footer_copyright') }}</span>
+    </footer>
 </div>
 
 <div class="glass-card operation-timeline-card no-print" style="max-width: 900px; margin: 1.5rem auto 0;">
@@ -234,80 +270,105 @@
         display: none;
     }
 
+    .operation-print-card {
+        max-width: 720px;
+        margin: 0 auto;
+        border: 2px solid #222;
+        background: #fff;
+        color: #000;
+    }
+
     .operation-print-header {
-        margin-bottom: 0.75rem;
+        padding: 1rem 1.25rem;
         text-align: center;
+        border-bottom: 2px solid #222;
+        background: #f5f5f5;
+    }
+
+    .operation-print-brand {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #000;
     }
 
     .operation-print-title {
-        margin: 0;
+        margin: 0.35rem 0 0;
         font-size: 1rem;
         font-weight: 700;
         color: #000;
     }
 
     .operation-print-meta {
-        margin-top: 0.25rem;
-        font-size: 0.85rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem 1.25rem;
+        margin-top: 0.5rem;
+        font-size: 0.82rem;
         color: #333;
     }
 
-    .zanka-report-table {
-        width: 100%;
-        border-collapse: collapse;
+    .operation-print-body {
+        padding: 1rem 1.25rem;
+    }
+
+    .operation-print-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.85rem 1.5rem;
+    }
+
+    .operation-print-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        min-width: 0;
+    }
+
+    .operation-print-field-full {
+        grid-column: 1 / -1;
+    }
+
+    .operation-print-label {
         font-size: 0.72rem;
-        line-height: 1.35;
-        table-layout: fixed;
-        color: #000;
-    }
-
-    .zanka-report-table th,
-    .zanka-report-table td {
-        border: 1px solid #333;
-        padding: 0.3rem 0.25rem;
-        vertical-align: top;
-        text-align: center;
-        word-wrap: break-word;
-        background: #fff;
-        color: #000;
-    }
-
-    .zanka-report-table thead th {
-        background: #e8e8e8;
         font-weight: 700;
-        font-size: 0.68rem;
+        color: #555;
+        text-transform: none;
     }
 
-    .zanka-report-table .col-serial { width: 3.2rem; }
-    .zanka-report-table .col-date { width: 4.5rem; }
-    .zanka-report-table .col-client { width: 5rem; text-align: right; }
-    .zanka-report-table .col-item { width: 5rem; text-align: right; }
-    .zanka-report-table .col-qty { width: 2.5rem; }
-    .zanka-report-table .col-statement { width: 6rem; text-align: right; }
-    .zanka-report-table .col-press { width: 3.5rem; }
-    .zanka-report-table .col-ctp { width: 3rem; }
-    .zanka-report-table .col-colors { width: 2.2rem; }
-    .zanka-report-table .col-paper { width: 6rem; text-align: right; }
-    .zanka-report-table .col-size { width: 3rem; }
-    .zanka-report-table .col-pull { width: 2.5rem; }
-    .zanka-report-table .col-qty-sheet { width: 2.8rem; }
-    .zanka-report-table .col-service { width: 3.5rem; text-align: right; }
-    .zanka-report-table .col-status { width: 3rem; }
-    .zanka-report-table .col-notes { width: 5rem; text-align: right; }
+    .operation-print-value {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #000;
+        word-wrap: break-word;
+    }
 
-    .zanka-report-table tbody td.col-client,
-    .zanka-report-table tbody td.col-item,
-    .zanka-report-table tbody td.col-statement,
-    .zanka-report-table tbody td.col-paper,
-    .zanka-report-table tbody td.col-service,
-    .zanka-report-table tbody td.col-notes {
-        text-align: right;
+    .operation-print-value-mono {
+        font-family: monospace;
+    }
+
+    .operation-print-value-block {
+        white-space: pre-line;
+        font-weight: 500;
+        line-height: 1.45;
+    }
+
+    .operation-print-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.65rem 1.25rem;
+        border-top: 2px solid #222;
+        background: #f5f5f5;
+        font-size: 0.72rem;
+        color: #555;
     }
 
     @media print {
         @page {
-            size: landscape;
-            margin: 8mm;
+            size: A4 portrait;
+            margin: 12mm;
         }
 
         body {
@@ -336,19 +397,16 @@
             padding: 0 !important;
         }
 
-        .zanka-report-table {
-            font-size: 7pt;
+        .operation-print-card {
+            border: 2px solid #000 !important;
+            box-shadow: none !important;
+            page-break-inside: avoid;
         }
 
-        .zanka-report-table th,
-        .zanka-report-table td {
-            padding: 2px 3px !important;
+        .operation-print-header,
+        .operation-print-footer {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
-        }
-
-        .zanka-report-table thead th {
-            background: #e8e8e8 !important;
         }
     }
 </style>

@@ -114,6 +114,11 @@
                                 <span>{{ __('dobs.report_paper_materials_summary') }}</span>
                             </a>
                         </li>
+                        <li class="nav-subitem {{ request()->routeIs('reports.operations-kanban*') ? 'active' : '' }}">
+                            <a href="{{ route('reports.operations-kanban') }}">
+                                <span>{{ __('dobs.report_operations_kanban') }}</span>
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 @auth

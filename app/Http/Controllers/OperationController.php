@@ -87,7 +87,11 @@ class OperationController extends Controller
             });
         }
 
-        $operations = $query->latest()->paginate(50)->withQueryString();
+        $operations = $query
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->paginate(50)
+            ->withQueryString();
 
         $items = Item::orderBy('name')->get();
         $suppliers = Supplier::orderBy('name')->get();
@@ -235,6 +239,13 @@ class OperationController extends Controller
         $oldStatusId = $operation->operation_status_id;
 
         if ($oldStatusId == $newStatusId) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => __('dobs.flash_operation_status_updated'),
+                ]);
+            }
+
             return redirect()->route('operations.index');
         }
 
@@ -250,11 +261,25 @@ class OperationController extends Controller
 
             DB::commit();
 
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => __('dobs.flash_operation_status_updated'),
+                ]);
+            }
+
             return redirect()
                 ->route('operations.index')
                 ->with('success', __('dobs.flash_operation_status_updated'));
         } catch (\Exception $e) {
             DB::rollBack();
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('dobs.flash_operation_update_error', ['message' => $e->getMessage()]),
+                ], 422);
+            }
 
             return redirect()
                 ->route('operations.index')

@@ -56,6 +56,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('stages', StageController::class);
     Route::get('activities', [ActivityController::class, 'index'])->name('activities.index');
     Route::get('reports/paper-materials-summary', [ReportController::class, 'paperMaterialsSummary'])->name('reports.paper-materials-summary');
+    Route::get('reports/operations-kanban', [ReportController::class, 'operationsKanban'])->name('reports.operations-kanban');
+    Route::get('reports/operations-kanban/load', [ReportController::class, 'operationsKanbanLoad'])->name('reports.operations-kanban.load');
     Route::resource('operation-statuses', OperationStatusController::class)->except(['show']);
 
     Route::middleware('role:admin')->group(function () {
