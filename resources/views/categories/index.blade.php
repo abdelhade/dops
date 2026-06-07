@@ -31,7 +31,7 @@
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td>
-                            <a href="{{ route('categories.show', $category->id) }}" style="color: white; font-weight: 600; text-decoration: none;">
+                            <a href="{{ route('categories.show', $category->id) }}" style="color: whit; font-weight: 600; text-decoration: none;">
                                 {{ $category->name }}
                             </a>
                         </td>

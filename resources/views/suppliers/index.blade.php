@@ -32,7 +32,7 @@
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td>
-                            <a href="{{ route('suppliers.show', $supplier->id) }}" style="color: white; font-weight: 600; text-decoration: none;">
+                            <a href="{{ route('suppliers.show', $supplier->id) }}" style="color: whit; font-weight: 600; text-decoration: none;">
                                 {{ $supplier->name }}
                             </a>
                         </td>

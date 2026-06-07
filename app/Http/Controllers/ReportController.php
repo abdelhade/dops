@@ -204,7 +204,7 @@ class ReportController extends Controller
             'date_to' => 'nullable|date',
         ]);
 
-        $perPage = 12;
+        $perPage = 20;
         $page = (int) ($validated['page'] ?? 1);
 
         $query = Operation::query()

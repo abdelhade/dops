@@ -72,7 +72,7 @@
                     @forelse($supplier->items as $item)
                         <tr>
                             <td>
-                                <a href="{{ route('items.show', $item->id) }}" style="color: white; font-weight: 600; text-decoration: none;">
+                                <a href="{{ route('items.show', $item->id) }}" style="color: whit; font-weight: 600; text-decoration: none;">
                                     {{ $item->name }}
                                 </a>
                             </td>

@@ -35,7 +35,7 @@
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td>
-                            <a href="{{ route('materials.show', $material->id) }}" style="color: white; font-weight: 600; text-decoration: none;">
+                            <a href="{{ route('materials.show', $material->id) }}" style="color: whit; font-weight: 600; text-decoration: none;">
                                 {{ $material->name }}
                             </a>
                         </td>
