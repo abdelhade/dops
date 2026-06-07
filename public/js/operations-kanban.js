@@ -314,7 +314,29 @@
         });
     }
 
+    function bindFiltersToggle() {
+        var $toggle = $('#opsKanbanFiltersToggle');
+        var $panel = $('#opsKanbanFiltersPanel');
+
+        if (!$toggle.length || !$panel.length) {
+            return;
+        }
+
+        if ($toggle.attr('aria-expanded') === 'true') {
+            $toggle.addClass('is-open');
+        }
+
+        $toggle.on('click', function () {
+            var isHidden = $panel.prop('hidden');
+            $panel.prop('hidden', !isHidden);
+            $toggle.attr('aria-expanded', isHidden ? 'true' : 'false');
+            $toggle.toggleClass('is-open', isHidden);
+        });
+    }
+
     function bindEvents() {
+        bindFiltersToggle();
+
         $('#opsKanbanFiltersForm').on('submit', function (event) {
             event.preventDefault();
             reloadAllColumns();

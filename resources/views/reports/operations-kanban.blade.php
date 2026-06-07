@@ -7,11 +7,37 @@
 
 @section('styles')
 <style>
-    .ops-kanban-filters {
-        margin-bottom: 1.25rem;
-        padding: 1.1rem 1.25rem;
-        border: 1px solid var(--border-color);
-        background: linear-gradient(180deg, rgba(31, 41, 55, 0.55) 0%, rgba(17, 24, 39, 0.75) 100%);
+    .ops-kanban-filters-card {
+        margin-bottom: 1rem;
+        padding: 0.65rem 1rem;
+    }
+
+    .ops-kanban-filters-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .ops-kanban-filters-chevron {
+        font-size: 0.7rem;
+        transition: transform 0.2s ease;
+    }
+
+    .ops-kanban-filters-toggle.is-open .ops-kanban-filters-chevron {
+        transform: rotate(180deg);
+    }
+
+    .ops-kanban-filters-badge {
+        width: 0.45rem;
+        height: 0.45rem;
+        border-radius: 50%;
+        background: var(--color-secondary);
+    }
+
+    .ops-kanban-filters-panel {
+        margin-top: 0.85rem;
+        padding-top: 0.85rem;
+        border-top: 1px solid var(--border-color);
     }
 
     .ops-kanban-filters-row {
@@ -245,52 +271,78 @@
 @endsection
 
 @section('content')
-<div class="glass-card ops-kanban-filters no-print">
-    <form id="opsKanbanFiltersForm" class="ops-kanban-filters-row">
-        <div class="form-group ops-kanban-filter-field ops-kanban-filter-search">
-            <label for="opsKanbanSearch" class="form-label">{{ __('dobs.report_global_search') }}</label>
-            <div class="ops-kanban-filter-search-wrap">
-                <input
-                    type="search"
-                    id="opsKanbanSearch"
-                    name="search"
-                    class="form-control"
-                    value="{{ request('search') }}"
-                    placeholder="{{ __('dobs.report_kanban_search_placeholder') }}"
-                    autocomplete="off"
-                >
-                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+@php
+    $kanbanFilterKeys = ['search', 'date_from', 'date_to'];
+    $hasActiveKanbanFilters = collect($kanbanFilterKeys)->contains(fn ($key) => request()->filled($key));
+@endphp
+
+<div class="glass-card ops-kanban-filters-card no-print">
+    <button
+        type="button"
+        class="btn btn-secondary btn-sm ops-kanban-filters-toggle"
+        id="opsKanbanFiltersToggle"
+        aria-expanded="{{ $hasActiveKanbanFilters ? 'true' : 'false' }}"
+        aria-controls="opsKanbanFiltersPanel"
+    >
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <span>{{ __('dobs.filters') }}</span>
+        @if ($hasActiveKanbanFilters)
+            <span class="ops-kanban-filters-badge" aria-hidden="true"></span>
+        @endif
+        <i class="fa-solid fa-chevron-down ops-kanban-filters-chevron" aria-hidden="true"></i>
+    </button>
+
+    <div
+        id="opsKanbanFiltersPanel"
+        class="ops-kanban-filters-panel"
+        @unless($hasActiveKanbanFilters) hidden @endunless
+    >
+        <form id="opsKanbanFiltersForm" class="ops-kanban-filters-row">
+            <div class="form-group ops-kanban-filter-field ops-kanban-filter-search">
+                <label for="opsKanbanSearch" class="form-label">{{ __('dobs.report_global_search') }}</label>
+                <div class="ops-kanban-filter-search-wrap">
+                    <input
+                        type="search"
+                        id="opsKanbanSearch"
+                        name="search"
+                        class="form-control"
+                        value="{{ request('search') }}"
+                        placeholder="{{ __('dobs.report_kanban_search_placeholder') }}"
+                        autocomplete="off"
+                    >
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                </div>
             </div>
-        </div>
-        <div class="form-group ops-kanban-filter-field">
-            <label for="opsKanbanDateFrom" class="form-label">{{ __('dobs.date_from') }}</label>
-            <input
-                type="date"
-                id="opsKanbanDateFrom"
-                name="date_from"
-                class="form-control"
-                value="{{ request('date_from') }}"
-            >
-        </div>
-        <div class="form-group ops-kanban-filter-field">
-            <label for="opsKanbanDateTo" class="form-label">{{ __('dobs.date_to') }}</label>
-            <input
-                type="date"
-                id="opsKanbanDateTo"
-                name="date_to"
-                class="form-control"
-                value="{{ request('date_to') }}"
-            >
-        </div>
-        <div class="form-group ops-kanban-filter-field" style="display: flex; gap: 0.5rem;">
-            <button type="submit" class="btn btn-primary">
-                <i class="fa-solid fa-filter"></i> {{ __('dobs.apply_filters') }}
-            </button>
-            <button type="button" class="btn btn-secondary" id="opsKanbanClearFilters">
-                <i class="fa-solid fa-eraser"></i> {{ __('dobs.clear_filters') }}
-            </button>
-        </div>
-    </form>
+            <div class="form-group ops-kanban-filter-field">
+                <label for="opsKanbanDateFrom" class="form-label">{{ __('dobs.date_from') }}</label>
+                <input
+                    type="date"
+                    id="opsKanbanDateFrom"
+                    name="date_from"
+                    class="form-control"
+                    value="{{ request('date_from') }}"
+                >
+            </div>
+            <div class="form-group ops-kanban-filter-field">
+                <label for="opsKanbanDateTo" class="form-label">{{ __('dobs.date_to') }}</label>
+                <input
+                    type="date"
+                    id="opsKanbanDateTo"
+                    name="date_to"
+                    class="form-control"
+                    value="{{ request('date_to') }}"
+                >
+            </div>
+            <div class="form-group ops-kanban-filter-field" style="display: flex; gap: 0.5rem;">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="fa-solid fa-filter"></i> {{ __('dobs.apply_filters') }}
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="opsKanbanClearFilters">
+                    <i class="fa-solid fa-eraser"></i> {{ __('dobs.clear_filters') }}
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <div class="ops-kanban-toolbar no-print">
