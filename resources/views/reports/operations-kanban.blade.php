@@ -156,66 +156,47 @@
         cursor: default;
     }
 
-    .ops-kanban-card-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 0.5rem;
-        margin-bottom: 0.55rem;
-    }
-
-    .ops-kanban-card-number {
+    .ops-kanban-card-serial {
+        display: block;
         font-family: ui-monospace, monospace;
-        font-size: 0.88rem;
+        font-size: 0.92rem;
         font-weight: 700;
         color: var(--color-secondary);
         text-decoration: none;
+        margin-bottom: 0.65rem;
+        line-height: 1.3;
     }
 
-    .ops-kanban-card-number:hover {
+    .ops-kanban-card-serial:hover {
         color: var(--text-primary);
         text-decoration: underline;
     }
 
-    .ops-kanban-card-date {
-        font-size: 0.72rem;
-        color: var(--text-muted);
-        white-space: nowrap;
+    .ops-kanban-card-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        margin-bottom: 0.5rem;
     }
 
-    .ops-kanban-card-item {
-        font-size: 0.86rem;
+    .ops-kanban-card-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .ops-kanban-card-label {
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+    }
+
+    .ops-kanban-card-value {
+        font-size: 0.82rem;
         font-weight: 600;
         color: var(--text-primary);
-        margin-bottom: 0.45rem;
         line-height: 1.4;
-    }
-
-    .ops-kanban-card-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.35rem;
-        margin-bottom: 0.45rem;
-    }
-
-    .ops-kanban-card-chip {
-        font-size: 0.68rem;
-        padding: 0.15rem 0.45rem;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid var(--border-color);
-        color: var(--text-secondary);
-    }
-
-    .ops-kanban-card-statement {
-        margin: 0;
-        font-size: 0.74rem;
-        line-height: 1.45;
-        color: var(--text-secondary);
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+        word-break: break-word;
     }
 
     .ops-kanban-empty,
@@ -365,9 +346,9 @@
         emptyColumn: @json(__('dobs.report_kanban_empty_column')),
         statusUpdateFailed: @json(__('dobs.report_kanban_status_update_failed')),
         operationsCount: @json(__('dobs.report_kanban_operations_count')),
-        quantity: @json(__('dobs.col_quantity')),
-        colors: @json(__('dobs.operation_color_count')),
-        pulls: @json(__('dobs.operation_pull_count')),
+        dateTime: @json(__('dobs.report_kanban_card_datetime')),
+        product: @json(__('dobs.operation_product_1')),
+        client: @json(__('dobs.operation_client')),
     };
 </script>
 <script src="{{ asset('js/operations-kanban.js') }}?v={{ @filemtime(public_path('js/operations-kanban.js')) ?: 1 }}"></script>

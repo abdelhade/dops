@@ -306,6 +306,7 @@ return [
     'log_now' => 'بقت',
     'log_change_line' => ':field: كانت :from ← بقت :to',
     'log_field_status' => 'الحالة',
+    'log_field_operation_status_id' => 'الحالة',
     'log_field_operation_number' => 'Serial',
     'log_field_operation_date' => 'تاريخ',
     'log_field_operation_time' => 'الوقت',
@@ -573,6 +574,7 @@ return [
     'report_kanban_load_more' => 'تحميل المزيد',
     'report_kanban_empty_column' => 'لا توجد عمليات',
     'report_kanban_drag_hint' => 'اسحب البطاقة لتغيير الحالة',
+    'report_kanban_card_datetime' => 'التاريخ والوقت',
     'report_kanban_status_update_failed' => 'تعذّر تحديث الحالة. تمت إعادة البطاقة.',
     'report_kanban_operations_count' => ':count عملية',
 ];

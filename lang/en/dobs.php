@@ -306,6 +306,7 @@ return [
     'log_now' => 'Now',
     'log_change_line' => ':field: was :from → now :to',
     'log_field_status' => 'Status',
+    'log_field_operation_status_id' => 'Status',
     'log_field_operation_number' => 'Serial',
     'log_field_operation_date' => 'Date',
     'log_field_operation_time' => 'Time',
@@ -572,6 +573,7 @@ return [
     'report_kanban_load_more' => 'Load more',
     'report_kanban_empty_column' => 'No operations',
     'report_kanban_drag_hint' => 'Drag a card to change its status',
+    'report_kanban_card_datetime' => 'Date & time',
     'report_kanban_status_update_failed' => 'Could not update status. Card was reverted.',
     'report_kanban_operations_count' => ':count operations',
 ];

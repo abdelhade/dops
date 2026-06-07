@@ -50,51 +50,29 @@
         );
     }
 
+    function buildCardRow(label, value) {
+        return (
+            '<div class="ops-kanban-card-row">' +
+                '<span class="ops-kanban-card-label">' + escapeHtml(label) + '</span>' +
+                '<span class="ops-kanban-card-value">' + escapeHtml(value) + '</span>' +
+            '</div>'
+        );
+    }
+
     function buildCardHtml(operation) {
-        var chips = [];
-
-        if (operation.quantity != null) {
-            chips.push('<span class="ops-kanban-card-chip">' + escapeHtml(lang.quantity) + ': ' + escapeHtml(operation.quantity) + '</span>');
-        }
-        if (operation.color_count != null) {
-            chips.push('<span class="ops-kanban-card-chip">' + escapeHtml(lang.colors) + ': ' + escapeHtml(operation.color_count) + '</span>');
-        }
-        if (operation.pull_count != null) {
-            chips.push('<span class="ops-kanban-card-chip">' + escapeHtml(lang.pulls) + ': ' + escapeHtml(operation.pull_count) + '</span>');
-        }
-        if (operation.paper_type_name) {
-            chips.push('<span class="ops-kanban-card-chip">' + escapeHtml(operation.paper_type_name) + '</span>');
-        }
-        if (operation.printing_supplier_name) {
-            chips.push('<span class="ops-kanban-card-chip">' + escapeHtml(operation.printing_supplier_name) + '</span>');
-        }
-        if (Array.isArray(operation.services)) {
-            operation.services.forEach(function (serviceName) {
-                chips.push('<span class="ops-kanban-card-chip">' + escapeHtml(serviceName) + '</span>');
-            });
-        }
-
-        var dateLabel = operation.operation_date || config.dash;
+        var dateTimeLabel = operation.operation_date || config.dash;
         if (operation.operation_time) {
-            dateLabel += ' · ' + operation.operation_time;
+            dateTimeLabel += ' · ' + operation.operation_time;
         }
-
-        var statementHtml = operation.statement
-            ? '<p class="ops-kanban-card-statement">' + escapeHtml(operation.statement) + '</p>'
-            : '';
 
         var readonlyClass = config.canDrag ? '' : ' is-readonly';
 
         return (
             '<article class="ops-kanban-card' + readonlyClass + '" data-operation-id="' + escapeHtml(operation.id) + '">' +
-                '<div class="ops-kanban-card-header">' +
-                    '<a href="' + escapeHtml(operation.show_url) + '" class="ops-kanban-card-number">' + escapeHtml(operation.operation_number) + '</a>' +
-                    '<span class="ops-kanban-card-date">' + escapeHtml(dateLabel) + '</span>' +
-                '</div>' +
-                '<div class="ops-kanban-card-item">' + escapeHtml(operation.item_name || config.dash) + '</div>' +
-                (operation.client_name ? '<div class="ops-kanban-card-item" style="font-size:0.78rem;font-weight:500;color:var(--text-secondary);">' + escapeHtml(operation.client_name) + '</div>' : '') +
-                '<div class="ops-kanban-card-meta">' + chips.join('') + '</div>' +
-                statementHtml +
+                '<a href="' + escapeHtml(operation.show_url) + '" class="ops-kanban-card-serial">' + escapeHtml(operation.operation_number) + '</a>' +
+                buildCardRow(lang.dateTime, dateTimeLabel) +
+                buildCardRow(lang.product, operation.item_name || config.dash) +
+                buildCardRow(lang.client, operation.client_name || config.dash) +
             '</article>'
         );
     }
