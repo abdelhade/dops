@@ -208,24 +208,28 @@
         font-size: 0.68rem;
     }
 
+    .zanka-report-table .col-serial { width: 3.2rem; }
     .zanka-report-table .col-date { width: 4.5rem; }
-    .zanka-report-table .col-num { width: 1.6rem; }
-    .zanka-report-table .col-statement { width: 7rem; text-align: right; }
-    .zanka-report-table .col-ctp { width: 3.5rem; }
-    .zanka-report-table .col-colors { width: 2.2rem; }
-    .zanka-report-table .col-press { width: 3.5rem; }
-    .zanka-report-table .col-paper { width: 7rem; text-align: right; }
-    .zanka-report-table .col-size { width: 3.2rem; }
+    .zanka-report-table .col-client { width: 5rem; text-align: right; }
+    .zanka-report-table .col-item { width: 5rem; text-align: right; }
     .zanka-report-table .col-qty { width: 2.5rem; }
-    .zanka-report-table .col-services { width: 5rem; text-align: right; }
-    .zanka-report-table .col-supplier { width: 3rem; }
-    .zanka-report-table .col-status { width: 1.8rem; }
-    .zanka-report-table .col-serial { width: 3rem; }
-    .zanka-report-table .col-notes { width: 6rem; text-align: right; }
+    .zanka-report-table .col-statement { width: 6rem; text-align: right; }
+    .zanka-report-table .col-press { width: 3.5rem; }
+    .zanka-report-table .col-ctp { width: 3rem; }
+    .zanka-report-table .col-colors { width: 2.2rem; }
+    .zanka-report-table .col-paper { width: 6rem; text-align: right; }
+    .zanka-report-table .col-size { width: 3rem; }
+    .zanka-report-table .col-pull { width: 2.5rem; }
+    .zanka-report-table .col-qty-sheet { width: 2.8rem; }
+    .zanka-report-table .col-service { width: 3.5rem; text-align: right; }
+    .zanka-report-table .col-status { width: 3rem; }
+    .zanka-report-table .col-notes { width: 5rem; text-align: right; }
 
+    .zanka-report-table tbody td.col-client,
+    .zanka-report-table tbody td.col-item,
     .zanka-report-table tbody td.col-statement,
     .zanka-report-table tbody td.col-paper,
-    .zanka-report-table tbody td.col-services,
+    .zanka-report-table tbody td.col-service,
     .zanka-report-table tbody td.col-notes {
         text-align: right;
     }
@@ -387,59 +391,57 @@
             <table class="zanka-report-table">
                 <thead>
                     <tr>
+                        <th class="col-serial">{{ __('dobs.operation_serial') }}</th>
                         <th class="col-date">{{ __('dobs.col_date') }}</th>
-                        <th class="col-num">{{ __('dobs.report_col_row_num') }}</th>
-                        <th class="col-statement">{{ __('dobs.report_col_statement') }}</th>
-                        <th class="col-ctp">{{ __('dobs.operation_ctp') }}</th>
-                        <th class="col-colors">{{ __('dobs.report_col_colors') }}</th>
+                        <th class="col-client">{{ __('dobs.operation_client') }}</th>
+                        <th class="col-item">{{ __('dobs.log_field_item_id') }}</th>
+                        <th class="col-qty">{{ __('dobs.col_quantity') }}</th>
+                        <th class="col-statement">{{ __('dobs.operation_statement') }}</th>
                         <th class="col-press">{{ __('dobs.operation_printing_press') }}</th>
-                        <th class="col-paper">{{ __('dobs.report_col_paper_type') }}</th>
-                        <th class="col-size">{{ __('dobs.report_col_job_sheet_size') }}</th>
-                        <th class="col-size">{{ __('dobs.report_col_zanka_size') }}</th>
-                        <th class="col-qty">{{ __('dobs.report_col_pull_runs') }}</th>
-                        <th class="col-qty">{{ __('dobs.report_col_total_pulls') }}</th>
-                        <th class="col-qty">{{ __('dobs.report_col_qty_per_sheet') }}</th>
-                        <th class="col-services">{{ __('dobs.report_col_services') }}</th>
-                        <th class="col-supplier">{{ __('dobs.report_col_supplier') }}</th>
-                        <th class="col-status">{{ __('dobs.report_col_status_short') }}</th>
-                        <th class="col-serial">{{ __('dobs.report_col_serial') }}</th>
-                        <th class="col-notes">{{ __('dobs.report_col_notes') }}</th>
+                        <th class="col-ctp">{{ __('dobs.operation_ctp') }}</th>
+                        <th class="col-colors">{{ __('dobs.operation_color_count') }}</th>
+                        <th class="col-paper">{{ __('dobs.operation_paper_material') }}</th>
+                        <th class="col-size">{{ __('dobs.operation_job_size') }}</th>
+                        <th class="col-pull">{{ __('dobs.operation_pull_count') }}</th>
+                        <th class="col-qty-sheet">{{ __('dobs.operation_quantity_per_sheet') }}</th>
+                        <th class="col-service">{{ __('dobs.operation_service_1') }}</th>
+                        <th class="col-service">{{ __('dobs.operation_service_2') }}</th>
+                        <th class="col-service">{{ __('dobs.operation_service_3') }}</th>
+                        <th class="col-status">{{ __('dobs.operation_status') }}</th>
+                        <th class="col-notes">{{ __('dobs.operation_notes') }}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($operations as $index => $op)
+                    @forelse($operations as $op)
                         @php
-                            $dimension = $op->reportPaperDimension();
-                            $jobSizeLabel = $dimension ? $dimension . '-' : ($op->job_size !== null ? number_format((float) $op->job_size, 0) : '');
-                            $sheetSizeLabel = $dimension ?? ($op->job_size !== null ? number_format((float) $op->job_size, 0) : '');
-                            $services = $op->reportServicesLabel();
-                            $totalPulls = $op->reportTotalPullQuantity();
-                            $statusName = $op->operationStatus?->name ?? '';
-                            $statusShort = $statusName !== '' ? mb_substr($statusName, 0, 1) : $dash;
-                            $notes = trim((string) ($op->statement ?? $op->notes ?? ''));
+                            $jobSizeLabel = $op->job_size !== null
+                                ? number_format((float) $op->job_size, 0)
+                                : ($op->reportPaperDimension() ?? '');
+                            $notes = trim((string) ($op->notes ?? ''));
                         @endphp
                         <tr>
+                            <td class="col-serial">{{ $op->operation_number }}</td>
                             <td class="col-date">{{ $op->operation_date?->format('Y-m-d') ?? $dash }}</td>
-                            <td class="col-num">{{ $index + 1 }}</td>
-                            <td class="col-statement">{{ $op->item?->name ?? $dash }}</td>
+                            <td class="col-client">{{ $op->client?->name ?? $dash }}</td>
+                            <td class="col-item">{{ $op->item?->name ?? $dash }}</td>
+                            <td class="col-qty">{{ $op->quantity ?? $dash }}</td>
+                            <td class="col-statement">{{ $op->statement ?? $dash }}</td>
+                            <td class="col-press">{{ $op->printingSupplier?->name ?? $dash }}</td>
                             <td class="col-ctp">{{ $op->ctpSupplier?->name ?? $dash }}</td>
                             <td class="col-colors">{{ $op->color_count ?? $dash }}</td>
-                            <td class="col-press">{{ $op->printingSupplier?->name ?? $dash }}</td>
                             <td class="col-paper">{{ $op->paperType?->name ?? $dash }}</td>
                             <td class="col-size">{{ $jobSizeLabel !== '' ? $jobSizeLabel : $dash }}</td>
-                            <td class="col-size">{{ $sheetSizeLabel !== '' ? $sheetSizeLabel : $dash }}</td>
-                            <td class="col-qty">{{ $op->pull_count ?? $dash }}</td>
-                            <td class="col-qty">{{ $totalPulls ?? $dash }}</td>
-                            <td class="col-qty">{{ $op->quantity_per_sheet ?? $dash }}</td>
-                            <td class="col-services">{{ $services !== '' ? $services : $dash }}</td>
-                            <td class="col-supplier">{{ $dash }}</td>
-                            <td class="col-status">{{ $statusShort }}</td>
-                            <td class="col-serial">{{ $op->operation_number }}</td>
+                            <td class="col-pull">{{ $op->pull_count ?? $dash }}</td>
+                            <td class="col-qty-sheet">{{ $op->quantity_per_sheet ?? $dash }}</td>
+                            <td class="col-service">{{ $op->service1?->name ?? $dash }}</td>
+                            <td class="col-service">{{ $op->service2?->name ?? $dash }}</td>
+                            <td class="col-service">{{ $op->service3?->name ?? $dash }}</td>
+                            <td class="col-status">{{ $op->operationStatus?->name ?? $dash }}</td>
                             <td class="col-notes">{{ $notes !== '' ? $notes : $dash }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="17" class="empty-state">
+                            <td colspan="18" class="empty-state">
                                 {{ __('dobs.report_no_data') }}
                             </td>
                         </tr>

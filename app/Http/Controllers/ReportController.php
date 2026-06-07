@@ -42,7 +42,7 @@ class ReportController extends Controller
 
         $operations = (clone $query)
             ->with([
-                'item', 'paperType', 'operationStatus',
+                'client', 'item', 'paperType', 'operationStatus',
                 'printingSupplier', 'ctpSupplier',
                 'service1', 'service2', 'service3',
             ])
