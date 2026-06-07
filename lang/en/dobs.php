@@ -81,7 +81,7 @@ return [
     'col_paper_size' => 'Paper Size',
     'col_price' => 'Price',
     'col_stock' => 'Stock',
-    'col_id' => 'ID',
+    'col_id' => 'Serial',
     'col_name' => 'Name',
     'col_description' => 'Description',
     'col_actions' => 'Actions',

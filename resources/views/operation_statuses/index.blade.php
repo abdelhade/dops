@@ -31,7 +31,7 @@
             <tbody>
                 @forelse($statuses as $status)
                     <tr>
-                        <td>{{ $status->id }}</td>
+                        <td>{{ $loop->iteration }}</td>
                         <td>
                             <span style="color: {{ $status->color ?? 'inherit' }}; font-weight: 600;">
                                 {{ $status->name }}

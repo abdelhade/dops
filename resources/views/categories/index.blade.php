@@ -29,7 +29,7 @@
             <tbody>
                 @forelse($categories as $category)
                     <tr>
-                        <td>{{ $category->id }}</td>
+                        <td>{{ $loop->iteration }}</td>
                         <td>
                             <a href="{{ route('categories.show', $category->id) }}" style="color: white; font-weight: 600; text-decoration: none;">
                                 {{ $category->name }}

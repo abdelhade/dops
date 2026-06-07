@@ -67,23 +67,27 @@
     }
 
     .ops-kanban-board-wrap {
-        overflow-x: auto;
-        padding-bottom: 0.5rem;
+        height: calc(100vh - 15rem);
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 0.25rem 0.15rem 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        background: rgba(17, 24, 39, 0.35);
     }
 
     .ops-kanban-board {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 1rem;
-        align-items: stretch;
-        min-height: calc(100vh - 18rem);
-        padding: 0.25rem 0.15rem 1rem;
+        align-content: start;
+        padding: 0.5rem;
     }
 
     .ops-kanban-column {
-        flex: 0 0 300px;
-        max-width: 300px;
         display: flex;
         flex-direction: column;
+        min-height: 0;
         background: rgba(17, 24, 39, 0.55);
         border: 1px solid var(--border-color);
         border-radius: var(--radius-lg);
@@ -120,13 +124,14 @@
     }
 
     .ops-kanban-column-body {
-        flex: 1;
+        height: 300px;
         overflow-y: auto;
+        overflow-x: hidden;
         padding: 0.75rem;
         display: flex;
         flex-direction: column;
         gap: 0.65rem;
-        min-height: 120px;
+        scrollbar-gutter: stable;
     }
 
     .ops-kanban-column-body.is-drag-over {
@@ -198,15 +203,16 @@
 
     .ops-kanban-empty,
     .ops-kanban-loading,
-    .ops-kanban-load-more-wrap {
+    .ops-kanban-sentinel {
         text-align: center;
         padding: 0.85rem 0.5rem;
         font-size: 0.8rem;
         color: var(--text-muted);
     }
 
-    .ops-kanban-load-more-wrap .btn {
-        width: 100%;
+    .ops-kanban-sentinel {
+        min-height: 1px;
+        padding: 0.25rem;
     }
 
     .ops-kanban-toast {
@@ -234,9 +240,16 @@
     }
 
     @media (max-width: 768px) {
-        .ops-kanban-column {
-            flex-basis: 85vw;
-            max-width: 85vw;
+        .ops-kanban-board {
+            grid-template-columns: 1fr;
+        }
+
+        .ops-kanban-board-wrap {
+            height: calc(100vh - 17rem);
+        }
+
+        .ops-kanban-column-body {
+            height: 260px;
         }
     }
 </style>

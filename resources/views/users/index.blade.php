@@ -17,6 +17,7 @@
         <table class="custom-table">
             <thead>
                 <tr>
+                    <th style="width: 5%">{{ __('dobs.col_id') }}</th>
                     <th>{{ __('dobs.col_name') }}</th>
                     <th>{{ __('dobs.email') }}</th>
                     <th>{{ __('dobs.col_role') }}</th>
@@ -27,6 +28,7 @@
             <tbody>
                 @forelse($users as $user)
                     <tr>
+                        <td>{{ $loop->iteration }}</td>
                         <td style="font-weight: 600; color: white;">{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
                         <td>
@@ -52,7 +54,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="empty-state">
+                        <td colspan="6" class="empty-state">
                             <i class="fa-solid fa-users"></i>
                             {{ __('dobs.no_users') }}
                         </td>

@@ -81,7 +81,7 @@ return [
     'col_paper_size' => 'مقاس الورق',
     'col_price' => 'السعر',
     'col_stock' => 'المخزون',
-    'col_id' => 'المعرف',
+    'col_id' => 'المسلسل',
     'col_name' => 'الاسم',
     'col_description' => 'الوصف',
     'col_actions' => 'إجراءات',

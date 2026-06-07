@@ -33,7 +33,7 @@
             <tbody>
                 @forelse($services as $service)
                     <tr>
-                        <td>{{ $service->id }}</td>
+                        <td>{{ $loop->iteration }}</td>
                         <td>
                             <a href="{{ route('services.show', $service->id) }}" style="color: white; font-weight: 600; text-decoration: none;">
                                 {{ $service->name }}

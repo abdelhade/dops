@@ -9,6 +9,7 @@
     var lang = window.OPS_KANBAN_LANG || {};
     var columnState = {};
     var sortableInstances = [];
+    var lazyObservers = [];
     var toastTimer = null;
 
     function escapeHtml(value) {
@@ -76,26 +77,26 @@
         };
     }
 
+    function clearListExtras($list) {
+        $list.find('.ops-kanban-loading, .ops-kanban-empty, .ops-kanban-sentinel, [data-ops-kanban-temp-loading]').remove();
+    }
+
     function renderLoading($list) {
-        $list.find('.ops-kanban-loading, .ops-kanban-empty, .ops-kanban-load-more-wrap').remove();
+        clearListExtras($list);
         $list.append('<div class="ops-kanban-loading"><i class="fa-solid fa-spinner fa-spin"></i> ' + escapeHtml(lang.loading) + '</div>');
     }
 
     function renderEmpty($list) {
-        $list.find('.ops-kanban-loading, .ops-kanban-empty, .ops-kanban-load-more-wrap').remove();
+        $list.find('.ops-kanban-loading, .ops-kanban-empty, .ops-kanban-sentinel, [data-ops-kanban-temp-loading]').remove();
         if ($list.find('.ops-kanban-card').length === 0) {
             $list.append('<div class="ops-kanban-empty">' + escapeHtml(lang.emptyColumn) + '</div>');
         }
     }
 
-    function renderLoadMore($list, statusId) {
-        $list.find('.ops-kanban-load-more-wrap').remove();
+    function renderSentinel($list, statusId) {
+        $list.find('.ops-kanban-sentinel').remove();
         $list.append(
-            '<div class="ops-kanban-load-more-wrap">' +
-                '<button type="button" class="btn btn-secondary btn-sm" data-ops-kanban-load-more data-status-id="' + escapeHtml(statusId) + '">' +
-                    '<i class="fa-solid fa-arrow-down"></i> ' + escapeHtml(lang.loadMore) +
-                '</button>' +
-            '</div>'
+            '<div class="ops-kanban-sentinel" data-ops-kanban-sentinel data-status-id="' + escapeHtml(statusId) + '" aria-hidden="true"></div>'
         );
     }
 
@@ -121,7 +122,7 @@
             parts.$list.empty();
             renderLoading(parts.$list);
         } else {
-            parts.$list.find('.ops-kanban-load-more-wrap').remove();
+            parts.$list.find('.ops-kanban-sentinel').remove();
             parts.$list.append('<div class="ops-kanban-loading" data-ops-kanban-temp-loading><i class="fa-solid fa-spinner fa-spin"></i> ' + escapeHtml(lang.loading) + '</div>');
         }
 
@@ -148,19 +149,27 @@
             updateColumnCount(parts.$column, state.total);
 
             if (state.hasMore) {
-                renderLoadMore(parts.$list, statusId);
+                renderSentinel(parts.$list, statusId);
             }
 
             renderEmpty(parts.$list);
+            observeSentinels();
         }).fail(function () {
             parts.$list.find('.ops-kanban-loading, [data-ops-kanban-temp-loading]').remove();
             state.loading = false;
             columnState[statusId] = state;
             renderEmpty(parts.$list);
+
+            if (state.hasMore) {
+                renderSentinel(parts.$list, statusId);
+                observeSentinels();
+            }
         });
     }
 
     function reloadAllColumns() {
+        destroyLazyObservers();
+
         $('[data-ops-kanban-column]').each(function () {
             var statusId = String($(this).data('status-id'));
             columnState[statusId] = { page: 1, hasMore: true, loading: false, total: 0 };
@@ -168,23 +177,50 @@
         });
     }
 
-    function initLazyScroll() {
-        $('[data-ops-kanban-list]').on('scroll', function () {
-            var $list = $(this);
-            var $column = $list.closest('[data-ops-kanban-column]');
-            var statusId = String($column.data('status-id'));
-            var state = columnState[statusId];
+    function destroyLazyObservers() {
+        lazyObservers.forEach(function (observer) {
+            observer.disconnect();
+        });
+        lazyObservers = [];
+    }
 
-            if (!state || state.loading || !state.hasMore) {
+    function observeSentinels() {
+        if (!window.IntersectionObserver) {
+            return;
+        }
+
+        destroyLazyObservers();
+
+        $('[data-ops-kanban-sentinel]').each(function () {
+            var sentinel = this;
+            var statusId = String($(sentinel).data('status-id'));
+            var $list = $(sentinel).closest('[data-ops-kanban-list]');
+
+            if (!$list.length) {
                 return;
             }
 
-            var threshold = 80;
-            var scrollBottom = $list[0].scrollHeight - $list.scrollTop() - $list.outerHeight();
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (!entry.isIntersecting) {
+                        return;
+                    }
 
-            if (scrollBottom <= threshold) {
-                loadColumnPage(statusId, (state.page || 1) + 1, false);
-            }
+                    var state = columnState[statusId];
+                    if (!state || state.loading || !state.hasMore) {
+                        return;
+                    }
+
+                    loadColumnPage(statusId, (state.page || 1) + 1, false);
+                });
+            }, {
+                root: $list[0],
+                rootMargin: '120px 0px',
+                threshold: 0,
+            });
+
+            observer.observe(sentinel);
+            lazyObservers.push(observer);
         });
     }
 
@@ -295,16 +331,10 @@
             reloadAllColumns();
         });
 
-        $(document).on('click', '[data-ops-kanban-load-more]', function () {
-            var statusId = String($(this).data('status-id'));
-            var state = columnState[statusId] || { page: 1 };
-            loadColumnPage(statusId, (state.page || 1) + 1, false);
-        });
     }
 
     $(function () {
         bindEvents();
-        initLazyScroll();
         reloadAllColumns();
         initSortable();
     });

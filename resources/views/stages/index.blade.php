@@ -28,7 +28,7 @@
             <tbody>
                 @forelse($stages as $stage)
                     <tr>
-                        <td>{{ $stage->id }}</td>
+                        <td>{{ $loop->iteration }}</td>
                         <td>
                             <a href="{{ route('stages.show', $stage->id) }}" style="color: white; font-weight: 600; text-decoration: none;">
                                 {{ $stage->name }}

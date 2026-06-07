@@ -24,6 +24,7 @@
         <table class="custom-table">
             <thead>
                 <tr>
+                    <th style="width: 5%">{{ __('dobs.col_id') }}</th>
                     <th>{{ __('dobs.col_item') }}</th>
                     <th>{{ __('dobs.col_sku') }}</th>
                     <th>{{ __('dobs.col_category') }}</th>
@@ -37,6 +38,7 @@
             <tbody>
                 @forelse($items as $item)
                     <tr>
+                        <td>{{ $loop->iteration }}</td>
                         <td>
                             <a href="{{ route('items.show', $item->id) }}" style="color: white; font-weight: 600; text-decoration: none;">
                                 {{ $item->name }}
@@ -91,7 +93,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="empty-state">
+                        <td colspan="9" class="empty-state">
                             <i class="fa-solid fa-box"></i>
                             {{ __('dobs.no_items') }}
                         </td>

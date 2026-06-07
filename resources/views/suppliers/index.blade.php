@@ -30,7 +30,7 @@
             <tbody>
                 @forelse($suppliers as $supplier)
                     <tr>
-                        <td>{{ $supplier->id }}</td>
+                        <td>{{ $loop->iteration }}</td>
                         <td>
                             <a href="{{ route('suppliers.show', $supplier->id) }}" style="color: white; font-weight: 600; text-decoration: none;">
                                 {{ $supplier->name }}
