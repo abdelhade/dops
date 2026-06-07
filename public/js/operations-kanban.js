@@ -50,15 +50,6 @@
         );
     }
 
-    function buildCardRow(label, value) {
-        return (
-            '<div class="ops-kanban-card-row">' +
-                '<span class="ops-kanban-card-label">' + escapeHtml(label) + '</span>' +
-                '<span class="ops-kanban-card-value">' + escapeHtml(value) + '</span>' +
-            '</div>'
-        );
-    }
-
     function buildCardHtml(operation) {
         var dateTimeLabel = operation.operation_date || config.dash;
         if (operation.operation_time) {
@@ -70,9 +61,9 @@
         return (
             '<article class="ops-kanban-card' + readonlyClass + '" data-operation-id="' + escapeHtml(operation.id) + '">' +
                 '<a href="' + escapeHtml(operation.show_url) + '" class="ops-kanban-card-serial">' + escapeHtml(operation.operation_number) + '</a>' +
-                buildCardRow(lang.dateTime, dateTimeLabel) +
-                buildCardRow(lang.product, operation.item_name || config.dash) +
-                buildCardRow(lang.client, operation.client_name || config.dash) +
+                '<div class="ops-kanban-card-datetime">' + escapeHtml(dateTimeLabel) + '</div>' +
+                '<div class="ops-kanban-card-product">' + escapeHtml(operation.item_name || config.dash) + '</div>' +
+                '<div class="ops-kanban-card-client">' + escapeHtml(operation.client_name || config.dash) + '</div>' +
             '</article>'
         );
     }

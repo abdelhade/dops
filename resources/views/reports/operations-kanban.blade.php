@@ -172,29 +172,26 @@
         text-decoration: underline;
     }
 
-    .ops-kanban-card-row {
-        display: flex;
-        flex-direction: column;
-        gap: 0.15rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .ops-kanban-card-row:last-child {
-        margin-bottom: 0;
-    }
-
-    .ops-kanban-card-label {
-        font-size: 0.68rem;
-        font-weight: 600;
+    .ops-kanban-card-datetime {
+        font-size: 0.74rem;
         color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.02em;
+        margin-bottom: 0.45rem;
+        line-height: 1.35;
     }
 
-    .ops-kanban-card-value {
-        font-size: 0.82rem;
+    .ops-kanban-card-product {
+        font-size: 0.84rem;
         font-weight: 600;
         color: var(--text-primary);
+        margin-bottom: 0.35rem;
+        line-height: 1.4;
+        word-break: break-word;
+    }
+
+    .ops-kanban-card-client {
+        font-size: 0.78rem;
+        font-weight: 500;
+        color: var(--text-secondary);
         line-height: 1.4;
         word-break: break-word;
     }
@@ -346,9 +343,6 @@
         emptyColumn: @json(__('dobs.report_kanban_empty_column')),
         statusUpdateFailed: @json(__('dobs.report_kanban_status_update_failed')),
         operationsCount: @json(__('dobs.report_kanban_operations_count')),
-        dateTime: @json(__('dobs.report_kanban_card_datetime')),
-        product: @json(__('dobs.operation_product_1')),
-        client: @json(__('dobs.operation_client')),
     };
 </script>
 <script src="{{ asset('js/operations-kanban.js') }}?v={{ @filemtime(public_path('js/operations-kanban.js')) ?: 1 }}"></script>
