@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\Item;
 use App\Models\Operation;
 use App\Models\OperationStatus;
@@ -15,8 +16,10 @@ class ReportController extends Controller
 {
     /** @var list<string> */
     private const FILTER_KEYS = [
-        'search', 'operation_number', 'date_from', 'date_to', 'item_id', 'operation_status_id',
-        'printing_supplier_id', 'ctp_supplier_id', 'paper_type_id', 'color_count', 'service_id', 'statement',
+        'search', 'operation_number', 'date_from', 'date_to', 'client_id', 'item_id', 'quantity',
+        'statement', 'printing_supplier_id', 'ctp_supplier_id', 'color_count', 'paper_type_id',
+        'job_size', 'pull_count', 'quantity_per_sheet', 'service_1_id', 'service_2_id', 'service_3_id',
+        'operation_status_id', 'notes',
     ];
 
     public function paperMaterialsSummary(Request $request)
@@ -93,6 +96,7 @@ class ReportController extends Controller
     private function filterOptions(): array
     {
         return [
+            'clients' => Client::orderBy('name')->get(),
             'items' => Item::orderBy('name')->get(),
             'suppliers' => Supplier::orderBy('name')->get(),
             'paperTypes' => PaperType::orderBy('name')->get(),
@@ -114,8 +118,14 @@ class ReportController extends Controller
         if ($request->filled('date_to')) {
             $query->whereDate('operation_date', '<=', $request->date_to);
         }
+        if ($request->filled('client_id')) {
+            $query->where('client_id', $request->client_id);
+        }
         if ($request->filled('item_id')) {
             $query->where('item_id', $request->item_id);
+        }
+        if ($request->filled('quantity')) {
+            $query->where('quantity', $request->quantity);
         }
         if ($request->filled('operation_status_id')) {
             $query->where('operation_status_id', $request->operation_status_id);
@@ -132,18 +142,29 @@ class ReportController extends Controller
         if ($request->filled('color_count')) {
             $query->where('color_count', $request->color_count);
         }
-        if ($request->filled('service_id')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('service_1_id', $request->service_id)
-                    ->orWhere('service_2_id', $request->service_id)
-                    ->orWhere('service_3_id', $request->service_id);
-            });
+        if ($request->filled('job_size')) {
+            $query->where('job_size', $request->job_size);
+        }
+        if ($request->filled('pull_count')) {
+            $query->where('pull_count', $request->pull_count);
+        }
+        if ($request->filled('quantity_per_sheet')) {
+            $query->where('quantity_per_sheet', $request->quantity_per_sheet);
+        }
+        if ($request->filled('service_1_id')) {
+            $query->where('service_1_id', $request->service_1_id);
+        }
+        if ($request->filled('service_2_id')) {
+            $query->where('service_2_id', $request->service_2_id);
+        }
+        if ($request->filled('service_3_id')) {
+            $query->where('service_3_id', $request->service_3_id);
         }
         if ($request->filled('statement')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('statement', 'like', '%' . $request->statement . '%')
-                    ->orWhere('notes', 'like', '%' . $request->statement . '%');
-            });
+            $query->where('statement', 'like', '%' . $request->statement . '%');
+        }
+        if ($request->filled('notes')) {
+            $query->where('notes', 'like', '%' . $request->notes . '%');
         }
         if ($request->filled('search')) {
             $term = '%' . $request->search . '%';
@@ -151,6 +172,7 @@ class ReportController extends Controller
                 $q->where('operation_number', 'like', $term)
                     ->orWhere('statement', 'like', $term)
                     ->orWhere('notes', 'like', $term)
+                    ->orWhereHas('client', fn ($clientQuery) => $clientQuery->where('name', 'like', $term))
                     ->orWhereHas('item', fn ($itemQuery) => $itemQuery->where('name', 'like', $term))
                     ->orWhereHas('paperType', fn ($paperQuery) => $paperQuery->where('name', 'like', $term))
                     ->orWhereHas('printingSupplier', fn ($supplierQuery) => $supplierQuery->where('name', 'like', $term))
