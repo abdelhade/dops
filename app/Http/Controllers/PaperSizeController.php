@@ -86,9 +86,6 @@ class PaperSizeController extends Controller
      */
     public function destroy(PaperSize $paperSize)
     {
-        $this->authorizeDelete();
-
-        $paperSize->delete();
-        return redirect()->route('paper-sizes.index')->with('success', __('dobs.flash_paper_size_deleted'));
+        return $this->destroyRecord($paperSize, 'paper-sizes.index', 'dobs.flash_paper_size_deleted');
     }
 }

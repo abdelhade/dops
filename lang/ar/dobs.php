@@ -42,9 +42,10 @@ return [
     'status_processing' => 'قيد التنفيذ',
     'status_completed' => 'مكتملة',
 
-    'confirm_delete_category' => 'هل أنت متأكد من حذف هذا التصنيف؟ الأصناف المرتبطة ستبقى لكن بدون تصنيف.',
-    'confirm_delete_supplier' => 'هل أنت متأكد من حذف هذا المورد؟ ستبقى الأصناف لكن بدون ربط بالمورد.',
-    'confirm_delete_paper_size' => 'هل أنت متأكد من حذف مقاس الورق؟ الأصناف تبقى لكن بدون مقاس مرتبط.',
+    'confirm_delete_category' => 'هل أنت متأكد من حذف هذا التصنيف؟',
+    'confirm_delete_supplier' => 'هل أنت متأكد من حذف هذا المورد؟',
+    'confirm_delete_paper_size' => 'هل أنت متأكد من حذف مقاس الورق؟',
+    'cannot_delete_has_related' => 'لا يمكن الحذف لوجود سجلات مرتبطة بهذا السجل.',
     'update_supplier' => 'تحديث المورد',
     'update_paper_size' => 'تحديث المقاس',
     'update_item' => 'تحديث الصنف',
@@ -52,7 +53,7 @@ return [
     'business_address_placeholder' => 'الشارع، المدينة، المحافظة...',
     'mm_unit' => 'مم',
     'subtotal_label' => 'المجموع الفرعي:',
-    'confirm_delete_item' => 'هل أنت متأكد من حذف هذا الصنف؟ سيُزال من سجل العمليات المرتبطة أيضاً.',
+    'confirm_delete_item' => 'هل أنت متأكد من حذف هذا الصنف؟',
     'confirm_delete_operation' => 'هل أنت متأكد من حذف هذه العملية؟ الأصناف تبقى لكن سجل العملية يُحذف.',
 
     'dashboard_title' => 'لوحة التحكم',

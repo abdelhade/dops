@@ -5,12 +5,12 @@
             <a href="{{ $templateRoute }}" class="btn btn-secondary btn-sm">
                 <i class="fa-solid fa-download"></i> {{ __('dobs.download_template') }}
             </a>
-            <form action="{{ $importRoute }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ $importRoute }}" method="POST" enctype="multipart/form-data" class="spreadsheet-import-form">
                 @csrf
-                <input type="file" name="file" id="{{ $importInputId }}" class="spreadsheet-import-file" accept=".xlsx,.xls,.csv" onchange="if (this.files.length) this.form.submit()">
-                <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('{{ $importInputId }}').click()">
+                <input type="file" name="file" id="{{ $importInputId }}" class="spreadsheet-import-file" accept=".xlsx,.xls,.csv">
+                <label for="{{ $importInputId }}" class="btn btn-primary btn-sm">
                     <i class="fa-solid fa-upload"></i> {{ __('dobs.import_submit') }}
-                </button>
+                </label>
             </form>
         </div>
     @else

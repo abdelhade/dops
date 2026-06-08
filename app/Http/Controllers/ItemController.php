@@ -9,6 +9,7 @@ use App\Models\PaperSize;
 use App\Support\SpreadsheetExporter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\File;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ItemController extends Controller
@@ -132,10 +133,7 @@ class ItemController extends Controller
      */
     public function destroy(Item $item)
     {
-        $this->authorizeDelete();
-
-        $item->delete();
-        return redirect()->route('items.index')->with('success', __('dobs.flash_item_deleted'));
+        return $this->destroyRecord($item, 'items.index', 'dobs.flash_item_deleted');
     }
 
     public function export(SpreadsheetExporter $exporter): StreamedResponse
@@ -174,7 +172,7 @@ class ItemController extends Controller
         $this->authorizeCreate();
 
         $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+            'file' => ['required', File::types(['xlsx', 'xls', 'csv'])->max(5120)],
         ]);
 
         $categories = Category::pluck('id', 'name');

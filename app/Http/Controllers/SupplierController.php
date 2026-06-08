@@ -88,9 +88,6 @@ class SupplierController extends Controller
      */
     public function destroy(Supplier $supplier)
     {
-        $this->authorizeDelete();
-
-        $supplier->delete();
-        return redirect()->route('suppliers.index')->with('success', __('dobs.flash_supplier_deleted'));
+        return $this->destroyRecord($supplier, 'suppliers.index', 'dobs.flash_supplier_deleted');
     }
 }

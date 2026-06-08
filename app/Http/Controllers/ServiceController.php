@@ -95,10 +95,7 @@ class ServiceController extends Controller
      */
     public function destroy(Service $service)
     {
-        $this->authorizeDelete();
-        $service->delete();
-
-        return redirect()->route('services.index')->with('success', __('dobs.flash_service_deleted'));
+        return $this->destroyRecord($service, 'services.index', 'dobs.flash_service_deleted');
     }
 
     public function export(SpreadsheetExporter $exporter): StreamedResponse

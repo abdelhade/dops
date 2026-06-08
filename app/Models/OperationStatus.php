@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\PreventsDeletionWhenRelated;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class OperationStatus extends Model
+class OperationStatus extends Model implements PreventsDeletionWhenRelated
 {
     protected $fillable = [
         'name',
@@ -23,5 +24,10 @@ class OperationStatus extends Model
     public function operations(): HasMany
     {
         return $this->hasMany(Operation::class);
+    }
+
+    public function hasRelatedRecords(): bool
+    {
+        return $this->operations()->exists();
     }
 }

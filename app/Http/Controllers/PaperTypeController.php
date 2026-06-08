@@ -87,9 +87,6 @@ class PaperTypeController extends Controller
      */
     public function destroy(PaperType $paperType)
     {
-        $this->authorizeDelete();
-        $paperType->delete();
-
-        return redirect()->route('paper-types.index')->with('success', __('dobs.flash_paper_type_deleted'));
+        return $this->destroyRecord($paperType, 'paper-types.index', 'dobs.flash_paper_type_deleted');
     }
 }

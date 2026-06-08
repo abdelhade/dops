@@ -225,6 +225,7 @@
     <script src="{{ asset('js/sidebar.js') }}?v={{ @filemtime(public_path('js/sidebar.js')) ?: 1 }}"></script>
     <script src="{{ asset('js/autofocus.js') }}?v={{ @filemtime(public_path('js/autofocus.js')) ?: 1 }}"></script>
     <script src="{{ asset('js/shortcuts.js') }}"></script>
+    <script src="{{ asset('js/spreadsheet-import.js') }}?v={{ @filemtime(public_path('js/spreadsheet-import.js')) ?: 1 }}"></script>
     @yield('scripts')
 </body>
 </html>

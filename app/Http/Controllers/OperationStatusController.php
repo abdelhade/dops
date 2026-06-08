@@ -81,9 +81,6 @@ class OperationStatusController extends Controller
 
     public function destroy(OperationStatus $operationStatus)
     {
-        $this->authorizeDelete();
-        $operationStatus->delete();
-
-        return redirect()->route('operation-statuses.index')->with('success', __('dobs.flash_status_deleted'));
+        return $this->destroyRecord($operationStatus, 'operation-statuses.index', 'dobs.flash_status_deleted');
     }
 }

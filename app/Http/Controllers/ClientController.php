@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Support\SpreadsheetExporter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\File;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ClientController extends Controller
@@ -102,10 +103,7 @@ class ClientController extends Controller
      */
     public function destroy(Client $client)
     {
-        $this->authorizeDelete();
-        $client->delete();
-
-        return redirect()->route('clients.index')->with('success', __('dobs.flash_client_deleted'));
+        return $this->destroyRecord($client, 'clients.index', 'dobs.flash_client_deleted');
     }
 
     public function export(SpreadsheetExporter $exporter): StreamedResponse
@@ -138,7 +136,7 @@ class ClientController extends Controller
         $this->authorizeCreate();
 
         $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+            'file' => ['required', File::types(['xlsx', 'xls', 'csv'])->max(5120)],
         ]);
 
         $imported = 0;

@@ -84,9 +84,6 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        $this->authorizeDelete();
-
-        $category->delete();
-        return redirect()->route('categories.index')->with('success', __('dobs.flash_category_deleted'));
+        return $this->destroyRecord($category, 'categories.index', 'dobs.flash_category_deleted');
     }
 }

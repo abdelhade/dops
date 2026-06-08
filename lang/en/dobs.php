@@ -42,9 +42,10 @@ return [
     'status_processing' => 'Processing',
     'status_completed' => 'Completed',
 
-    'confirm_delete_category' => 'Are you sure you want to delete this category? Associated items will remain but will have no category.',
-    'confirm_delete_supplier' => 'Are you sure you want to delete this supplier? Items will remain but without a supplier link.',
-    'confirm_delete_paper_size' => 'Are you sure you want to delete this paper size? Items will remain but without a size link.',
+    'confirm_delete_category' => 'Are you sure you want to delete this category?',
+    'confirm_delete_supplier' => 'Are you sure you want to delete this supplier?',
+    'confirm_delete_paper_size' => 'Are you sure you want to delete this paper size?',
+    'cannot_delete_has_related' => 'Cannot delete because this record is linked to other records.',
     'update_supplier' => 'Update Supplier',
     'update_paper_size' => 'Update Paper Size',
     'update_item' => 'Update Item',
@@ -52,7 +53,7 @@ return [
     'business_address_placeholder' => 'Street, City, State...',
     'mm_unit' => 'mm',
     'subtotal_label' => 'Subtotal:',
-    'confirm_delete_item' => 'Are you sure you want to delete this item? It will be removed from related operation logs as well.',
+    'confirm_delete_item' => 'Are you sure you want to delete this item?',
     'confirm_delete_operation' => 'Are you sure you want to delete this operation? Items will remain but the log is deleted.',
 
     'dashboard_title' => 'Dashboard',
