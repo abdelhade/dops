@@ -10,8 +10,6 @@
     .report-filters-card {
         margin-bottom: 1.25rem;
         padding: 1.1rem 1.25rem;
-        border: 1px solid var(--border-color);
-        background: linear-gradient(180deg, rgba(31, 41, 55, 0.55) 0%, rgba(17, 24, 39, 0.75) 100%);
     }
 
     .report-filters-card-header {
@@ -138,7 +136,6 @@
         text-align: center;
         padding: 3rem 1.5rem;
         border: 1px dashed var(--border-color);
-        background: rgba(17, 24, 39, 0.45);
     }
 
     .report-awaiting-card i {
@@ -455,7 +452,6 @@
                 <thead>
                     <tr>
                         <th>{{ __('dobs.report_paper_name') }}</th>
-                        <th>{{ __('dobs.report_col_total_pulls') }}</th>
                         <th>{{ __('dobs.report_col_qty_per_sheet') }}</th>
                     </tr>
                 </thead>
@@ -463,18 +459,11 @@
                     @foreach($rows as $row)
                         <tr>
                             <td>{{ $row->paper_type_name }}</td>
-                            <td>{{ number_format($row->total_pull_count) }}</td>
                             <td>{{ number_format($row->total_quantity_per_sheet) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
-                <tfoot>
-                    <tr>
-                        <th>{{ __('dobs.report_totals') }}</th>
-                        <th>{{ number_format($totals->total_pull_count) }}</th>
-                        <th>{{ number_format($totals->total_quantity_per_sheet) }}</th>
-                    </tr>
-                </tfoot>
+         
             </table>
         @endif
 
