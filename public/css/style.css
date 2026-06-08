@@ -36,6 +36,13 @@
     
     --sidebar-width: 220px;
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --select-control-bg: rgba(17, 24, 39, 0.5);
+    --select-control-bg-focus: rgba(17, 24, 39, 0.85);
+    --select-dropdown-bg: #1f2937;
+    --select-dropdown-input-bg: rgba(31, 41, 55, 0.95);
+    --select-option-active-bg: rgba(34, 211, 238, 0.12);
+    --select-option-selected-bg: rgba(34, 211, 238, 0.2);
 }
 
 * {
@@ -479,9 +486,16 @@ body {
     border-radius: var(--radius-lg);
     padding: 1.5rem;
     box-shadow: var(--shadow-md);
-    transition: var(--transition-smooth);
     position: relative;
     overflow: hidden;
+}
+
+.glass-card:hover,
+.glass-card.operation-form-card:hover,
+.operation-form-card:hover {
+    transform: none;
+    border-color: var(--border-color);
+    box-shadow: var(--shadow-md);
 }
 
 .glass-card::before {
@@ -493,12 +507,6 @@ body {
     height: 100%;
     background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 100%);
     pointer-events: none;
-}
-
-.glass-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--border-hover);
-    box-shadow: var(--shadow-lg);
 }
 
 /* Stat Card Specifics */
@@ -675,10 +683,6 @@ body {
     gap: 1rem;
     padding: 1.25rem;
     margin: 0;
-}
-
-.operation-card:hover {
-    transform: translateY(-4px);
 }
 
 .operation-card-header {
@@ -1426,6 +1430,10 @@ html[dir="rtl"] .actions-cell {
 }
 
 /* Operation form — compact semi-desktop layout */
+.glass-card.operation-form-card {
+    overflow: visible;
+}
+
 .operation-form-card {
     max-width: 1180px;
     margin: 0 auto;
@@ -1519,6 +1527,164 @@ html[dir="rtl"] .actions-cell {
     .operation-form-compact .form-row-product {
         grid-template-columns: 1fr;
     }
+}
+
+/* Tom Select — operation form searchable dropdowns */
+.operation-form-compact .ts-wrapper,
+.operation-form-compact .operation-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.operation-form-compact .ts-wrapper.dropdown-active,
+.operation-form-compact .operation-select-wrapper.dropdown-active {
+    z-index: 50;
+}
+
+.operation-form-compact .ts-wrapper.single .ts-control,
+.operation-form-compact .ts-wrapper.multi .ts-control,
+.operation-form-compact .operation-select-wrapper.single .ts-control,
+.operation-form-compact .operation-select-wrapper.multi .ts-control {
+    background: var(--select-control-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    padding: 0.35rem 0.55rem;
+    min-height: 2.05rem;
+    font-size: 0.875rem;
+    font-family: inherit;
+    box-shadow: none;
+}
+
+.operation-form-compact .ts-wrapper.single.input-active .ts-control,
+.operation-form-compact .ts-wrapper.single.focus .ts-control,
+.operation-form-compact .ts-wrapper.multi.input-active .ts-control,
+.operation-form-compact .ts-wrapper.multi.focus .ts-control,
+.operation-form-compact .operation-select-wrapper.single.input-active .ts-control,
+.operation-form-compact .operation-select-wrapper.single.focus .ts-control,
+.operation-form-compact .operation-select-wrapper.multi.input-active .ts-control,
+.operation-form-compact .operation-select-wrapper.multi.focus .ts-control {
+    border-color: var(--color-focus-border);
+    box-shadow: 0 0 0 3px var(--color-focus-glow), 0 0 14px rgba(34, 211, 238, 0.18);
+    background: var(--select-control-bg-focus);
+}
+
+.operation-form-compact .ts-control input,
+.operation-form-compact .operation-select-wrapper .ts-control input {
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.operation-form-compact .ts-control input::placeholder,
+.operation-form-compact .operation-select-wrapper .ts-control input::placeholder {
+    color: var(--text-muted);
+}
+
+.operation-form-compact .ts-control .item,
+.operation-form-compact .operation-select-wrapper .ts-control .item {
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+.operation-form-compact .ts-dropdown,
+.operation-select-dropdown {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    left: 0;
+    right: 0;
+    width: 100%;
+    background: var(--select-dropdown-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    color: var(--text-primary);
+    z-index: 5000;
+}
+
+.operation-form-compact .form-group {
+    overflow: visible;
+}
+
+.operation-form-compact .ts-dropdown .dropdown-input,
+.operation-select-dropdown .dropdown-input {
+    background: var(--select-dropdown-input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    margin: 0.4rem;
+    padding: 0.4rem 0.55rem;
+    width: calc(100% - 0.8rem);
+    font-family: inherit;
+    font-size: 0.875rem;
+}
+
+.operation-form-compact .ts-dropdown .dropdown-input:focus,
+.operation-select-dropdown .dropdown-input:focus {
+    outline: none;
+    border-color: var(--color-focus-border);
+    box-shadow: 0 0 0 2px var(--color-focus-glow);
+}
+
+.operation-form-compact .ts-dropdown .option,
+.operation-select-dropdown .option {
+    padding: 0.45rem 0.65rem;
+    color: var(--text-primary);
+}
+
+.operation-form-compact .ts-dropdown .option.active,
+.operation-select-dropdown .option.active {
+    background: var(--select-option-active-bg);
+    color: var(--text-primary);
+}
+
+.operation-form-compact .ts-dropdown .option.selected,
+.operation-select-dropdown .option.selected {
+    background: var(--select-option-selected-bg);
+    color: var(--text-primary);
+}
+
+.operation-form-compact .ts-wrapper .ts-control:hover,
+.operation-form-compact .operation-select-wrapper .ts-control:hover {
+    border-color: var(--border-color);
+    box-shadow: none;
+}
+
+.operation-form-compact .ts-dropdown .no-results,
+.operation-select-dropdown .no-results {
+    padding: 0.5rem 0.65rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.operation-form-compact .ts-dropdown .ts-dropdown-content,
+.operation-select-dropdown .ts-dropdown-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.operation-form-compact .ts-dropdown .create,
+.operation-select-dropdown .create {
+    order: 99;
+    padding: 0.5rem 0.65rem;
+    color: var(--color-secondary);
+    font-size: 0.875rem;
+    cursor: pointer;
+    border-top: 1px solid var(--border-color);
+    margin-top: 0.15rem;
+}
+
+.operation-form-compact .ts-dropdown .create strong,
+.operation-select-dropdown .create strong {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.operation-form-compact .ts-wrapper.single .ts-control::after,
+.operation-form-compact .operation-select-wrapper.single .ts-control::after {
+    border-color: var(--text-muted) transparent transparent;
 }
 
 /* Guest / Login */
@@ -1709,6 +1875,13 @@ html[dir="rtl"] td[style*="text-align: right"] {
     --shadow-sm: 0 2px 8px rgba(39, 40, 34, 0.08);
     --shadow-md: 0 10px 25px -5px rgba(39, 40, 34, 0.1), 0 8px 10px -6px rgba(39, 40, 34, 0.08);
     --shadow-lg: 0 20px 35px -10px rgba(39, 40, 34, 0.12), 0 12px 15px -8px rgba(39, 40, 34, 0.1);
+
+    --select-control-bg: rgba(255, 255, 255, 0.92);
+    --select-control-bg-focus: #ffffff;
+    --select-dropdown-bg: #ffffff;
+    --select-dropdown-input-bg: rgba(255, 255, 255, 0.98);
+    --select-option-active-bg: rgba(102, 217, 239, 0.18);
+    --select-option-selected-bg: rgba(166, 226, 46, 0.22);
 }
 
 [data-theme="monokai"] body {
@@ -1831,6 +2004,56 @@ html[dir="rtl"] td[style*="text-align: right"] {
 
 [data-theme="monokai"] .operation-form-compact .form-static-value {
     background: rgba(255, 255, 255, 0.75);
+}
+
+[data-theme="monokai"] .operation-form-compact .ts-wrapper.single .ts-control,
+[data-theme="monokai"] .operation-form-compact .ts-wrapper.multi .ts-control,
+[data-theme="monokai"] .operation-form-compact .operation-select-wrapper.single .ts-control,
+[data-theme="monokai"] .operation-form-compact .operation-select-wrapper.multi .ts-control {
+    border-color: rgba(39, 40, 34, 0.15);
+}
+
+[data-theme="monokai"] .operation-form-compact .ts-wrapper.single.input-active .ts-control,
+[data-theme="monokai"] .operation-form-compact .ts-wrapper.single.focus .ts-control,
+[data-theme="monokai"] .operation-form-compact .ts-wrapper.multi.input-active .ts-control,
+[data-theme="monokai"] .operation-form-compact .ts-wrapper.multi.focus .ts-control,
+[data-theme="monokai"] .operation-form-compact .operation-select-wrapper.single.input-active .ts-control,
+[data-theme="monokai"] .operation-form-compact .operation-select-wrapper.single.focus .ts-control,
+[data-theme="monokai"] .operation-form-compact .operation-select-wrapper.multi.input-active .ts-control,
+[data-theme="monokai"] .operation-form-compact .operation-select-wrapper.multi.focus .ts-control {
+    box-shadow: 0 0 0 3px var(--color-focus-glow), 0 0 14px rgba(102, 217, 239, 0.15);
+}
+
+[data-theme="monokai"] .operation-form-compact .ts-dropdown,
+[data-theme="monokai"] .operation-select-dropdown {
+    border-color: rgba(39, 40, 34, 0.15);
+}
+
+[data-theme="monokai"] .operation-form-compact .ts-dropdown .dropdown-input,
+[data-theme="monokai"] .operation-select-dropdown .dropdown-input {
+    border-color: rgba(39, 40, 34, 0.15);
+}
+
+[data-theme="monokai"] .operation-form-compact .ts-dropdown .dropdown-input::placeholder,
+[data-theme="monokai"] .operation-select-dropdown .dropdown-input::placeholder {
+    color: var(--text-muted);
+}
+
+[data-theme="monokai"] .operation-form-compact .ts-dropdown .create,
+[data-theme="monokai"] .operation-select-dropdown .create {
+    color: #0891b2;
+    border-top-color: rgba(39, 40, 34, 0.1);
+}
+
+[data-theme="monokai"] .operation-form-compact .ts-dropdown .option.active,
+[data-theme="monokai"] .operation-select-dropdown .option.active {
+    background: #f4d35e;
+    color: #272822;
+}
+
+[data-theme="monokai"] .operation-form-compact .ts-wrapper.single .ts-control::after,
+[data-theme="monokai"] .operation-form-compact .operation-select-wrapper.single .ts-control::after {
+    border-color: var(--text-secondary) transparent transparent;
 }
 
 [data-theme="monokai"] .badge-role-admin {

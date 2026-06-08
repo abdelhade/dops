@@ -28,7 +28,7 @@
 
         <div class="form-group">
             <label for="operation_status_id" class="form-label">{{ __('dobs.operation_status') }} <span class="text-required">*</span></label>
-            <select name="operation_status_id" id="operation_status_id" class="form-control" required>
+            <select name="operation_status_id" id="operation_status_id" class="form-control" data-allow-create="operation_status" required>
                 @if(isset($operationStatuses) && $operationStatuses->count() > 0)
                     @foreach($operationStatuses as $statusOpt)
                         <option value="{{ $statusOpt->id }}" {{ (string) old('operation_status_id', $op?->operation_status_id) === (string) $statusOpt->id ? 'selected' : '' }}>
@@ -44,7 +44,7 @@
 
     <div class="form-group">
         <label for="client_id" class="form-label">{{ __('dobs.operation_client') }}</label>
-        <select name="client_id" id="client_id" class="form-control">
+        <select name="client_id" id="client_id" class="form-control" data-allow-create="client">
             <option value="">{{ __('dobs.select_client') }}</option>
             @foreach($clients as $client)
                 <option value="{{ $client->id }}" {{ (string) old('client_id', $op?->client_id) === (string) $client->id ? 'selected' : '' }}>
@@ -57,7 +57,7 @@
     <div class="form-row form-row-product">
         <div class="form-group">
             <label for="item_id" class="form-label">{{ __('dobs.operation_product_1') }} <span class="text-required">*</span></label>
-            <select name="item_id" id="item_id" class="form-control" required>
+            <select name="item_id" id="item_id" class="form-control" data-allow-create="item" required>
                 <option value="">{{ __('dobs.choose_item') }}</option>
                 @foreach($items as $item)
                     <option value="{{ $item->id }}" {{ (string) old('item_id', $op?->item_id) === (string) $item->id ? 'selected' : '' }}>
@@ -90,7 +90,7 @@
     <div class="form-row form-row-3">
         <div class="form-group">
             <label for="printing_supplier_id" class="form-label">{{ __('dobs.operation_printing_press') }}</label>
-            <select name="printing_supplier_id" id="printing_supplier_id" class="form-control">
+            <select name="printing_supplier_id" id="printing_supplier_id" class="form-control" data-allow-create="supplier">
                 <option value="">{{ __('dobs.select_supplier') }}</option>
                 @foreach($suppliers as $supplier)
                     <option value="{{ $supplier->id }}" {{ (string) old('printing_supplier_id', $op?->printing_supplier_id) === (string) $supplier->id ? 'selected' : '' }}>
@@ -102,7 +102,7 @@
 
         <div class="form-group">
             <label for="ctp_supplier_id" class="form-label">{{ __('dobs.operation_ctp') }}</label>
-            <select name="ctp_supplier_id" id="ctp_supplier_id" class="form-control">
+            <select name="ctp_supplier_id" id="ctp_supplier_id" class="form-control" data-allow-create="supplier">
                 <option value="">{{ __('dobs.select_supplier') }}</option>
                 @foreach($suppliers as $supplier)
                     <option value="{{ $supplier->id }}" {{ (string) old('ctp_supplier_id', $op?->ctp_supplier_id) === (string) $supplier->id ? 'selected' : '' }}>
@@ -114,7 +114,7 @@
 
         <div class="form-group">
             <label for="paper_type_id" class="form-label">{{ __('dobs.operation_paper_material') }}</label>
-            <select name="paper_type_id" id="paper_type_id" class="form-control">
+            <select name="paper_type_id" id="paper_type_id" class="form-control" data-allow-create="paper_type">
                 <option value="">{{ __('dobs.select_paper_type') }}</option>
                 @foreach($paperTypes as $paperType)
                     <option value="{{ $paperType->id }}" {{ (string) old('paper_type_id', $op?->paper_type_id) === (string) $paperType->id ? 'selected' : '' }}>
@@ -145,7 +145,7 @@
     <div class="form-row form-row-3">
         <div class="form-group">
             <label for="service_1_id" class="form-label">{{ __('dobs.operation_service_1') }}</label>
-            <select name="service_1_id" id="service_1_id" class="form-control">
+            <select name="service_1_id" id="service_1_id" class="form-control" data-allow-create="service">
                 <option value="">{{ __('dobs.select_service') }}</option>
                 @foreach($services as $service)
                     <option value="{{ $service->id }}" {{ (string) old('service_1_id', $op?->service_1_id) === (string) $service->id ? 'selected' : '' }}>
@@ -157,7 +157,7 @@
 
         <div class="form-group">
             <label for="service_2_id" class="form-label">{{ __('dobs.operation_service_2') }}</label>
-            <select name="service_2_id" id="service_2_id" class="form-control">
+            <select name="service_2_id" id="service_2_id" class="form-control" data-allow-create="service">
                 <option value="">{{ __('dobs.select_service') }}</option>
                 @foreach($services as $service)
                     <option value="{{ $service->id }}" {{ (string) old('service_2_id', $op?->service_2_id) === (string) $service->id ? 'selected' : '' }}>
@@ -169,7 +169,7 @@
 
         <div class="form-group">
             <label for="service_3_id" class="form-label">{{ __('dobs.operation_service_3') }}</label>
-            <select name="service_3_id" id="service_3_id" class="form-control">
+            <select name="service_3_id" id="service_3_id" class="form-control" data-allow-create="service">
                 <option value="">{{ __('dobs.select_service') }}</option>
                 @foreach($services as $service)
                     <option value="{{ $service->id }}" {{ (string) old('service_3_id', $op?->service_3_id) === (string) $service->id ? 'selected' : '' }}>

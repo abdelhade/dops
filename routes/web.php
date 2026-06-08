@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\OperationController;
+use App\Http\Controllers\OperationFormOptionController;
 use App\Http\Controllers\OperationStatusController;
 use App\Http\Controllers\PaperSizeController;
 use App\Http\Controllers\SupplierController;
@@ -31,6 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('categories', CategoryController::class);
     Route::resource('suppliers', SupplierController::class);
     Route::resource('paper-sizes', PaperSizeController::class);
+    Route::post('operations/form-options', [OperationFormOptionController::class, 'store'])->name('operations.form-options.store');
     Route::patch('operations/{operation}/status', [OperationController::class, 'updateStatus'])->name('operations.update-status');
     Route::get('operations/{operation}/export', [OperationController::class, 'export'])->name('operations.export');
     Route::resource('operations', OperationController::class);

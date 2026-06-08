@@ -11,9 +11,22 @@
 </a>
 @endsection
 
+@section('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css">
+@endsection
+
 @section('content')
 <div class="glass-card operation-form-card">
-    <form action="{{ route('operations.store') }}" method="POST" id="operation-form">
+    <form
+        action="{{ route('operations.store') }}"
+        method="POST"
+        id="operation-form"
+        data-select-search="{{ __('dobs.select_search_placeholder') }}"
+        data-select-no-results="{{ __('dobs.select_no_results') }}"
+        data-option-create-url="{{ route('operations.form-options.store') }}"
+        data-option-create-label="{{ __('dobs.select_create_option') }}"
+        data-option-create-failed="{{ __('dobs.select_create_failed') }}"
+    >
         @csrf
 
         @include('operations._form')
@@ -29,6 +42,7 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
 <script src="{{ asset('js/operation-form.js') }}?v={{ @filemtime(public_path('js/operation-form.js')) ?: 1 }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
