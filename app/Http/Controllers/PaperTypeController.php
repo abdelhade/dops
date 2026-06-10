@@ -5,10 +5,23 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\PaperType;
+use App\Support\SpreadsheetExporter;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PaperTypeController extends Controller
 {
+    private function paperTypeHeaders(): array
+    {
+        return [
+            __('dobs.paper_type_name'),
+            __('dobs.weight_gsm'),
+            __('dobs.finish'),
+            __('dobs.description'),
+        ];
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -88,5 +101,59 @@ class PaperTypeController extends Controller
     public function destroy(PaperType $paperType)
     {
         return $this->destroyRecord($paperType, 'paper-types.index', 'dobs.flash_paper_type_deleted');
+    }
+
+    public function export(SpreadsheetExporter $exporter): StreamedResponse
+    {
+        $rows = PaperType::latest()->get()->map(fn (PaperType $p) => [
+            $p->name,
+            $p->weight_gsm ?? '',
+            $p->finish ?? '',
+            $p->description ?? '',
+        ])->all();
+
+        return $exporter->downloadXlsx('paper-types', $this->paperTypeHeaders(), $rows);
+    }
+
+    public function template(SpreadsheetExporter $exporter): StreamedResponse
+    {
+        return $exporter->downloadTemplate('paper-types', $this->paperTypeHeaders(), [
+            __('dobs.import_sample_paper_type_name'),
+            __('dobs.import_sample_weight_gsm'),
+            __('dobs.import_sample_finish'),
+            __('dobs.import_sample_description'),
+        ]);
+    }
+
+    public function import(Request $request, SpreadsheetExporter $exporter): RedirectResponse
+    {
+        $this->authorizeCreate();
+
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ]);
+
+        $imported = 0;
+
+        foreach ($exporter->readDataRows($request->file('file')) as $row) {
+            $name = $row[0] ?? '';
+            if ($name === '') {
+                continue;
+            }
+
+            $weight = $row[1] ?? '';
+
+            PaperType::create([
+                'name' => $name,
+                'weight_gsm' => is_numeric($weight) ? (int) $weight : null,
+                'finish' => ($row[2] ?? '') !== '' ? $row[2] : null,
+                'description' => ($row[3] ?? '') !== '' ? $row[3] : null,
+            ]);
+            $imported++;
+        }
+
+        return redirect()
+            ->route('paper-types.index')
+            ->with('success', __('dobs.flash_import_success', ['count' => $imported]));
     }
 }

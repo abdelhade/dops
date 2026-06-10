@@ -42,16 +42,34 @@
         </div>
     </div>
 
-    <div class="form-group">
-        <label for="client_id" class="form-label">{{ __('dobs.operation_client') }}</label>
-        <select name="client_id" id="client_id" class="form-control" data-allow-create="client">
-            <option value="">{{ __('dobs.select_client') }}</option>
-            @foreach($clients as $client)
-                <option value="{{ $client->id }}" {{ (string) old('client_id', $op?->client_id) === (string) $client->id ? 'selected' : '' }}>
-                    {{ $client->name }}
-                </option>
-            @endforeach
-        </select>
+    <div class="form-row form-row-2">
+        <div class="form-group">
+            <label for="client_id" class="form-label">{{ __('dobs.operation_client') }}</label>
+            <select
+                name="client_id"
+                id="client_id"
+                class="form-control"
+                data-allow-create="client"
+                data-remote-search-url="{{ route('operations.clients.search') }}"
+            >
+                <option value="">{{ __('dobs.select_client') }}</option>
+                @if(isset($selectedClient) && $selectedClient)
+                    <option value="{{ $selectedClient->id }}" selected>{{ $selectedClient->name }}</option>
+                @endif
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="related_sales_order_number" class="form-label">{{ __('dobs.operation_related_sales_order_number') }}</label>
+            <input
+                type="text"
+                name="related_sales_order_number"
+                id="related_sales_order_number"
+                class="form-control form-control-mono"
+                value="{{ old('related_sales_order_number', $op?->related_sales_order_number) }}"
+                placeholder="{{ __('dobs.operation_related_sales_order_number_placeholder') }}"
+            >
+        </div>
     </div>
 
     <div class="form-row form-row-product">

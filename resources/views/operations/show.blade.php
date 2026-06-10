@@ -62,6 +62,10 @@
             <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->client?->name ?? $dash }}</div>
         </div>
         <div>
+            <span class="stat-label">{{ __('dobs.operation_related_sales_order_number') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $field($operation->related_sales_order_number) }}</div>
+        </div>
+        <div>
             <span class="stat-label">{{ __('dobs.operation_product_1') }}</span>
             <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->item?->name ?? $dash }}</div>
         </div>
@@ -187,6 +191,10 @@
             <div class="operation-print-field">
                 <span class="operation-print-label">{{ __('dobs.operation_client') }}</span>
                 <span class="operation-print-value">{{ $operation->client?->name ?? $dash }}</span>
+            </div>
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_related_sales_order_number') }}</span>
+                <span class="operation-print-value">{{ $field($operation->related_sales_order_number) }}</span>
             </div>
             <div class="operation-print-field">
                 <span class="operation-print-label">{{ __('dobs.operation_product_1') }}</span>

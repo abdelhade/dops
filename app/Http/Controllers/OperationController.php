@@ -10,6 +10,7 @@ use App\Models\OperationLog;
 use App\Models\OperationStatus;
 use App\Models\Service;
 use App\Models\Supplier;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -21,6 +22,7 @@ class OperationController extends Controller
     private const TRACKABLE_FIELDS = [
         'operation_status_id',
         'client_id',
+        'related_sales_order_number',
         'operation_number',
         'operation_date',
         'operation_time',
@@ -122,7 +124,7 @@ class OperationController extends Controller
         }
 
         return view('operations.create', array_merge(
-            $this->formOptions(),
+            $this->formOptions($op?->client_id),
             ['opNumber' => $opNumber, 'op' => $op]
         ));
     }
@@ -186,7 +188,7 @@ class OperationController extends Controller
         }
 
         return view('operations.edit', array_merge(
-            $this->formOptions(),
+            $this->formOptions($operation->client_id),
             ['operation' => $operation]
         ));
     }
@@ -309,6 +311,7 @@ class OperationController extends Controller
             [__('dobs.operation_date'), $operation->operation_date?->format('Y-m-d') ?? ''],
             [__('dobs.operation_current_time'), $operation->formattedOperationTime() ?? ''],
             [__('dobs.operation_client'), $operation->client?->name ?? ''],
+            [__('dobs.operation_related_sales_order_number'), $operation->related_sales_order_number ?? ''],
             [__('dobs.operation_product_1'), $operation->item?->name ?? ''],
             [__('dobs.col_quantity'), $operation->quantity ?? ''],
             [__('dobs.operation_statement'), $operation->statement ?? $operation->notes ?? ''],
@@ -360,13 +363,40 @@ class OperationController extends Controller
         }
     }
 
+    public function searchClients(Request $request): JsonResponse
+    {
+        $query = trim((string) $request->input('q', ''));
+
+        if ($query === '') {
+            return response()->json([]);
+        }
+
+        $clients = Client::query()
+            ->where(function ($builder) use ($query) {
+                $builder->where('name', 'like', '%' . $query . '%')
+                    ->orWhere('phone', 'like', '%' . $query . '%');
+            })
+            ->orderBy('name')
+            ->limit(25)
+            ->get(['id', 'name']);
+
+        return response()->json(
+            $clients->map(fn (Client $client) => [
+                'value' => (string) $client->id,
+                'text' => $client->name,
+            ])->values()
+        );
+    }
+
     /**
      * @return array<string, mixed>
      */
-    private function formOptions(): array
+    private function formOptions(?int $clientId = null): array
     {
+        $resolvedClientId = $clientId ?? (request()->old('client_id') ? (int) request()->old('client_id') : null);
+
         return [
-            'clients' => Client::orderBy('name')->get(),
+            'selectedClient' => $resolvedClientId ? Client::find($resolvedClientId) : null,
             'items' => Item::orderBy('name')->get(),
             'suppliers' => Supplier::orderBy('name')->get(),
             'paperTypes' => PaperType::orderBy('name')->get(),
@@ -392,6 +422,7 @@ class OperationController extends Controller
             'operation_date' => 'required|date',
             'operation_time' => 'required|date_format:H:i',
             'client_id' => 'nullable|exists:clients,id',
+            'related_sales_order_number' => 'nullable|string|max:100',
             'item_id' => 'required|exists:items,id',
             'quantity' => 'required|integer|min:1',
             'statement' => 'nullable|string',
@@ -420,6 +451,7 @@ class OperationController extends Controller
             'operation_date' => $validated['operation_date'],
             'operation_time' => $validated['operation_time'] . ':00',
             'client_id' => $validated['client_id'] ?? null,
+            'related_sales_order_number' => $validated['related_sales_order_number'] ?? null,
             'item_id' => $validated['item_id'],
             'quantity' => $validated['quantity'],
             'statement' => $validated['statement'] ?? null,

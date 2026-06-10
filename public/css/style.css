@@ -1494,6 +1494,10 @@ html[dir="rtl"] .actions-cell {
     grid-template-columns: 1.1fr 1fr 0.75fr 1fr;
 }
 
+.operation-form-compact .form-row-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
 .operation-form-compact .form-row-3,
 .operation-form-compact .form-row-product {
     grid-template-columns: repeat(3, 1fr);
@@ -1511,6 +1515,7 @@ html[dir="rtl"] .actions-cell {
 
 @media (max-width: 992px) {
     .operation-form-compact .form-row-4,
+    .operation-form-compact .form-row-2,
     .operation-form-compact .form-row-3,
     .operation-form-compact .form-row-product {
         grid-template-columns: repeat(2, 1fr);
@@ -1523,6 +1528,7 @@ html[dir="rtl"] .actions-cell {
     }
 
     .operation-form-compact .form-row-4,
+    .operation-form-compact .form-row-2,
     .operation-form-compact .form-row-3,
     .operation-form-compact .form-row-product {
         grid-template-columns: 1fr;

@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('categories', CategoryController::class);
     Route::resource('suppliers', SupplierController::class);
     Route::resource('paper-sizes', PaperSizeController::class);
+    Route::get('operations/clients/search', [OperationController::class, 'searchClients'])->name('operations.clients.search');
     Route::post('operations/form-options', [OperationFormOptionController::class, 'store'])->name('operations.form-options.store');
     Route::patch('operations/{operation}/status', [OperationController::class, 'updateStatus'])->name('operations.update-status');
     Route::get('operations/{operation}/export', [OperationController::class, 'export'])->name('operations.export');
@@ -39,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::get('clients/export', [ClientController::class, 'export'])->name('clients.export');
     Route::get('clients/template', [ClientController::class, 'template'])->name('clients.template');
     Route::post('clients/import', [ClientController::class, 'import'])->name('clients.import');
+    Route::post('clients/bulk-destroy', [ClientController::class, 'bulkDestroy'])->name('clients.bulk-destroy');
     Route::resource('clients', ClientController::class);
 
     Route::get('items/export', [ItemController::class, 'export'])->name('items.export');
@@ -50,6 +52,9 @@ Route::middleware('auth')->group(function () {
     Route::get('materials/template', [MaterialController::class, 'template'])->name('materials.template');
     Route::post('materials/import', [MaterialController::class, 'import'])->name('materials.import');
     Route::resource('materials', MaterialController::class);
+    Route::get('paper-types/export', [PaperTypeController::class, 'export'])->name('paper-types.export');
+    Route::get('paper-types/template', [PaperTypeController::class, 'template'])->name('paper-types.template');
+    Route::post('paper-types/import', [PaperTypeController::class, 'import'])->name('paper-types.import');
     Route::resource('paper-types', PaperTypeController::class);
     Route::get('services/export', [ServiceController::class, 'export'])->name('services.export');
     Route::get('services/template', [ServiceController::class, 'template'])->name('services.template');

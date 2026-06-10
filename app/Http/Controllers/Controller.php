@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Collection;
 
 abstract class Controller
 {
@@ -56,5 +57,39 @@ abstract class Controller
         return redirect()
             ->route($indexRoute)
             ->with('success', __($flashDeletedKey));
+    }
+
+    /**
+     * @param  class-string<Model>  $modelClass
+     * @return array{deleted: int, skipped: int, deleted_ids: list<int>}
+     */
+    protected function bulkDestroyRecords(string $modelClass, array $ids): array
+    {
+        $this->authorizeDelete();
+
+        $deleted = 0;
+        $skipped = 0;
+        $deletedIds = [];
+
+        /** @var Collection<int, Model&PreventsDeletionWhenRelated|null> $records */
+        $records = $modelClass::query()->whereIn('id', $ids)->get();
+
+        foreach ($records as $record) {
+            if ($record instanceof PreventsDeletionWhenRelated && $record->hasRelatedRecords()) {
+                $skipped++;
+
+                continue;
+            }
+
+            $record->delete();
+            $deleted++;
+            $deletedIds[] = (int) $record->getKey();
+        }
+
+        return [
+            'deleted' => $deleted,
+            'skipped' => $skipped,
+            'deleted_ids' => $deletedIds,
+        ];
     }
 }

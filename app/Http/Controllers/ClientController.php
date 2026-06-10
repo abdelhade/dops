@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Support\SpreadsheetExporter;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\File;
@@ -104,6 +105,33 @@ class ClientController extends Controller
     public function destroy(Client $client)
     {
         return $this->destroyRecord($client, 'clients.index', 'dobs.flash_client_deleted');
+    }
+
+    public function bulkDestroy(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer', 'distinct', 'exists:clients,id'],
+        ]);
+
+        $result = $this->bulkDestroyRecords(Client::class, $validated['ids']);
+
+        $message = match (true) {
+            $result['deleted'] > 0 && $result['skipped'] > 0 => __('dobs.flash_clients_bulk_partial', [
+                'deleted' => $result['deleted'],
+                'skipped' => $result['skipped'],
+            ]),
+            $result['deleted'] > 0 => __('dobs.flash_clients_bulk_deleted', ['count' => $result['deleted']]),
+            default => __('dobs.cannot_delete_has_related'),
+        };
+
+        return response()->json([
+            'success' => $result['deleted'] > 0,
+            'message' => $message,
+            'deleted' => $result['deleted'],
+            'skipped' => $result['skipped'],
+            'deleted_ids' => $result['deleted_ids'],
+        ]);
     }
 
     public function export(SpreadsheetExporter $exporter): StreamedResponse
