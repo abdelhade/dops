@@ -50,12 +50,13 @@
                 id="client_id"
                 class="form-control"
                 data-allow-create="client"
-                data-remote-search-url="{{ route('operations.clients.search') }}"
             >
                 <option value="">{{ __('dobs.select_client') }}</option>
-                @if(isset($selectedClient) && $selectedClient)
-                    <option value="{{ $selectedClient->id }}" selected>{{ $selectedClient->name }}</option>
-                @endif
+                @foreach($clients as $client)
+                    <option value="{{ $client->id }}" {{ (string) old('client_id', $op?->client_id) === (string) $client->id ? 'selected' : '' }}>
+                        {{ $client->name }}
+                    </option>
+                @endforeach
             </select>
         </div>
 

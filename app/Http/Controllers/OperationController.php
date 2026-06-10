@@ -124,7 +124,7 @@ class OperationController extends Controller
         }
 
         return view('operations.create', array_merge(
-            $this->formOptions($op?->client_id),
+            $this->formOptions(),
             ['opNumber' => $opNumber, 'op' => $op]
         ));
     }
@@ -188,7 +188,7 @@ class OperationController extends Controller
         }
 
         return view('operations.edit', array_merge(
-            $this->formOptions($operation->client_id),
+            $this->formOptions(),
             ['operation' => $operation]
         ));
     }
@@ -391,12 +391,10 @@ class OperationController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function formOptions(?int $clientId = null): array
+    private function formOptions(): array
     {
-        $resolvedClientId = $clientId ?? (request()->old('client_id') ? (int) request()->old('client_id') : null);
-
         return [
-            'selectedClient' => $resolvedClientId ? Client::find($resolvedClientId) : null,
+            'clients' => Client::orderBy('name')->get(),
             'items' => Item::orderBy('name')->get(),
             'suppliers' => Supplier::orderBy('name')->get(),
             'paperTypes' => PaperType::orderBy('name')->get(),

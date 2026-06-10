@@ -116,7 +116,6 @@
 
             const allowCreateType = select.dataset.allowCreate || '';
             const canCreate = allowCreateType !== '' && !!form?.dataset.optionCreateUrl;
-            const remoteSearchUrl = select.dataset.remoteSearchUrl || '';
 
             const config = {
                 plugins: ['dropdown_input'],
@@ -144,45 +143,6 @@
                     },
                 },
             };
-
-            if (remoteSearchUrl !== '') {
-                let remoteSearchTimer = null;
-
-                config.load = function (query, callback) {
-                    const searchQuery = query.trim();
-
-                    if (searchQuery === '') {
-                        callback();
-                        return;
-                    }
-
-                    if (remoteSearchTimer) {
-                        clearTimeout(remoteSearchTimer);
-                    }
-
-                    remoteSearchTimer = setTimeout(function () {
-                        fetch(remoteSearchUrl + '?q=' + encodeURIComponent(searchQuery), {
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest',
-                            },
-                        })
-                            .then(function (response) {
-                                return response.json();
-                            })
-                            .then(function (items) {
-                                callback(Array.isArray(items) ? items : []);
-                            })
-                            .catch(function () {
-                                callback();
-                            });
-                    }, 250);
-                };
-
-                config.shouldLoad = function (query) {
-                    return query.trim() !== '';
-                };
-            }
 
             if (canCreate) {
                 config.create = function (input, callback) {
