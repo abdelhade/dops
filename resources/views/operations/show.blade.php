@@ -106,6 +106,10 @@
             <span class="stat-label">{{ __('dobs.operation_stencil') }}</span>
             <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->stencil?->label() ?? $dash }}</div>
         </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_silk_unit') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->silk_unit?->label() ?? $dash }}</div>
+        </div>
         @endif
         @if($isOffset)
         <div>
@@ -250,6 +254,10 @@
             <div class="operation-print-field">
                 <span class="operation-print-label">{{ __('dobs.operation_stencil') }}</span>
                 <span class="operation-print-value">{{ $operation->stencil?->label() ?? $dash }}</span>
+            </div>
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_silk_unit') }}</span>
+                <span class="operation-print-value">{{ $operation->silk_unit?->label() ?? $dash }}</span>
             </div>
             @endif
             @if($isOffset)

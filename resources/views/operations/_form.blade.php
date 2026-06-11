@@ -1,4 +1,5 @@
 @php
+    use App\Enums\OperationSilkUnit;
     use App\Enums\OperationStencil;
     use App\Enums\OperationType;
 
@@ -163,7 +164,7 @@
     </div>
 
     @if($isSilkScreen)
-    <div class="form-row" id="operation-stencil-row">
+    <div class="form-row form-row-2" id="operation-silk-screen-row">
         <div class="form-group">
             <label for="stencil" class="form-label">{{ __('dobs.operation_stencil') }} <span class="text-required">*</span></label>
             <select name="stencil" id="stencil" class="form-control" required>
@@ -171,6 +172,18 @@
                 @foreach(OperationStencil::casesForSelect() as $stencilOption)
                     <option value="{{ $stencilOption->value }}" {{ old('stencil', $op?->stencil?->value) === $stencilOption->value ? 'selected' : '' }}>
                         {{ $stencilOption->label() }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="silk_unit" class="form-label">{{ __('dobs.operation_silk_unit') }} <span class="text-required">*</span></label>
+            <select name="silk_unit" id="silk_unit" class="form-control" required>
+                <option value="">{{ __('dobs.select_silk_unit') }}</option>
+                @foreach(OperationSilkUnit::casesForSelect() as $unitOption)
+                    <option value="{{ $unitOption->value }}" {{ old('silk_unit', $op?->silk_unit?->value) === $unitOption->value ? 'selected' : '' }}>
+                        {{ $unitOption->label() }}
                     </option>
                 @endforeach
             </select>

@@ -128,6 +128,10 @@ class OperationLog extends Model
             return \App\Enums\OperationStencil::tryFrom((string) $value)?->label() ?? (string) $value;
         }
 
+        if ($field === 'silk_unit') {
+            return \App\Enums\OperationSilkUnit::tryFrom((string) $value)?->label() ?? (string) $value;
+        }
+
         if (in_array($field, ['operation_status_id', 'client_id', 'item_id', 'printing_supplier_id', 'ctp_supplier_id', 'paper_type_id', 'material_id', 'service_1_id', 'service_2_id', 'service_3_id'], true)) {
             return $this->resolveRelationName($field, $value);
         }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OperationSilkUnit;
 use App\Enums\OperationStencil;
 use App\Enums\OperationType;
 use App\Models\Client;
@@ -24,6 +25,7 @@ class OperationController extends Controller
     private const TRACKABLE_FIELDS = [
         'operation_type',
         'stencil',
+        'silk_unit',
         'operation_status_id',
         'client_id',
         'related_sales_order_number',
@@ -90,6 +92,9 @@ class OperationController extends Controller
         }
         if ($operationType === OperationType::SilkScreen && $request->filled('stencil')) {
             $query->where('stencil', $request->stencil);
+        }
+        if ($operationType === OperationType::SilkScreen && $request->filled('silk_unit')) {
+            $query->where('silk_unit', $request->silk_unit);
         }
         if ($request->filled('statement')) {
             $query->where(function ($q) use ($request) {
@@ -354,6 +359,7 @@ class OperationController extends Controller
 
         if ($operation->isSilkScreen()) {
             $rows[] = [__('dobs.operation_stencil'), $operation->stencil?->label() ?? ''];
+            $rows[] = [__('dobs.operation_silk_unit'), $operation->silk_unit?->label() ?? ''];
         }
 
         if ($operation->isOffset()) {
@@ -455,6 +461,7 @@ class OperationController extends Controller
         $operationId = $operation?->id;
         $typeValues = array_map(fn (OperationType $type) => $type->value, OperationType::cases());
         $stencilValues = array_map(fn (OperationStencil $stencil) => $stencil->value, OperationStencil::cases());
+        $silkUnitValues = array_map(fn (OperationSilkUnit $unit) => $unit->value, OperationSilkUnit::cases());
 
         return [
             'operation_type' => ['required', Rule::in($typeValues)],
@@ -462,6 +469,11 @@ class OperationController extends Controller
                 Rule::requiredIf(fn () => request('operation_type') === OperationType::SilkScreen->value),
                 'nullable',
                 Rule::in($stencilValues),
+            ],
+            'silk_unit' => [
+                Rule::requiredIf(fn () => request('operation_type') === OperationType::SilkScreen->value),
+                'nullable',
+                Rule::in($silkUnitValues),
             ],
             'operation_number' => [
                 'required',
@@ -515,6 +527,7 @@ class OperationController extends Controller
             'notes' => $validated['statement'] ?? null,
             'total_amount' => 0,
             'stencil' => $isSilkScreen ? ($validated['stencil'] ?? null) : null,
+            'silk_unit' => $isSilkScreen ? ($validated['silk_unit'] ?? null) : null,
             'ctp_supplier_id' => null,
             'job_size' => null,
             'pull_count' => null,

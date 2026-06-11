@@ -1,4 +1,5 @@
 @php
+    use App\Enums\OperationSilkUnit;
     use App\Enums\OperationStencil;
     use App\Enums\OperationType;
 
@@ -105,6 +106,18 @@
                 @foreach(OperationStencil::casesForSelect() as $stencilOption)
                     <option value="{{ $stencilOption->value }}" @selected(request('stencil') === $stencilOption->value)>
                         {{ $stencilOption->label() }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 0.85rem;">{{ __('dobs.operation_silk_unit') }}</label>
+            <select name="silk_unit" class="form-control form-control-sm">
+                <option value="">{{ __('dobs.filter_all') }}</option>
+                @foreach(OperationSilkUnit::casesForSelect() as $unitOption)
+                    <option value="{{ $unitOption->value }}" @selected(request('silk_unit') === $unitOption->value)>
+                        {{ $unitOption->label() }}
                     </option>
                 @endforeach
             </select>

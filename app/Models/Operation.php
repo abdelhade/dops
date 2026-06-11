@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\OperationSilkUnit;
 use App\Enums\OperationStencil;
 use App\Enums\OperationType;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +21,7 @@ class Operation extends Model
             'job_size' => 'decimal:2',
             'operation_type' => OperationType::class,
             'stencil' => OperationStencil::class,
+            'silk_unit' => OperationSilkUnit::class,
         ];
     }
 
