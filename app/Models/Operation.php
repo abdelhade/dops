@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\OperationSilkUnit;
 use App\Enums\OperationStencil;
-use App\Enums\OperationType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -19,7 +18,6 @@ class Operation extends Model
         return [
             'operation_date' => 'date',
             'job_size' => 'decimal:2',
-            'operation_type' => OperationType::class,
             'stencil' => OperationStencil::class,
             'silk_unit' => OperationSilkUnit::class,
         ];
@@ -27,13 +25,22 @@ class Operation extends Model
 
     public function isSilkScreen(): bool
     {
-        return $this->operation_type === OperationType::SilkScreen;
+        return $this->operationType?->isSilkScreen() ?? false;
     }
 
     public function isOffset(): bool
     {
-        return $this->operation_type === OperationType::Offset
-            || $this->operation_type === null;
+        return $this->operationType?->isOffset() ?? true;
+    }
+
+    public function isGeneral(): bool
+    {
+        return $this->operationType?->isGeneral() ?? false;
+    }
+
+    public function operationType(): BelongsTo
+    {
+        return $this->belongsTo(OperationType::class);
     }
 
     public function client(): BelongsTo
@@ -125,10 +132,9 @@ class Operation extends Model
         return (int) $this->pull_count * (int) $this->quantity_per_sheet;
     }
 
-    public static function nextOperationNumber(?OperationType $type = null): string
+    public static function nextOperationNumber(OperationType $type): string
     {
-        $type ??= OperationType::Offset;
-        $prefix = $type->serialPrefix();
+        $prefix = $type->serial_prefix;
         $pattern = '/^' . preg_quote($prefix, '/') . '(\d+)$/i';
 
         $max = static::query()

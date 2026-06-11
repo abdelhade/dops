@@ -6,7 +6,7 @@
 @section('header_subtitle', __('dobs.edit_operation_subtitle'))
 
 @section('header_actions')
-<a href="{{ route('operations.index', ['operation_type' => $operation->operation_type?->value ?? 'offset']) }}" class="btn btn-secondary">
+<a href="{{ route('operations.index', ['operation_type' => $operation->operationType?->slug ?? 'offset']) }}" class="btn btn-secondary">
     <i class="fa-solid fa-arrow-right"></i> {{ __('dobs.back_to_list') }}
 </a>
 @endsection
@@ -33,7 +33,7 @@
         @include('operations._form', ['operation' => $operation])
 
         <div class="form-actions">
-            <a href="{{ route('operations.index', ['operation_type' => $operation->operation_type?->value ?? 'offset']) }}" class="btn btn-secondary">{{ __('dobs.cancel') }}</a>
+            <a href="{{ route('operations.index', ['operation_type' => $operation->operationType?->slug ?? 'offset']) }}" class="btn btn-secondary">{{ __('dobs.cancel') }}</a>
             <button type="submit" class="btn btn-primary">
                 <i class="fa-solid fa-save"></i> {{ __('dobs.save_changes') }}
             </button>

@@ -7,7 +7,7 @@
 
 @section('header_actions')
 <div style="display:flex; gap: 0.5rem;" class="no-print">
-    <a href="{{ route('operations.index', ['operation_type' => $operation->operation_type?->value ?? 'offset']) }}" class="btn btn-secondary">
+    <a href="{{ route('operations.index', ['operation_type' => $operation->operationType?->slug ?? 'offset']) }}" class="btn btn-secondary">
         <i class="fa-solid fa-arrow-right"></i> {{ __('dobs.back_to_list') }}
     </a>
 
@@ -43,6 +43,7 @@
     $notes = trim((string) ($operation->notes ?? ''));
     $isSilkScreen = $operation->isSilkScreen();
     $isOffset = $operation->isOffset();
+    $isGeneral = $operation->isGeneral();
 @endphp
 
 <div class="glass-card operation-show-screen no-print" style="max-width: 900px; margin: 0 auto;">
@@ -53,7 +54,7 @@
         </div>
         <div>
             <span class="stat-label">{{ __('dobs.operation_type') }}</span>
-            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->operation_type?->label() ?? $dash }}</div>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->operationType?->name ?? $dash }}</div>
         </div>
         <div>
             <span class="stat-label">{{ __('dobs.operation_date') }}</span>
@@ -71,6 +72,12 @@
             <span class="stat-label">{{ __('dobs.operation_related_sales_order_number') }}</span>
             <div style="font-weight: 600; margin-top: 0.25rem;">{{ $field($operation->related_sales_order_number) }}</div>
         </div>
+        @if($isGeneral)
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_kind') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $field($operation->operation_kind) }}</div>
+        </div>
+        @else
         <div>
             <span class="stat-label">{{ $isSilkScreen ? __('dobs.operation_silk_final_product') : __('dobs.operation_product_1') }}</span>
             <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->item?->name ?? $dash }}</div>
@@ -79,6 +86,7 @@
             <span class="stat-label">{{ __('dobs.col_quantity') }}</span>
             <div style="font-weight: 600; margin-top: 0.25rem;">{{ $field($operation->quantity) }}</div>
         </div>
+        @endif
         @if($isSilkScreen)
         <div>
             <span class="stat-label">{{ __('dobs.operation_silk_unit') }}</span>
@@ -89,16 +97,19 @@
             <span class="stat-label">{{ __('dobs.operation_statement') }}</span>
             <div style="margin-top: 0.25rem; white-space: pre-line; color: var(--text-secondary);">{{ $field($operation->statement) }}</div>
         </div>
+        @if(!$isGeneral)
         <div>
             <span class="stat-label">{{ $isSilkScreen ? __('dobs.operation_silk_supplier') : __('dobs.operation_printing_press') }}</span>
             <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->printingSupplier?->name ?? $dash }}</div>
         </div>
+        @endif
         @if($isOffset)
         <div>
             <span class="stat-label">{{ __('dobs.operation_ctp') }}</span>
             <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->ctpSupplier?->name ?? $dash }}</div>
         </div>
         @endif
+        @if(!$isGeneral)
         <div>
             <span class="stat-label">{{ __('dobs.operation_color_count') }}</span>
             <div style="font-weight: 600; margin-top: 0.25rem;">{{ $field($operation->color_count) }}</div>
@@ -107,6 +118,7 @@
             <span class="stat-label">{{ __('dobs.operation_paper_material') }}</span>
             <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->paperType?->name ?? $dash }}</div>
         </div>
+        @endif
         @if($isSilkScreen)
         <div>
             <span class="stat-label">{{ __('dobs.operation_silk_print_preparations') }}</span>
@@ -208,7 +220,7 @@
             </div>
             <div class="operation-print-field">
                 <span class="operation-print-label">{{ __('dobs.operation_type') }}</span>
-                <span class="operation-print-value">{{ $operation->operation_type?->label() ?? $dash }}</span>
+                <span class="operation-print-value">{{ $operation->operationType?->name ?? $dash }}</span>
             </div>
             <div class="operation-print-field">
                 <span class="operation-print-label">{{ __('dobs.operation_date') }}</span>
@@ -222,6 +234,12 @@
                 <span class="operation-print-label">{{ __('dobs.operation_related_sales_order_number') }}</span>
                 <span class="operation-print-value">{{ $field($operation->related_sales_order_number) }}</span>
             </div>
+            @if($isGeneral)
+            <div class="operation-print-field">
+                <span class="operation-print-label">{{ __('dobs.operation_kind') }}</span>
+                <span class="operation-print-value">{{ $field($operation->operation_kind) }}</span>
+            </div>
+            @else
             <div class="operation-print-field">
                 <span class="operation-print-label">{{ $isSilkScreen ? __('dobs.operation_silk_final_product') : __('dobs.operation_product_1') }}</span>
                 <span class="operation-print-value">{{ $operation->item?->name ?? $dash }}</span>
@@ -230,6 +248,7 @@
                 <span class="operation-print-label">{{ __('dobs.col_quantity') }}</span>
                 <span class="operation-print-value">{{ $field($operation->quantity) }}</span>
             </div>
+            @endif
             @if($isSilkScreen)
             <div class="operation-print-field">
                 <span class="operation-print-label">{{ __('dobs.operation_silk_unit') }}</span>
@@ -240,16 +259,19 @@
                 <span class="operation-print-label">{{ __('dobs.operation_statement') }}</span>
                 <span class="operation-print-value operation-print-value-block">{{ $field($operation->statement) }}</span>
             </div>
+            @if(!$isGeneral)
             <div class="operation-print-field">
                 <span class="operation-print-label">{{ $isSilkScreen ? __('dobs.operation_silk_supplier') : __('dobs.operation_printing_press') }}</span>
                 <span class="operation-print-value">{{ $operation->printingSupplier?->name ?? $dash }}</span>
             </div>
+            @endif
             @if($isOffset)
             <div class="operation-print-field">
                 <span class="operation-print-label">{{ __('dobs.operation_ctp') }}</span>
                 <span class="operation-print-value">{{ $operation->ctpSupplier?->name ?? $dash }}</span>
             </div>
             @endif
+            @if(!$isGeneral)
             <div class="operation-print-field">
                 <span class="operation-print-label">{{ __('dobs.operation_color_count') }}</span>
                 <span class="operation-print-value">{{ $field($operation->color_count) }}</span>
@@ -258,6 +280,7 @@
                 <span class="operation-print-label">{{ __('dobs.operation_paper_material') }}</span>
                 <span class="operation-print-value">{{ $operation->paperType?->name ?? $dash }}</span>
             </div>
+            @endif
             @if($isSilkScreen)
             <div class="operation-print-field">
                 <span class="operation-print-label">{{ __('dobs.operation_silk_print_preparations') }}</span>

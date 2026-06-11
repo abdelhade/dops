@@ -10,16 +10,16 @@
         <form method="GET" action="{{ route('operations.index') }}" class="operations-type-form" id="operations-type-form">
             <label for="operations-index-type" class="operations-type-form-label">{{ __('dobs.operation_type') }}</label>
             <select name="operation_type" id="operations-index-type" class="form-control operations-type-select" onchange="this.form.submit()">
-                @foreach(\App\Enums\OperationType::casesForSelect() as $typeOption)
-                    <option value="{{ $typeOption->value }}" @selected($operationType->value === $typeOption->value)>
-                        {{ $typeOption->label() }}
+                @foreach($operationTypes as $typeOption)
+                    <option value="{{ $typeOption->slug }}" @selected($operationType->slug === $typeOption->slug)>
+                        {{ $typeOption->name }}
                     </option>
                 @endforeach
             </select>
         </form>
 
         @if (auth()->user()?->canCreateRecords())
-            <a href="{{ route('operations.create', ['operation_type' => $operationType->value]) }}" class="btn btn-primary">
+            <a href="{{ route('operations.create', ['operation_type' => $operationType->slug]) }}" class="btn btn-primary">
                 <i class="fa-solid fa-plus"></i> {{ __('dobs.new_operation') }}
             </a>
         @endif
@@ -28,15 +28,16 @@
 
 @section('content')
 @php
-    use App\Enums\OperationType;
-
-    $isSilkScreenIndex = $operationType === OperationType::SilkScreen;
+    $isSilkScreenIndex = $operationType->isSilkScreen();
+    $isGeneralIndex = $operationType->isGeneral();
     $operationFilterKeys = [
         'operation_number', 'date_from', 'date_to', 'item_id', 'operation_status_id',
         'printing_supplier_id', 'paper_type_id', 'color_count', 'statement',
     ];
 
-    if ($isSilkScreenIndex) {
+    if ($isGeneralIndex) {
+        $operationFilterKeys[] = 'operation_kind';
+    } elseif ($isSilkScreenIndex) {
         $operationFilterKeys[] = 'stencil';
         $operationFilterKeys[] = 'silk_unit';
     } else {
@@ -45,7 +46,7 @@
     }
 
     $hasActiveFilters = collect($operationFilterKeys)->contains(fn ($key) => request()->filled($key));
-    $clearFiltersUrl = route('operations.index', ['operation_type' => $operationType->value]);
+    $clearFiltersUrl = route('operations.index', ['operation_type' => $operationType->slug]);
 @endphp
 
 <div class="operations-filters-card glass-card">
@@ -94,6 +95,7 @@
                 $services = collect([$op->service1, $op->service2, $op->service3])->filter();
                 $statement = $op->statement ?? $op->notes;
                 $isOpSilkScreen = $op->isSilkScreen();
+                $isOpGeneral = $op->isGeneral();
             @endphp
 
             <article class="operation-card glass-card">
@@ -142,12 +144,25 @@
                     </div>
                 </header>
 
+                @if($isOpGeneral)
+                <div class="operation-card-item">
+                    <i class="fa-solid fa-tag" aria-hidden="true"></i>
+                    <span>{{ $op->operation_kind ?? __('dobs.dash') }}</span>
+                </div>
+                @else
                 <div class="operation-card-item">
                     <i class="fa-solid fa-box-open" aria-hidden="true"></i>
                     <span>{{ $op->item?->name ?? __('dobs.dash') }}</span>
                 </div>
+                @endif
 
                 <div class="operation-card-metrics">
+                    @if($isOpGeneral)
+                    <div class="operation-card-metric">
+                        <span class="operation-card-metric-label">{{ __('dobs.operation_kind') }}</span>
+                        <span class="operation-card-metric-value">{{ $op->operation_kind ?? __('dobs.dash') }}</span>
+                    </div>
+                    @else
                     <div class="operation-card-metric">
                         <span class="operation-card-metric-label">{{ __('dobs.col_quantity') }}</span>
                         <span class="operation-card-metric-value">{{ $op->quantity ?? __('dobs.dash') }}</span>
@@ -167,7 +182,7 @@
                         <span class="operation-card-metric-label">{{ __('dobs.operation_silk_print_preparations') }}</span>
                         <span class="operation-card-metric-value">{{ $op->stencil?->label() ?? __('dobs.dash') }}</span>
                     </div>
-                    @else
+                    @elseif(!$isOpSilkScreen)
                     <div class="operation-card-metric">
                         <span class="operation-card-metric-label">{{ __('dobs.operation_pull_count') }}</span>
                         <span class="operation-card-metric-value">{{ $op->pull_count ?? __('dobs.dash') }}</span>
@@ -176,6 +191,7 @@
                         <span class="operation-card-metric-label">{{ __('dobs.operation_quantity_per_sheet') }}</span>
                         <span class="operation-card-metric-value">{{ $op->quantity_per_sheet ?? __('dobs.dash') }}</span>
                     </div>
+                    @endif
                     @endif
                 </div>
 
@@ -228,7 +244,7 @@
                         </a>
                     @endif
                     @if (auth()->user()?->canCreateRecords())
-                        <a href="{{ route('operations.create', ['copy_from' => $op->id, 'operation_type' => $operationType->value]) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.copy_operation') }}">
+                        <a href="{{ route('operations.create', ['copy_from' => $op->id, 'operation_type' => $operationType->slug]) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.copy_operation') }}">
                             <i class="fa-solid fa-copy"></i>
                         </a>
                     @endif

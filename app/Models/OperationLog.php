@@ -120,8 +120,8 @@ class OperationLog extends Model
             return __('dobs.dash');
         }
 
-        if ($field === 'operation_type') {
-            return \App\Enums\OperationType::tryFrom((string) $value)?->label() ?? (string) $value;
+        if ($field === 'operation_type_id') {
+            return OperationType::find((int) $value)?->name ?? (string) $value;
         }
 
         if ($field === 'stencil') {

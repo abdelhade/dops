@@ -1,16 +1,17 @@
 @php
     use App\Enums\OperationSilkUnit;
     use App\Enums\OperationStencil;
-    use App\Enums\OperationType;
+    use App\Models\OperationType;
 
     $filterAction = $filterAction ?? route('operations.index');
     $clearFiltersUrl = $clearFiltersUrl ?? route('operations.index');
-    $operationType = $operationType ?? OperationType::Offset;
-    $isSilkScreenFilters = $operationType === OperationType::SilkScreen;
+    $operationType = $operationType ?? OperationType::resolveFromRequest('offset');
+    $isSilkScreenFilters = $operationType->isSilkScreen();
+    $isGeneralFilters = $operationType->isGeneral();
 @endphp
 
 <form method="GET" action="{{ $filterAction }}" class="filters-form">
-    <input type="hidden" name="operation_type" value="{{ $operationType->value }}">
+    <input type="hidden" name="operation_type" value="{{ $operationType->slug }}">
 
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end;">
 
@@ -98,7 +99,12 @@
             </select>
         </div>
 
-        @if($isSilkScreenFilters)
+        @if($isGeneralFilters)
+        <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 0.85rem;">{{ __('dobs.operation_kind') }}</label>
+            <input type="text" name="operation_kind" class="form-control form-control-sm" value="{{ request('operation_kind') }}" placeholder="{{ __('dobs.operation_kind_placeholder') }}">
+        </div>
+        @elseif($isSilkScreenFilters)
         <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label" style="font-size: 0.85rem;">{{ __('dobs.operation_silk_print_preparations') }}</label>
             <select name="stencil" class="form-control form-control-sm">

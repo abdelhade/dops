@@ -3,10 +3,10 @@
 @section('title', __('dobs.create_operation'))
 
 @section('header_title', __('dobs.create_operation'))
-@section('header_subtitle', __('dobs.create_operation_subtitle') . ' — ' . $operationType->label())
+@section('header_subtitle', __('dobs.create_operation_subtitle') . ' — ' . $operationType->name)
 
 @section('header_actions')
-<a href="{{ route('operations.index', ['operation_type' => $operationType->value]) }}" class="btn btn-secondary">
+<a href="{{ route('operations.index', ['operation_type' => $operationType->slug]) }}" class="btn btn-secondary">
     <i class="fa-solid fa-arrow-right"></i> {{ __('dobs.back_to_list') }}
 </a>
 @endsection
@@ -32,7 +32,7 @@
         @include('operations._form')
 
         <div class="form-actions">
-            <a href="{{ route('operations.index', ['operation_type' => $operationType->value]) }}" class="btn btn-secondary">{{ __('dobs.cancel') }}</a>
+            <a href="{{ route('operations.index', ['operation_type' => $operationType->slug]) }}" class="btn btn-secondary">{{ __('dobs.cancel') }}</a>
             <button type="submit" class="btn btn-primary">
                 <i class="fa-solid fa-save"></i> {{ __('dobs.save_operation') }}
             </button>

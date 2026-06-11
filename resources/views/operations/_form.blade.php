@@ -1,21 +1,24 @@
 @php
     use App\Enums\OperationSilkUnit;
     use App\Enums\OperationStencil;
-    use App\Enums\OperationType;
+    use App\Models\OperationType;
 
     $isEdit = isset($operation);
     $op = $operation ?? $op ?? null;
     $defaultTime = old('operation_time', $op?->formattedOperationTime() ?? now()->format('H:i'));
-    $fixedType = $operationType ?? OperationType::Offset;
-    $selectedType = old('operation_type', $op?->operation_type?->value ?? $fixedType->value);
-    $isSilkScreen = $selectedType === OperationType::SilkScreen->value;
+    $fixedType = $operationType ?? OperationType::resolveFromRequest('offset');
+    $selectedTypeId = (int) old('operation_type_id', $op?->operation_type_id ?? $fixedType->id);
+    $activeType = OperationType::find($selectedTypeId) ?? $fixedType;
+    $isSilkScreen = $activeType->isSilkScreen();
+    $isOffset = $activeType->isOffset();
+    $isGeneral = $activeType->isGeneral();
     $defaultOpNumber = old('operation_number', $op?->operation_number ?? ($opNumber ?? ''));
     $productLabel = $isSilkScreen ? __('dobs.operation_silk_final_product') : __('dobs.operation_product_1');
     $supplierLabel = $isSilkScreen ? __('dobs.operation_silk_supplier') : __('dobs.operation_printing_press');
     $printPreparationsLabel = __('dobs.operation_silk_print_preparations');
 @endphp
 
-<input type="hidden" name="operation_type" value="{{ $selectedType }}">
+<input type="hidden" name="operation_type_id" value="{{ $selectedTypeId }}">
 
 <div class="operation-form-compact">
     <div class="form-row form-row-4">
@@ -93,7 +96,22 @@
         </div>
     </div>
 
-    @if($isSilkScreen)
+    @if($isGeneral)
+    <div class="form-row">
+        <div class="form-group">
+            <label for="operation_kind" class="form-label">{{ __('dobs.operation_kind') }} <span class="text-required">*</span></label>
+            <input
+                type="text"
+                name="operation_kind"
+                id="operation_kind"
+                class="form-control"
+                value="{{ old('operation_kind', $op?->operation_kind) }}"
+                placeholder="{{ __('dobs.operation_kind_placeholder') }}"
+                required
+            >
+        </div>
+    </div>
+    @elseif($isSilkScreen)
     <div class="form-row form-row-4">
         <div class="form-group">
             <label for="item_id" class="form-label">{{ $productLabel }} <span class="text-required">*</span></label>
@@ -168,6 +186,7 @@
         <textarea name="statement" id="statement" class="form-control form-control-compact" rows="2" placeholder="{{ __('dobs.operation_statement_placeholder') }}">{{ old('statement', $op?->statement ?? $op?->notes) }}</textarea>
     </div>
 
+    @if(!$isGeneral)
     <div class="form-row {{ $isSilkScreen ? 'form-row-2' : 'form-row-3' }}" id="operation-suppliers-row">
         <div class="form-group">
             <label for="printing_supplier_id" class="form-label">{{ $supplierLabel }}</label>
@@ -181,7 +200,7 @@
             </select>
         </div>
 
-        @if(!$isSilkScreen)
+        @if($isOffset)
         <div class="form-group">
             <label for="ctp_supplier_id" class="form-label">{{ __('dobs.operation_ctp') }}</label>
             <select name="ctp_supplier_id" id="ctp_supplier_id" class="form-control" data-allow-create="supplier">
@@ -224,7 +243,7 @@
     </div>
     @endif
 
-    @if(!$isSilkScreen)
+    @if($isOffset)
     <div class="form-row form-row-3" id="operation-offset-metrics-row">
         <div class="form-group">
             <label for="job_size" class="form-label">{{ __('dobs.operation_job_size') }}</label>
@@ -255,5 +274,6 @@
             </select>
         </div>
     </div>
+    @endif
     @endif
 </div>

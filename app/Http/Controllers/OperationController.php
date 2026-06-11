@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Enums\OperationSilkUnit;
 use App\Enums\OperationStencil;
-use App\Enums\OperationType;
 use App\Models\Client;
 use App\Models\Item;
 use App\Models\PaperType;
 use App\Models\Operation;
 use App\Models\OperationLog;
+use App\Models\OperationType;
 use App\Models\OperationStatus;
 use App\Models\Service;
 use App\Models\Supplier;
@@ -23,7 +23,8 @@ class OperationController extends Controller
 {
     /** @var list<string> */
     private const TRACKABLE_FIELDS = [
-        'operation_type',
+        'operation_type_id',
+        'operation_kind',
         'stencil',
         'silk_unit',
         'operation_status_id',
@@ -52,9 +53,9 @@ class OperationController extends Controller
         $operationType = $this->resolveOperationType($request);
 
         $query = Operation::with([
-            'client', 'item', 'operationStatus', 'printingSupplier', 'ctpSupplier',
-            'paperType', 'service1', 'service2', 'service3'
-        ])->where('operation_type', $operationType->value);
+            'client', 'item', 'operationStatus', 'operationType', 'printingSupplier', 'ctpSupplier',
+            'paperType', 'service1', 'service2', 'service3',
+        ])->where('operation_type_id', $operationType->id);
 
         if ($request->filled('operation_number')) {
             $query->where('operation_number', 'like', '%' . $request->operation_number . '%');
@@ -74,7 +75,7 @@ class OperationController extends Controller
         if ($request->filled('printing_supplier_id')) {
             $query->where('printing_supplier_id', $request->printing_supplier_id);
         }
-        if ($operationType === OperationType::Offset && $request->filled('ctp_supplier_id')) {
+        if ($operationType->isOffset() && $request->filled('ctp_supplier_id')) {
             $query->where('ctp_supplier_id', $request->ctp_supplier_id);
         }
         if ($request->filled('paper_type_id')) {
@@ -83,18 +84,21 @@ class OperationController extends Controller
         if ($request->filled('color_count')) {
             $query->where('color_count', $request->color_count);
         }
-        if ($operationType === OperationType::Offset && $request->filled('service_id')) {
+        if ($operationType->isOffset() && $request->filled('service_id')) {
             $query->where(function ($q) use ($request) {
                 $q->where('service_1_id', $request->service_id)
                   ->orWhere('service_2_id', $request->service_id)
                   ->orWhere('service_3_id', $request->service_id);
             });
         }
-        if ($operationType === OperationType::SilkScreen && $request->filled('stencil')) {
+        if ($operationType->isSilkScreen() && $request->filled('stencil')) {
             $query->where('stencil', $request->stencil);
         }
-        if ($operationType === OperationType::SilkScreen && $request->filled('silk_unit')) {
+        if ($operationType->isSilkScreen() && $request->filled('silk_unit')) {
             $query->where('silk_unit', $request->silk_unit);
+        }
+        if ($operationType->isGeneral() && $request->filled('operation_kind')) {
+            $query->where('operation_kind', 'like', '%' . $request->operation_kind . '%');
         }
         if ($request->filled('statement')) {
             $query->where(function ($q) use ($request) {
@@ -114,9 +118,10 @@ class OperationController extends Controller
         $paperTypes = PaperType::orderBy('name')->get();
         $services = Service::orderBy('name')->get();
         $operationStatuses = OperationStatus::orderBy('sort_order')->get();
+        $operationTypes = OperationType::orderBy('sort_order')->orderBy('id')->get();
 
         return view('operations.index', compact(
-            'operations', 'items', 'suppliers', 'paperTypes', 'services', 'operationStatuses', 'operationType'
+            'operations', 'items', 'suppliers', 'paperTypes', 'services', 'operationStatuses', 'operationType', 'operationTypes'
         ));
     }
 
@@ -130,7 +135,7 @@ class OperationController extends Controller
         if ($request->has('copy_from')) {
             $source = Operation::find($request->input('copy_from'));
             if ($source) {
-                $operationType = $source->operation_type ?? $operationType;
+                $operationType = $source->operationType ?? $operationType;
                 $op = $source->replicate();
                 $op->operation_number = null;
                 $op->operation_date = null;
@@ -162,16 +167,19 @@ class OperationController extends Controller
             $operation = Operation::create($this->mapValidatedToAttributes($validated));
 
             $status = OperationStatus::find($validated['operation_status_id']);
-            if ($status && in_array(strtolower($status->name), ['completed', 'مكتمل', 'منتهي'])) {
-                $this->deductItemStock($validated['item_id'], (int) $validated['quantity']);
+            if ($status && in_array(strtolower($status->name), ['completed', 'مكتمل', 'منتهي'])
+                && ! empty($validated['item_id']) && ! empty($validated['quantity'])) {
+                $this->deductItemStock((int) $validated['item_id'], (int) $validated['quantity']);
             }
 
             $this->logOperation($operation, OperationLog::ACTION_CREATED);
 
             DB::commit();
 
+            $type = OperationType::findOrFail($validated['operation_type_id']);
+
             return redirect()
-                ->route('operations.index', ['operation_type' => $validated['operation_type']])
+                ->route('operations.index', $this->indexRouteParams($type))
                 ->with('success', __('dobs.flash_operation_created'));
         } catch (\Exception $e) {
             DB::rollBack();
@@ -196,6 +204,7 @@ class OperationController extends Controller
             'items.paperSize',
             'logs.user',
             'operationStatus',
+            'operationType',
         ]);
 
         return view('operations.show', compact('operation'));
@@ -207,16 +216,18 @@ class OperationController extends Controller
 
         if ($this->isCompleted($operation)) {
             return redirect()
-                ->route('operations.index', ['operation_type' => $operation->operation_type?->value ?? OperationType::Offset->value])
+                ->route('operations.index', $this->indexRouteParams($operation->operationType ?? OperationType::resolveFromRequest('offset')))
                 ->with('error', __('dobs.flash_operation_completed_locked'));
         }
+
+        $operation->loadMissing('operationType');
 
         return view('operations.edit', array_merge(
             $this->formOptions(),
             [
                 'operation' => $operation,
-                'operationType' => $operation->operation_type ?? OperationType::Offset,
-                'opNumber' => Operation::nextOperationNumber($operation->operation_type ?? OperationType::Offset),
+                'operationType' => $operation->operationType ?? OperationType::resolveFromRequest('offset'),
+                'opNumber' => Operation::nextOperationNumber($operation->operationType ?? OperationType::resolveFromRequest('offset')),
             ]
         ));
     }
@@ -227,7 +238,7 @@ class OperationController extends Controller
 
         if ($this->isCompleted($operation)) {
             return redirect()
-                ->route('operations.index', ['operation_type' => $operation->operation_type?->value ?? OperationType::Offset->value])
+                ->route('operations.index', $this->indexRouteParams($operation->operationType ?? OperationType::resolveFromRequest('offset')))
                 ->with('error', __('dobs.flash_operation_completed_locked'));
         }
 
@@ -250,8 +261,10 @@ class OperationController extends Controller
 
             DB::commit();
 
+            $type = OperationType::findOrFail($validated['operation_type_id']);
+
             return redirect()
-                ->route('operations.index', ['operation_type' => $validated['operation_type']])
+                ->route('operations.index', $this->indexRouteParams($type))
                 ->with('success', __('dobs.flash_operation_updated'));
         } catch (\Exception $e) {
             DB::rollBack();
@@ -325,6 +338,7 @@ class OperationController extends Controller
         $operation->load([
             'client',
             'item',
+            'operationType',
             'printingSupplier',
             'ctpSupplier',
             'paperType',
@@ -338,7 +352,7 @@ class OperationController extends Controller
 
         $rows = [
             [__('dobs.operation_serial'), $operation->operation_number],
-            [__('dobs.operation_type'), $operation->operation_type?->label() ?? ''],
+            [__('dobs.operation_type'), $operation->operationType?->name ?? ''],
             [__('dobs.operation_status'), $operation->operationStatus?->name ?? ''],
             [__('dobs.operation_date'), $operation->operation_date?->format('Y-m-d') ?? ''],
             [__('dobs.operation_current_time'), $operation->formattedOperationTime() ?? ''],
@@ -370,6 +384,10 @@ class OperationController extends Controller
 
         if ($operation->isSilkScreen()) {
             $rows[] = [__('dobs.operation_silk_print_preparations'), $operation->stencil?->label() ?? ''];
+        }
+
+        if ($operation->isGeneral()) {
+            $rows[] = [__('dobs.operation_kind'), $operation->operation_kind ?? ''];
         }
 
         if ($operation->isOffset()) {
@@ -412,13 +430,13 @@ class OperationController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('operations.index', ['operation_type' => $operation->operation_type?->value ?? OperationType::Offset->value])
+                ->route('operations.index', $this->indexRouteParams($operation->operationType ?? OperationType::resolveFromRequest('offset')))
                 ->with('success', __('dobs.flash_operation_deleted'));
         } catch (\Exception $e) {
             DB::rollBack();
 
             return redirect()
-                ->route('operations.index', ['operation_type' => $operation->operation_type?->value ?? OperationType::Offset->value])
+                ->route('operations.index', $this->indexRouteParams($operation->operationType ?? OperationType::resolveFromRequest('offset')))
                 ->with('error', __('dobs.flash_operation_delete_error', ['message' => $e->getMessage()]));
         }
     }
@@ -469,19 +487,25 @@ class OperationController extends Controller
     private function validationRules(?Operation $operation = null): array
     {
         $operationId = $operation?->id;
-        $typeValues = array_map(fn (OperationType $type) => $type->value, OperationType::cases());
         $stencilValues = array_map(fn (OperationStencil $stencil) => $stencil->value, OperationStencil::cases());
         $silkUnitValues = array_map(fn (OperationSilkUnit $unit) => $unit->value, OperationSilkUnit::cases());
+        $selectedType = fn (): ?OperationType => OperationType::find(request('operation_type_id'));
 
         return [
-            'operation_type' => ['required', Rule::in($typeValues)],
+            'operation_type_id' => 'required|exists:operation_types,id',
+            'operation_kind' => [
+                Rule::requiredIf(fn () => $selectedType()?->isGeneral() ?? false),
+                'nullable',
+                'string',
+                'max:255',
+            ],
             'stencil' => [
-                Rule::requiredIf(fn () => request('operation_type') === OperationType::SilkScreen->value),
+                Rule::requiredIf(fn () => $selectedType()?->isSilkScreen() ?? false),
                 'nullable',
                 Rule::in($stencilValues),
             ],
             'silk_unit' => [
-                Rule::requiredIf(fn () => request('operation_type') === OperationType::SilkScreen->value),
+                Rule::requiredIf(fn () => $selectedType()?->isSilkScreen() ?? false),
                 'nullable',
                 Rule::in($silkUnitValues),
             ],
@@ -495,12 +519,27 @@ class OperationController extends Controller
             'operation_time' => 'required|date_format:H:i',
             'client_id' => 'nullable|exists:clients,id',
             'related_sales_order_number' => 'nullable|string|max:100',
-            'item_id' => 'required|exists:items,id',
-            'quantity' => 'required|integer|min:1',
+            'item_id' => [
+                Rule::requiredIf(fn () => ! ($selectedType()?->isGeneral() ?? false)),
+                'nullable',
+                'exists:items,id',
+            ],
+            'quantity' => [
+                Rule::requiredIf(fn () => ! ($selectedType()?->isGeneral() ?? false)),
+                'nullable',
+                'integer',
+                'min:1',
+            ],
             'statement' => 'nullable|string',
             'printing_supplier_id' => 'nullable|exists:suppliers,id',
             'ctp_supplier_id' => 'nullable|exists:suppliers,id',
-            'color_count' => 'required|integer|min:1|max:10',
+            'color_count' => [
+                Rule::requiredIf(fn () => ! ($selectedType()?->isGeneral() ?? false)),
+                'nullable',
+                'integer',
+                'min:1',
+                'max:10',
+            ],
             'paper_type_id' => 'nullable|exists:paper_types,id',
             'job_size' => 'nullable|numeric|min:0',
             'pull_count' => 'nullable|integer|min:0',
@@ -518,26 +557,27 @@ class OperationController extends Controller
      */
     private function mapValidatedToAttributes(array $validated): array
     {
-        $isSilkScreen = ($validated['operation_type'] ?? OperationType::Offset->value) === OperationType::SilkScreen->value;
+        $type = OperationType::findOrFail($validated['operation_type_id']);
 
         $attributes = [
-            'operation_type' => $validated['operation_type'],
+            'operation_type_id' => $type->id,
             'operation_number' => $validated['operation_number'],
             'operation_date' => $validated['operation_date'],
             'operation_time' => $validated['operation_time'] . ':00',
             'client_id' => $validated['client_id'] ?? null,
             'related_sales_order_number' => $validated['related_sales_order_number'] ?? null,
-            'item_id' => $validated['item_id'],
-            'quantity' => $validated['quantity'],
             'statement' => $validated['statement'] ?? null,
-            'printing_supplier_id' => $validated['printing_supplier_id'] ?? null,
-            'color_count' => $validated['color_count'],
-            'paper_type_id' => $validated['paper_type_id'] ?? null,
             'operation_status_id' => $validated['operation_status_id'],
             'notes' => $validated['statement'] ?? null,
             'total_amount' => 0,
-            'stencil' => $isSilkScreen ? ($validated['stencil'] ?? null) : null,
-            'silk_unit' => $isSilkScreen ? ($validated['silk_unit'] ?? null) : null,
+            'operation_kind' => null,
+            'item_id' => null,
+            'quantity' => null,
+            'printing_supplier_id' => null,
+            'color_count' => null,
+            'paper_type_id' => null,
+            'stencil' => null,
+            'silk_unit' => null,
             'ctp_supplier_id' => null,
             'job_size' => null,
             'pull_count' => null,
@@ -547,15 +587,32 @@ class OperationController extends Controller
             'service_3_id' => null,
         ];
 
-        if (! $isSilkScreen) {
-            $attributes['ctp_supplier_id'] = $validated['ctp_supplier_id'] ?? null;
-            $attributes['job_size'] = $validated['job_size'] ?? null;
-            $attributes['pull_count'] = $validated['pull_count'] ?? null;
-            $attributes['quantity_per_sheet'] = $this->calcQuantityPerSheet($validated);
-            $attributes['service_1_id'] = $validated['service_1_id'] ?? null;
-            $attributes['service_2_id'] = $validated['service_2_id'] ?? null;
-            $attributes['service_3_id'] = $validated['service_3_id'] ?? null;
+        if ($type->isGeneral()) {
+            $attributes['operation_kind'] = $validated['operation_kind'] ?? null;
+
+            return $attributes;
         }
+
+        $attributes['item_id'] = $validated['item_id'];
+        $attributes['quantity'] = $validated['quantity'];
+        $attributes['printing_supplier_id'] = $validated['printing_supplier_id'] ?? null;
+        $attributes['color_count'] = $validated['color_count'];
+        $attributes['paper_type_id'] = $validated['paper_type_id'] ?? null;
+
+        if ($type->isSilkScreen()) {
+            $attributes['stencil'] = $validated['stencil'] ?? null;
+            $attributes['silk_unit'] = $validated['silk_unit'] ?? null;
+
+            return $attributes;
+        }
+
+        $attributes['ctp_supplier_id'] = $validated['ctp_supplier_id'] ?? null;
+        $attributes['job_size'] = $validated['job_size'] ?? null;
+        $attributes['pull_count'] = $validated['pull_count'] ?? null;
+        $attributes['quantity_per_sheet'] = $this->calcQuantityPerSheet($validated);
+        $attributes['service_1_id'] = $validated['service_1_id'] ?? null;
+        $attributes['service_2_id'] = $validated['service_2_id'] ?? null;
+        $attributes['service_3_id'] = $validated['service_3_id'] ?? null;
 
         return $attributes;
     }
@@ -574,10 +631,12 @@ class OperationController extends Controller
             $newIsCompleted = $newStatus && in_array(strtolower($newStatus->name), ['completed', 'مكتمل', 'منتهي']);
         }
 
-        if (!$oldIsCompleted && $newIsCompleted) {
-            $this->deductItemStock((int) $operation->item_id, (int) $operation->quantity);
-        } elseif ($oldIsCompleted && !$newIsCompleted) {
-            $this->restoreItemStock((int) $operation->item_id, (int) $operation->quantity);
+        if ($operation->item_id && $operation->quantity) {
+            if (! $oldIsCompleted && $newIsCompleted) {
+                $this->deductItemStock((int) $operation->item_id, (int) $operation->quantity);
+            } elseif ($oldIsCompleted && ! $newIsCompleted) {
+                $this->restoreItemStock((int) $operation->item_id, (int) $operation->quantity);
+            }
         }
     }
     
@@ -672,7 +731,17 @@ class OperationController extends Controller
 
     private function resolveOperationType(Request $request): OperationType
     {
-        return OperationType::tryFrom((string) $request->input('operation_type', OperationType::Offset->value))
-            ?? OperationType::Offset;
+        return OperationType::resolveFromRequest(
+            $request->input('operation_type'),
+            $request->filled('operation_type_id') ? (int) $request->input('operation_type_id') : null
+        );
+    }
+
+    /**
+     * @return array{operation_type: string}
+     */
+    private function indexRouteParams(OperationType $type): array
+    {
+        return ['operation_type' => $type->slug];
     }
 }
