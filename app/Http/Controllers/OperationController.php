@@ -47,10 +47,12 @@ class OperationController extends Controller
 
     public function index(Request $request)
     {
+        $operationType = $this->resolveOperationType($request);
+
         $query = Operation::with([
             'client', 'item', 'operationStatus', 'printingSupplier', 'ctpSupplier',
             'paperType', 'service1', 'service2', 'service3'
-        ]);
+        ])->where('operation_type', $operationType->value);
 
         if ($request->filled('operation_number')) {
             $query->where('operation_number', 'like', '%' . $request->operation_number . '%');
@@ -70,7 +72,7 @@ class OperationController extends Controller
         if ($request->filled('printing_supplier_id')) {
             $query->where('printing_supplier_id', $request->printing_supplier_id);
         }
-        if ($request->filled('ctp_supplier_id')) {
+        if ($operationType === OperationType::Offset && $request->filled('ctp_supplier_id')) {
             $query->where('ctp_supplier_id', $request->ctp_supplier_id);
         }
         if ($request->filled('paper_type_id')) {
@@ -79,12 +81,15 @@ class OperationController extends Controller
         if ($request->filled('color_count')) {
             $query->where('color_count', $request->color_count);
         }
-        if ($request->filled('service_id')) {
+        if ($operationType === OperationType::Offset && $request->filled('service_id')) {
             $query->where(function ($q) use ($request) {
                 $q->where('service_1_id', $request->service_id)
                   ->orWhere('service_2_id', $request->service_id)
                   ->orWhere('service_3_id', $request->service_id);
             });
+        }
+        if ($operationType === OperationType::SilkScreen && $request->filled('stencil')) {
+            $query->where('stencil', $request->stencil);
         }
         if ($request->filled('statement')) {
             $query->where(function ($q) use ($request) {
@@ -106,34 +111,35 @@ class OperationController extends Controller
         $operationStatuses = OperationStatus::orderBy('sort_order')->get();
 
         return view('operations.index', compact(
-            'operations', 'items', 'suppliers', 'paperTypes', 'services', 'operationStatuses'
+            'operations', 'items', 'suppliers', 'paperTypes', 'services', 'operationStatuses', 'operationType'
         ));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $this->authorizeCreate();
 
-        $opNumberOffset = Operation::nextOperationNumber(OperationType::Offset);
-        $opNumberSilkScreen = Operation::nextOperationNumber(OperationType::SilkScreen);
+        $operationType = $this->resolveOperationType($request);
 
         $op = null;
-        if (request()->has('copy_from')) {
-            $op = Operation::find(request('copy_from'));
-            if ($op) {
-                $op = $op->replicate();
+        if ($request->has('copy_from')) {
+            $source = Operation::find($request->input('copy_from'));
+            if ($source) {
+                $operationType = $source->operation_type ?? $operationType;
+                $op = $source->replicate();
                 $op->operation_number = null;
                 $op->operation_date = null;
                 $op->operation_time = null;
             }
         }
 
+        $opNumber = Operation::nextOperationNumber($operationType);
+
         return view('operations.create', array_merge(
             $this->formOptions(),
             [
-                'opNumber' => $opNumberOffset,
-                'opNumberOffset' => $opNumberOffset,
-                'opNumberSilkScreen' => $opNumberSilkScreen,
+                'operationType' => $operationType,
+                'opNumber' => $opNumber,
                 'op' => $op,
             ]
         ));
@@ -159,7 +165,9 @@ class OperationController extends Controller
 
             DB::commit();
 
-            return redirect()->route('operations.index')->with('success', __('dobs.flash_operation_created'));
+            return redirect()
+                ->route('operations.index', ['operation_type' => $validated['operation_type']])
+                ->with('success', __('dobs.flash_operation_created'));
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -193,7 +201,8 @@ class OperationController extends Controller
         $this->authorizeEdit();
 
         if ($this->isCompleted($operation)) {
-            return redirect()->route('operations.index')
+            return redirect()
+                ->route('operations.index', ['operation_type' => $operation->operation_type?->value ?? OperationType::Offset->value])
                 ->with('error', __('dobs.flash_operation_completed_locked'));
         }
 
@@ -201,8 +210,8 @@ class OperationController extends Controller
             $this->formOptions(),
             [
                 'operation' => $operation,
-                'opNumberOffset' => Operation::nextOperationNumber(OperationType::Offset),
-                'opNumberSilkScreen' => Operation::nextOperationNumber(OperationType::SilkScreen),
+                'operationType' => $operation->operation_type ?? OperationType::Offset,
+                'opNumber' => Operation::nextOperationNumber($operation->operation_type ?? OperationType::Offset),
             ]
         ));
     }
@@ -212,7 +221,8 @@ class OperationController extends Controller
         $this->authorizeEdit();
 
         if ($this->isCompleted($operation)) {
-            return redirect()->route('operations.index')
+            return redirect()
+                ->route('operations.index', ['operation_type' => $operation->operation_type?->value ?? OperationType::Offset->value])
                 ->with('error', __('dobs.flash_operation_completed_locked'));
         }
 
@@ -235,7 +245,9 @@ class OperationController extends Controller
 
             DB::commit();
 
-            return redirect()->route('operations.index')->with('success', __('dobs.flash_operation_updated'));
+            return redirect()
+                ->route('operations.index', ['operation_type' => $validated['operation_type']])
+                ->with('success', __('dobs.flash_operation_updated'));
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -383,11 +395,15 @@ class OperationController extends Controller
 
             DB::commit();
 
-            return redirect()->route('operations.index')->with('success', __('dobs.flash_operation_deleted'));
+            return redirect()
+                ->route('operations.index', ['operation_type' => $operation->operation_type?->value ?? OperationType::Offset->value])
+                ->with('success', __('dobs.flash_operation_deleted'));
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return redirect()->route('operations.index')->with('error', __('dobs.flash_operation_delete_error', ['message' => $e->getMessage()]));
+            return redirect()
+                ->route('operations.index', ['operation_type' => $operation->operation_type?->value ?? OperationType::Offset->value])
+                ->with('error', __('dobs.flash_operation_delete_error', ['message' => $e->getMessage()]));
         }
     }
 
@@ -629,5 +645,11 @@ class OperationController extends Controller
         }
 
         return (int) ceil((int) $pullCount / (float) $jobSize);
+    }
+
+    private function resolveOperationType(Request $request): OperationType
+    {
+        return OperationType::tryFrom((string) $request->input('operation_type', OperationType::Offset->value))
+            ?? OperationType::Offset;
     }
 }

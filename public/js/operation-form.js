@@ -1,13 +1,10 @@
 (function () {
-    const TYPE_OFFSET = 'offset';
-    const TYPE_SILK_SCREEN = 'silk_screen';
-
     function updateQuantityPerSheet() {
         const jobSizeEl = document.getElementById('job_size');
         const pullCountEl = document.getElementById('pull_count');
         const qtyEl = document.getElementById('quantity_per_sheet');
 
-        if (!jobSizeEl || !pullCountEl || !qtyEl || jobSizeEl.disabled) {
+        if (!jobSizeEl || !pullCountEl || !qtyEl) {
             return;
         }
 
@@ -20,58 +17,6 @@
         }
 
         qtyEl.value = String(Math.ceil(pullCount / jobSize));
-    }
-
-    function setGroupEnabled(group, enabled) {
-        if (!group) {
-            return;
-        }
-
-        group.hidden = !enabled;
-        group.querySelectorAll('input, select, textarea').forEach(function (field) {
-            field.disabled = !enabled;
-        });
-    }
-
-    function shouldAutoSerial(value, nextOffset, nextSilkScreen) {
-        if (!value) {
-            return true;
-        }
-
-        return value === nextOffset || value === nextSilkScreen;
-    }
-
-    function applyOperationType() {
-        const typeEl = document.getElementById('operation_type');
-        const numberEl = document.getElementById('operation_number');
-
-        if (!typeEl) {
-            return;
-        }
-
-        const isSilkScreen = typeEl.value === TYPE_SILK_SCREEN;
-        const nextOffset = numberEl?.dataset.nextOffset || '';
-        const nextSilkScreen = numberEl?.dataset.nextSilkScreen || '';
-
-        document.querySelectorAll('.op-field-offset-only').forEach(function (group) {
-            setGroupEnabled(group, !isSilkScreen);
-        });
-
-        setGroupEnabled(document.getElementById('operation-stencil-row'), isSilkScreen);
-
-        const suppliersRow = document.getElementById('operation-suppliers-row');
-        if (suppliersRow) {
-            suppliersRow.classList.toggle('form-row-2', isSilkScreen);
-            suppliersRow.classList.toggle('form-row-3', !isSilkScreen);
-        }
-
-        if (numberEl && shouldAutoSerial(numberEl.value.trim(), nextOffset, nextSilkScreen)) {
-            numberEl.value = isSilkScreen ? nextSilkScreen : nextOffset;
-        }
-
-        if (!isSilkScreen) {
-            updateQuantityPerSheet();
-        }
     }
 
     function buildCreateLabel(template, name, escape) {
@@ -235,12 +180,6 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         initSearchableSelects();
-        applyOperationType();
-
-        const typeEl = document.getElementById('operation_type');
-        if (typeEl) {
-            typeEl.addEventListener('change', applyOperationType);
-        }
 
         const jobSizeEl = document.getElementById('job_size');
         const pullCountEl = document.getElementById('pull_count');

@@ -7,7 +7,7 @@
 
 @section('header_actions')
 <div style="display:flex; gap: 0.5rem;" class="no-print">
-    <a href="{{ route('operations.index') }}" class="btn btn-secondary">
+    <a href="{{ route('operations.index', ['operation_type' => $operation->operation_type?->value ?? 'offset']) }}" class="btn btn-secondary">
         <i class="fa-solid fa-arrow-right"></i> {{ __('dobs.back_to_list') }}
     </a>
 
