@@ -9,6 +9,7 @@ use App\Models\Item;
 use App\Models\PaperType;
 use App\Models\Operation;
 use App\Models\OperationLog;
+use App\Models\OperationKind;
 use App\Models\OperationType;
 use App\Models\OperationStatus;
 use App\Models\Service;
@@ -24,7 +25,7 @@ class OperationController extends Controller
     /** @var list<string> */
     private const TRACKABLE_FIELDS = [
         'operation_type_id',
-        'operation_kind',
+        'operation_kind_id',
         'stencil',
         'silk_unit',
         'operation_status_id',
@@ -53,7 +54,7 @@ class OperationController extends Controller
         $operationType = $this->resolveOperationType($request);
 
         $query = Operation::with([
-            'client', 'item', 'operationStatus', 'operationType', 'printingSupplier', 'ctpSupplier',
+            'client', 'item', 'operationStatus', 'operationType', 'operationKind', 'printingSupplier', 'ctpSupplier',
             'paperType', 'service1', 'service2', 'service3',
         ])->where('operation_type_id', $operationType->id);
 
@@ -91,14 +92,14 @@ class OperationController extends Controller
                   ->orWhere('service_3_id', $request->service_id);
             });
         }
-        if ($operationType->isSilkScreen() && $request->filled('stencil')) {
+        if ($operationType->isGeneral() && $request->filled('stencil')) {
             $query->where('stencil', $request->stencil);
         }
-        if ($operationType->isSilkScreen() && $request->filled('silk_unit')) {
+        if ($operationType->isGeneral() && $request->filled('silk_unit')) {
             $query->where('silk_unit', $request->silk_unit);
         }
-        if ($operationType->isGeneral() && $request->filled('operation_kind')) {
-            $query->where('operation_kind', 'like', '%' . $request->operation_kind . '%');
+        if ($operationType->isGeneral() && $request->filled('operation_kind_id')) {
+            $query->where('operation_kind_id', $request->operation_kind_id);
         }
         if ($request->filled('statement')) {
             $query->where(function ($q) use ($request) {
@@ -120,8 +121,10 @@ class OperationController extends Controller
         $operationStatuses = OperationStatus::orderBy('sort_order')->get();
         $operationTypes = OperationType::orderBy('sort_order')->orderBy('id')->get();
 
+        $operationKinds = OperationKind::orderBy('sort_order')->orderBy('id')->get();
+
         return view('operations.index', compact(
-            'operations', 'items', 'suppliers', 'paperTypes', 'services', 'operationStatuses', 'operationType', 'operationTypes'
+            'operations', 'items', 'suppliers', 'paperTypes', 'services', 'operationStatuses', 'operationType', 'operationTypes', 'operationKinds'
         ));
     }
 
@@ -205,6 +208,7 @@ class OperationController extends Controller
             'logs.user',
             'operationStatus',
             'operationType',
+            'operationKind',
         ]);
 
         return view('operations.show', compact('operation'));
@@ -339,6 +343,7 @@ class OperationController extends Controller
             'client',
             'item',
             'operationType',
+            'operationKind',
             'printingSupplier',
             'ctpSupplier',
             'paperType',
@@ -359,19 +364,20 @@ class OperationController extends Controller
             [__('dobs.operation_client'), $operation->client?->name ?? ''],
             [__('dobs.operation_related_sales_order_number'), $operation->related_sales_order_number ?? ''],
             [
-                $operation->isSilkScreen() ? __('dobs.operation_silk_final_product') : __('dobs.operation_product_1'),
+                $operation->isGeneral() ? __('dobs.operation_silk_final_product') : __('dobs.operation_product_1'),
                 $operation->item?->name ?? '',
             ],
             [__('dobs.col_quantity'), $operation->quantity ?? ''],
         ];
 
-        if ($operation->isSilkScreen()) {
+        if ($operation->isGeneral()) {
+            $rows[] = [__('dobs.operation_kind'), $operation->operationKind?->name ?? ''];
             $rows[] = [__('dobs.operation_silk_unit'), $operation->silk_unit?->label() ?? ''];
         }
 
         $rows[] = [__('dobs.operation_statement'), $operation->statement ?? $operation->notes ?? ''];
         $rows[] = [
-            $operation->isSilkScreen() ? __('dobs.operation_silk_supplier') : __('dobs.operation_printing_press'),
+            $operation->isGeneral() ? __('dobs.operation_silk_supplier') : __('dobs.operation_printing_press'),
             $operation->printingSupplier?->name ?? '',
         ];
 
@@ -382,12 +388,8 @@ class OperationController extends Controller
         $rows[] = [__('dobs.operation_color_count'), $operation->color_count ?? ''];
         $rows[] = [__('dobs.operation_paper_material'), $operation->paperType?->name ?? ''];
 
-        if ($operation->isSilkScreen()) {
-            $rows[] = [__('dobs.operation_silk_print_preparations'), $operation->stencil?->label() ?? ''];
-        }
-
         if ($operation->isGeneral()) {
-            $rows[] = [__('dobs.operation_kind'), $operation->operation_kind ?? ''];
+            $rows[] = [__('dobs.operation_silk_print_preparations'), $operation->stencil?->label() ?? ''];
         }
 
         if ($operation->isOffset()) {
@@ -478,6 +480,7 @@ class OperationController extends Controller
             'paperTypes' => PaperType::orderBy('name')->get(),
             'services' => Service::orderBy('name')->get(),
             'operationStatuses' => OperationStatus::orderBy('sort_order')->get(),
+            'operationKinds' => OperationKind::orderBy('sort_order')->orderBy('id')->get(),
         ];
     }
 
@@ -493,19 +496,18 @@ class OperationController extends Controller
 
         return [
             'operation_type_id' => 'required|exists:operation_types,id',
-            'operation_kind' => [
+            'operation_kind_id' => [
                 Rule::requiredIf(fn () => $selectedType()?->isGeneral() ?? false),
                 'nullable',
-                'string',
-                'max:255',
+                'exists:operation_kinds,id',
             ],
             'stencil' => [
-                Rule::requiredIf(fn () => $selectedType()?->isSilkScreen() ?? false),
+                Rule::requiredIf(fn () => $selectedType()?->isGeneral() ?? false),
                 'nullable',
                 Rule::in($stencilValues),
             ],
             'silk_unit' => [
-                Rule::requiredIf(fn () => $selectedType()?->isSilkScreen() ?? false),
+                Rule::requiredIf(fn () => $selectedType()?->isGeneral() ?? false),
                 'nullable',
                 Rule::in($silkUnitValues),
             ],
@@ -519,27 +521,12 @@ class OperationController extends Controller
             'operation_time' => 'required|date_format:H:i',
             'client_id' => 'nullable|exists:clients,id',
             'related_sales_order_number' => 'nullable|string|max:100',
-            'item_id' => [
-                Rule::requiredIf(fn () => ! ($selectedType()?->isGeneral() ?? false)),
-                'nullable',
-                'exists:items,id',
-            ],
-            'quantity' => [
-                Rule::requiredIf(fn () => ! ($selectedType()?->isGeneral() ?? false)),
-                'nullable',
-                'integer',
-                'min:1',
-            ],
+            'item_id' => 'required|exists:items,id',
+            'quantity' => 'required|integer|min:1',
             'statement' => 'nullable|string',
             'printing_supplier_id' => 'nullable|exists:suppliers,id',
             'ctp_supplier_id' => 'nullable|exists:suppliers,id',
-            'color_count' => [
-                Rule::requiredIf(fn () => ! ($selectedType()?->isGeneral() ?? false)),
-                'nullable',
-                'integer',
-                'min:1',
-                'max:10',
-            ],
+            'color_count' => 'required|integer|min:1|max:10',
             'paper_type_id' => 'nullable|exists:paper_types,id',
             'job_size' => 'nullable|numeric|min:0',
             'pull_count' => 'nullable|integer|min:0',
@@ -570,7 +557,7 @@ class OperationController extends Controller
             'operation_status_id' => $validated['operation_status_id'],
             'notes' => $validated['statement'] ?? null,
             'total_amount' => 0,
-            'operation_kind' => null,
+            'operation_kind_id' => null,
             'item_id' => null,
             'quantity' => null,
             'printing_supplier_id' => null,
@@ -587,19 +574,14 @@ class OperationController extends Controller
             'service_3_id' => null,
         ];
 
-        if ($type->isGeneral()) {
-            $attributes['operation_kind'] = $validated['operation_kind'] ?? null;
-
-            return $attributes;
-        }
-
         $attributes['item_id'] = $validated['item_id'];
         $attributes['quantity'] = $validated['quantity'];
         $attributes['printing_supplier_id'] = $validated['printing_supplier_id'] ?? null;
         $attributes['color_count'] = $validated['color_count'];
         $attributes['paper_type_id'] = $validated['paper_type_id'] ?? null;
 
-        if ($type->isSilkScreen()) {
+        if ($type->isGeneral()) {
+            $attributes['operation_kind_id'] = $validated['operation_kind_id'] ?? null;
             $attributes['stencil'] = $validated['stencil'] ?? null;
             $attributes['silk_unit'] = $validated['silk_unit'] ?? null;
 

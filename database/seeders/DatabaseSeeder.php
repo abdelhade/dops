@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
         $this->call(AdminUserSeeder::class);
         $this->call(AppSettingsSeeder::class);
         $this->call(OperationTypeSeeder::class);
+        $this->call(OperationKindSeeder::class);
 
         // 1. Create categories
         $categories = [

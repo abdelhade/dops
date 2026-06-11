@@ -9,12 +9,11 @@
     $fixedType = $operationType ?? OperationType::resolveFromRequest('offset');
     $selectedTypeId = (int) old('operation_type_id', $op?->operation_type_id ?? $fixedType->id);
     $activeType = OperationType::find($selectedTypeId) ?? $fixedType;
-    $isSilkScreen = $activeType->isSilkScreen();
     $isOffset = $activeType->isOffset();
     $isGeneral = $activeType->isGeneral();
     $defaultOpNumber = old('operation_number', $op?->operation_number ?? ($opNumber ?? ''));
-    $productLabel = $isSilkScreen ? __('dobs.operation_silk_final_product') : __('dobs.operation_product_1');
-    $supplierLabel = $isSilkScreen ? __('dobs.operation_silk_supplier') : __('dobs.operation_printing_press');
+    $productLabel = $isGeneral ? __('dobs.operation_silk_final_product') : __('dobs.operation_product_1');
+    $supplierLabel = $isGeneral ? __('dobs.operation_silk_supplier') : __('dobs.operation_printing_press');
     $printPreparationsLabel = __('dobs.operation_silk_print_preparations');
 @endphp
 
@@ -24,14 +23,7 @@
     <div class="form-row form-row-4">
         <div class="form-group">
             <label for="operation_number" class="form-label">{{ __('dobs.operation_serial') }} <span class="text-required">*</span></label>
-            <input
-                type="text"
-                name="operation_number"
-                id="operation_number"
-                class="form-control form-control-mono"
-                value="{{ $defaultOpNumber }}"
-                required
-            >
+            <input type="text" name="operation_number" id="operation_number" class="form-control form-control-mono" value="{{ $defaultOpNumber }}" required>
         </div>
 
         <div class="form-group">
@@ -68,12 +60,7 @@
     <div class="form-row form-row-2">
         <div class="form-group">
             <label for="client_id" class="form-label">{{ __('dobs.operation_client') }}</label>
-            <select
-                name="client_id"
-                id="client_id"
-                class="form-control"
-                data-allow-create="client"
-            >
+            <select name="client_id" id="client_id" class="form-control" data-allow-create="client">
                 <option value="">{{ __('dobs.select_client') }}</option>
                 @foreach($clients as $client)
                     <option value="{{ $client->id }}" {{ (string) old('client_id', $op?->client_id) === (string) $client->id ? 'selected' : '' }}>
@@ -85,33 +72,25 @@
 
         <div class="form-group">
             <label for="related_sales_order_number" class="form-label">{{ __('dobs.operation_related_sales_order_number') }}</label>
-            <input
-                type="text"
-                name="related_sales_order_number"
-                id="related_sales_order_number"
-                class="form-control form-control-mono"
-                value="{{ old('related_sales_order_number', $op?->related_sales_order_number) }}"
-                placeholder="{{ __('dobs.operation_related_sales_order_number_placeholder') }}"
-            >
+            <input type="text" name="related_sales_order_number" id="related_sales_order_number" class="form-control form-control-mono" value="{{ old('related_sales_order_number', $op?->related_sales_order_number) }}" placeholder="{{ __('dobs.operation_related_sales_order_number_placeholder') }}">
         </div>
     </div>
 
     @if($isGeneral)
     <div class="form-row">
         <div class="form-group">
-            <label for="operation_kind" class="form-label">{{ __('dobs.operation_kind') }} <span class="text-required">*</span></label>
-            <input
-                type="text"
-                name="operation_kind"
-                id="operation_kind"
-                class="form-control"
-                value="{{ old('operation_kind', $op?->operation_kind) }}"
-                placeholder="{{ __('dobs.operation_kind_placeholder') }}"
-                required
-            >
+            <label for="operation_kind_id" class="form-label">{{ __('dobs.operation_kind') }} <span class="text-required">*</span></label>
+            <select name="operation_kind_id" id="operation_kind_id" class="form-control" required>
+                <option value="">{{ __('dobs.select_operation_kind') }}</option>
+                @foreach($operationKinds as $kindOption)
+                    <option value="{{ $kindOption->id }}" {{ (string) old('operation_kind_id', $op?->operation_kind_id) === (string) $kindOption->id ? 'selected' : '' }}>
+                        {{ $kindOption->name }}
+                    </option>
+                @endforeach
+            </select>
         </div>
     </div>
-    @elseif($isSilkScreen)
+
     <div class="form-row form-row-4">
         <div class="form-group">
             <label for="item_id" class="form-label">{{ $productLabel }} <span class="text-required">*</span></label>
@@ -186,8 +165,8 @@
         <textarea name="statement" id="statement" class="form-control form-control-compact" rows="2" placeholder="{{ __('dobs.operation_statement_placeholder') }}">{{ old('statement', $op?->statement ?? $op?->notes) }}</textarea>
     </div>
 
-    @if(!$isGeneral)
-    <div class="form-row {{ $isSilkScreen ? 'form-row-2' : 'form-row-3' }}" id="operation-suppliers-row">
+    @if($isGeneral)
+    <div class="form-row form-row-2" id="operation-suppliers-row">
         <div class="form-group">
             <label for="printing_supplier_id" class="form-label">{{ $supplierLabel }}</label>
             <select name="printing_supplier_id" id="printing_supplier_id" class="form-control" data-allow-create="supplier">
@@ -199,20 +178,6 @@
                 @endforeach
             </select>
         </div>
-
-        @if($isOffset)
-        <div class="form-group">
-            <label for="ctp_supplier_id" class="form-label">{{ __('dobs.operation_ctp') }}</label>
-            <select name="ctp_supplier_id" id="ctp_supplier_id" class="form-control" data-allow-create="supplier">
-                <option value="">{{ __('dobs.select_supplier') }}</option>
-                @foreach($suppliers as $supplier)
-                    <option value="{{ $supplier->id }}" {{ (string) old('ctp_supplier_id', $op?->ctp_supplier_id) === (string) $supplier->id ? 'selected' : '' }}>
-                        {{ $supplier->name }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-        @endif
 
         <div class="form-group">
             <label for="paper_type_id" class="form-label">{{ __('dobs.operation_paper_material') }}</label>
@@ -227,8 +192,7 @@
         </div>
     </div>
 
-    @if($isSilkScreen)
-    <div class="form-row" id="operation-silk-screen-row">
+    <div class="form-row" id="operation-general-preparations-row">
         <div class="form-group">
             <label for="stencil" class="form-label">{{ $printPreparationsLabel }} <span class="text-required">*</span></label>
             <select name="stencil" id="stencil" class="form-control" required>
@@ -241,9 +205,45 @@
             </select>
         </div>
     </div>
-    @endif
+    @elseif($isOffset)
+    <div class="form-row form-row-3" id="operation-suppliers-row">
+        <div class="form-group">
+            <label for="printing_supplier_id" class="form-label">{{ $supplierLabel }}</label>
+            <select name="printing_supplier_id" id="printing_supplier_id" class="form-control" data-allow-create="supplier">
+                <option value="">{{ __('dobs.select_supplier') }}</option>
+                @foreach($suppliers as $supplier)
+                    <option value="{{ $supplier->id }}" {{ (string) old('printing_supplier_id', $op?->printing_supplier_id) === (string) $supplier->id ? 'selected' : '' }}>
+                        {{ $supplier->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
 
-    @if($isOffset)
+        <div class="form-group">
+            <label for="ctp_supplier_id" class="form-label">{{ __('dobs.operation_ctp') }}</label>
+            <select name="ctp_supplier_id" id="ctp_supplier_id" class="form-control" data-allow-create="supplier">
+                <option value="">{{ __('dobs.select_supplier') }}</option>
+                @foreach($suppliers as $supplier)
+                    <option value="{{ $supplier->id }}" {{ (string) old('ctp_supplier_id', $op?->ctp_supplier_id) === (string) $supplier->id ? 'selected' : '' }}>
+                        {{ $supplier->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="paper_type_id" class="form-label">{{ __('dobs.operation_paper_material') }}</label>
+            <select name="paper_type_id" id="paper_type_id" class="form-control" data-allow-create="paper_type">
+                <option value="">{{ __('dobs.select_paper_type') }}</option>
+                @foreach($paperTypes as $paperType)
+                    <option value="{{ $paperType->id }}" {{ (string) old('paper_type_id', $op?->paper_type_id) === (string) $paperType->id ? 'selected' : '' }}>
+                        {{ $paperType->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+    </div>
+
     <div class="form-row form-row-3" id="operation-offset-metrics-row">
         <div class="form-group">
             <label for="job_size" class="form-label">{{ __('dobs.operation_job_size') }}</label>
@@ -274,6 +274,5 @@
             </select>
         </div>
     </div>
-    @endif
     @endif
 </div>

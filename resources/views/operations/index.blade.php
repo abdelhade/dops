@@ -28,7 +28,6 @@
 
 @section('content')
 @php
-    $isSilkScreenIndex = $operationType->isSilkScreen();
     $isGeneralIndex = $operationType->isGeneral();
     $operationFilterKeys = [
         'operation_number', 'date_from', 'date_to', 'item_id', 'operation_status_id',
@@ -36,8 +35,7 @@
     ];
 
     if ($isGeneralIndex) {
-        $operationFilterKeys[] = 'operation_kind';
-    } elseif ($isSilkScreenIndex) {
+        $operationFilterKeys[] = 'operation_kind_id';
         $operationFilterKeys[] = 'stencil';
         $operationFilterKeys[] = 'silk_unit';
     } else {
@@ -94,7 +92,6 @@
                 }
                 $services = collect([$op->service1, $op->service2, $op->service3])->filter();
                 $statement = $op->statement ?? $op->notes;
-                $isOpSilkScreen = $op->isSilkScreen();
                 $isOpGeneral = $op->isGeneral();
             @endphp
 
@@ -144,30 +141,22 @@
                     </div>
                 </header>
 
-                @if($isOpGeneral)
                 <div class="operation-card-item">
-                    <i class="fa-solid fa-tag" aria-hidden="true"></i>
-                    <span>{{ $op->operation_kind ?? __('dobs.dash') }}</span>
-                </div>
-                @else
-                <div class="operation-card-item">
+                    @if($isOpGeneral)
+                        <i class="fa-solid fa-tag" aria-hidden="true"></i>
+                        <span>{{ $op->operationKind?->name ?? __('dobs.dash') }}</span>
+                        <span class="operation-card-datetime-sep">·</span>
+                    @endif
                     <i class="fa-solid fa-box-open" aria-hidden="true"></i>
                     <span>{{ $op->item?->name ?? __('dobs.dash') }}</span>
                 </div>
-                @endif
 
                 <div class="operation-card-metrics">
-                    @if($isOpGeneral)
-                    <div class="operation-card-metric">
-                        <span class="operation-card-metric-label">{{ __('dobs.operation_kind') }}</span>
-                        <span class="operation-card-metric-value">{{ $op->operation_kind ?? __('dobs.dash') }}</span>
-                    </div>
-                    @else
                     <div class="operation-card-metric">
                         <span class="operation-card-metric-label">{{ __('dobs.col_quantity') }}</span>
                         <span class="operation-card-metric-value">{{ $op->quantity ?? __('dobs.dash') }}</span>
                     </div>
-                    @if($isOpSilkScreen)
+                    @if($isOpGeneral)
                     <div class="operation-card-metric">
                         <span class="operation-card-metric-label">{{ __('dobs.operation_silk_unit') }}</span>
                         <span class="operation-card-metric-value">{{ $op->silk_unit?->label() ?? __('dobs.dash') }}</span>
@@ -177,12 +166,12 @@
                         <span class="operation-card-metric-label">{{ __('dobs.operation_color_count') }}</span>
                         <span class="operation-card-metric-value">{{ $op->color_count ?? __('dobs.dash') }}</span>
                     </div>
-                    @if($isOpSilkScreen)
+                    @if($isOpGeneral)
                     <div class="operation-card-metric">
                         <span class="operation-card-metric-label">{{ __('dobs.operation_silk_print_preparations') }}</span>
                         <span class="operation-card-metric-value">{{ $op->stencil?->label() ?? __('dobs.dash') }}</span>
                     </div>
-                    @elseif(!$isOpSilkScreen)
+                    @elseif(!$isOpGeneral)
                     <div class="operation-card-metric">
                         <span class="operation-card-metric-label">{{ __('dobs.operation_pull_count') }}</span>
                         <span class="operation-card-metric-value">{{ $op->pull_count ?? __('dobs.dash') }}</span>
@@ -191,7 +180,6 @@
                         <span class="operation-card-metric-label">{{ __('dobs.operation_quantity_per_sheet') }}</span>
                         <span class="operation-card-metric-value">{{ $op->quantity_per_sheet ?? __('dobs.dash') }}</span>
                     </div>
-                    @endif
                     @endif
                 </div>
 
@@ -208,18 +196,18 @@
                             {{ $op->printingSupplier->name }}
                         </span>
                     @endif
-                    @if (!$isOpSilkScreen && $op->ctpSupplier)
+                    @if (!$isOpGeneral && $op->ctpSupplier)
                         <span class="operation-card-chip">
                             <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
                             {{ $op->ctpSupplier->name }}
                         </span>
                     @endif
-                    @if (!$isOpSilkScreen && filled($op->job_size))
+                    @if (!$isOpGeneral && filled($op->job_size))
                         <span class="operation-card-chip">
                             {{ __('dobs.operation_job_size') }}: {{ $op->job_size }}
                         </span>
                     @endif
-                    @if (!$isOpSilkScreen)
+                    @if (!$isOpGeneral)
                         @foreach ($services as $service)
                             <span class="operation-card-chip operation-card-chip--service">
                                 <i class="fa-solid fa-handshake" aria-hidden="true"></i>

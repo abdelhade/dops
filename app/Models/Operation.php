@@ -23,11 +23,6 @@ class Operation extends Model
         ];
     }
 
-    public function isSilkScreen(): bool
-    {
-        return $this->operationType?->isSilkScreen() ?? false;
-    }
-
     public function isOffset(): bool
     {
         return $this->operationType?->isOffset() ?? true;
@@ -41,6 +36,11 @@ class Operation extends Model
     public function operationType(): BelongsTo
     {
         return $this->belongsTo(OperationType::class);
+    }
+
+    public function operationKind(): BelongsTo
+    {
+        return $this->belongsTo(OperationKind::class);
     }
 
     public function client(): BelongsTo

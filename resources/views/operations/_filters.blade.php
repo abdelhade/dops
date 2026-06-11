@@ -6,8 +6,8 @@
     $filterAction = $filterAction ?? route('operations.index');
     $clearFiltersUrl = $clearFiltersUrl ?? route('operations.index');
     $operationType = $operationType ?? OperationType::resolveFromRequest('offset');
-    $isSilkScreenFilters = $operationType->isSilkScreen();
     $isGeneralFilters = $operationType->isGeneral();
+    $operationKinds = $operationKinds ?? collect();
 @endphp
 
 <form method="GET" action="{{ $filterAction }}" class="filters-form">
@@ -58,7 +58,7 @@
         </div>
 
         <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label" style="font-size: 0.85rem;">{{ $isSilkScreenFilters ? __('dobs.operation_silk_supplier') : __('dobs.operation_printing_press') }}</label>
+            <label class="form-label" style="font-size: 0.85rem;">{{ $isGeneralFilters ? __('dobs.operation_silk_supplier') : __('dobs.operation_printing_press') }}</label>
             <select name="printing_supplier_id" class="form-control form-control-sm">
                 <option value="">{{ __('dobs.filter_all') }}</option>
                 @foreach($suppliers as $supplier)
@@ -67,7 +67,7 @@
             </select>
         </div>
 
-        @if(!$isSilkScreenFilters)
+        @if(!$isGeneralFilters)
         <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label" style="font-size: 0.85rem;">{{ __('dobs.operation_ctp') }}</label>
             <select name="ctp_supplier_id" class="form-control form-control-sm">
@@ -102,9 +102,16 @@
         @if($isGeneralFilters)
         <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label" style="font-size: 0.85rem;">{{ __('dobs.operation_kind') }}</label>
-            <input type="text" name="operation_kind" class="form-control form-control-sm" value="{{ request('operation_kind') }}" placeholder="{{ __('dobs.operation_kind_placeholder') }}">
+            <select name="operation_kind_id" class="form-control form-control-sm">
+                <option value="">{{ __('dobs.filter_all') }}</option>
+                @foreach($operationKinds as $kindOption)
+                    <option value="{{ $kindOption->id }}" @selected((string) request('operation_kind_id') === (string) $kindOption->id)>
+                        {{ $kindOption->name }}
+                    </option>
+                @endforeach
+            </select>
         </div>
-        @elseif($isSilkScreenFilters)
+
         <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label" style="font-size: 0.85rem;">{{ __('dobs.operation_silk_print_preparations') }}</label>
             <select name="stencil" class="form-control form-control-sm">

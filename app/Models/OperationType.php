@@ -49,11 +49,6 @@ class OperationType extends Model implements PreventsDeletionWhenRelated
         return $this->form_mode === OperationTypeMode::Offset;
     }
 
-    public function isSilkScreen(): bool
-    {
-        return $this->form_mode === OperationTypeMode::SilkScreen;
-    }
-
     public function isGeneral(): bool
     {
         return $this->form_mode === OperationTypeMode::General;

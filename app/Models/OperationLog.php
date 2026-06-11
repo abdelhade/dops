@@ -124,6 +124,10 @@ class OperationLog extends Model
             return OperationType::find((int) $value)?->name ?? (string) $value;
         }
 
+        if ($field === 'operation_kind_id') {
+            return OperationKind::find((int) $value)?->name ?? (string) $value;
+        }
+
         if ($field === 'stencil') {
             return \App\Enums\OperationStencil::tryFrom((string) $value)?->label() ?? (string) $value;
         }

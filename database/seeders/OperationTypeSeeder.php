@@ -22,19 +22,11 @@ class OperationTypeSeeder extends Seeder
                 'is_system' => true,
             ],
             [
-                'name' => 'SILK-SCREEN',
-                'slug' => 'silk_screen',
-                'form_mode' => OperationTypeMode::SilkScreen->value,
-                'serial_prefix' => 'SS',
-                'sort_order' => 2,
-                'is_system' => true,
-            ],
-            [
                 'name' => 'عام',
                 'slug' => 'general',
                 'form_mode' => OperationTypeMode::General->value,
-                'serial_prefix' => 'GEN',
-                'sort_order' => 3,
+                'serial_prefix' => 'SS',
+                'sort_order' => 2,
                 'is_system' => true,
             ],
         ];
@@ -45,5 +37,8 @@ class OperationTypeSeeder extends Seeder
                 $type
             );
         }
+
+        OperationType::query()->where('slug', 'silk_screen')->delete();
+        OperationType::query()->where('form_mode', 'silk_screen')->update(['form_mode' => OperationTypeMode::General->value]);
     }
 }

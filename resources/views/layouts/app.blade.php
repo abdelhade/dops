@@ -66,6 +66,12 @@
                         <span>{{ __('dobs.nav_operation_types') }}</span>
                     </a>
                 </li>
+                <li class="nav-item {{ request()->routeIs('operation-kinds.*') ? 'active' : '' }}">
+                    <a href="{{ route('operation-kinds.index') }}">
+                        <i class="fa-solid fa-tags"></i>
+                        <span>{{ __('dobs.nav_operation_kinds') }}</span>
+                    </a>
+                </li>
                 <li class="nav-item {{ request()->routeIs('items.*') ? 'active' : '' }}">
                     <a href="{{ route('items.index') }}">
                         <i class="fa-solid fa-box-open"></i>

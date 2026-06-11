@@ -7,6 +7,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\OperationController;
 use App\Http\Controllers\OperationFormOptionController;
 use App\Http\Controllers\OperationStatusController;
+use App\Http\Controllers\OperationKindController;
 use App\Http\Controllers\OperationTypeController;
 use App\Http\Controllers\PaperSizeController;
 use App\Http\Controllers\SupplierController;
@@ -69,6 +70,7 @@ Route::middleware(['auth', 'verify.delete.password'])->group(function () {
     Route::get('reports/operations-kanban/load', [ReportController::class, 'operationsKanbanLoad'])->name('reports.operations-kanban.load');
     Route::resource('operation-statuses', OperationStatusController::class)->except(['show']);
     Route::resource('operation-types', OperationTypeController::class)->except(['show']);
+    Route::resource('operation-kinds', OperationKindController::class)->except(['show']);
 
     Route::middleware('role:admin')->group(function () {
         Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit');
