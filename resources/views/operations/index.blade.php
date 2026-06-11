@@ -188,7 +188,13 @@
                         </a>
                     @endif
                     @if (auth()->user()?->canDeleteRecords())
-                        <form action="{{ route('operations.destroy', $op->id) }}" method="POST" onsubmit="return confirm(@json(__('dobs.confirm_delete_operation')));" class="operation-card-delete-form">
+                        <form
+                            action="{{ route('operations.destroy', $op->id) }}"
+                            method="POST"
+                            class="operation-card-delete-form dobs-delete-form"
+                            data-dobs-delete
+                            data-dobs-confirm="{{ __('dobs.confirm_delete_operation') }}"
+                        >
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm" title="{{ __('dobs.delete') }}">

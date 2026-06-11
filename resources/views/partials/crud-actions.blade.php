@@ -19,7 +19,14 @@
     @endif
 
     @if ($destroyRoute && auth()->user()?->canDeleteRecords())
-        <form action="{{ $destroyRoute }}" method="POST" onsubmit="return confirm(@json($confirmMessage));" style="display:inline;">
+        <form
+            action="{{ $destroyRoute }}"
+            method="POST"
+            class="dobs-delete-form"
+            data-dobs-delete
+            data-dobs-confirm="{{ $confirmMessage }}"
+            style="display:inline;"
+        >
             @csrf
             @method('DELETE')
             <button type="submit" class="btn btn-danger btn-sm" title="{{ __('dobs.delete') }}">

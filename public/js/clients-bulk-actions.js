@@ -111,20 +111,37 @@
             return;
         }
 
-        if (!window.confirm(lang.confirmDelete || 'Are you sure?')) {
+        if (typeof window.dobsRequestDeletePassword !== 'function') {
+            if (!window.confirm(lang.confirmDelete || 'Are you sure?')) {
+                return;
+            }
+
+            performBulkDelete(ids);
             return;
         }
 
+        window.dobsRequestDeletePassword(lang.confirmDelete || 'Are you sure?', function (password) {
+            performBulkDelete(ids, password);
+        });
+    });
+
+    function performBulkDelete(ids, password) {
         $deleteBtn.prop('disabled', true);
+
+        var payload = {
+            _token: config.csrfToken,
+            ids: ids,
+        };
+
+        if (password) {
+            payload.delete_password = password;
+        }
 
         $.ajax({
             url: config.url,
             method: 'POST',
             dataType: 'json',
-            data: {
-                _token: config.csrfToken,
-                ids: ids,
-            },
+            data: payload,
         })
             .done(function (response) {
                 if (response.deleted_ids && response.deleted_ids.length) {
@@ -144,5 +161,5 @@
             .always(function () {
                 $deleteBtn.prop('disabled', false);
             });
-    });
+    }
 })(jQuery);

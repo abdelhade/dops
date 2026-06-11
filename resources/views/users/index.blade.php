@@ -41,7 +41,14 @@
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
                                 @if ($user->id !== auth()->id())
-                                    <form action="{{ route('users.destroy', $user) }}" method="POST" onsubmit="return confirm(@json(__('dobs.confirm_delete_user')));" style="display:inline;">
+                                    <form
+                                        action="{{ route('users.destroy', $user) }}"
+                                        method="POST"
+                                        class="dobs-delete-form"
+                                        data-dobs-delete
+                                        data-dobs-confirm="{{ __('dobs.confirm_delete_user') }}"
+                                        style="display:inline;"
+                                    >
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger btn-sm" title="{{ __('dobs.delete') }}">

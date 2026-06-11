@@ -173,17 +173,16 @@
                     <p class="page-subtitle">@yield('header_subtitle', __('dobs.default_subtitle'))</p>
                 </div>
                 <div class="header-actions">
-                    <button
-                        type="button"
-                        class="theme-toggle"
-                        id="themeToggle"
-                        data-label-monokai="{{ __('dobs.toggle_theme_monokai') }}"
-                        data-label-dark="{{ __('dobs.toggle_theme_dark') }}"
-                        aria-label="{{ __('dobs.toggle_theme_dark') }}"
-                    >
-                        <i class="fa-solid fa-sun theme-icon-dark" aria-hidden="true" hidden></i>
-                        <i class="fa-solid fa-moon theme-icon-monokai" aria-hidden="true"></i>
-                    </button>
+                    @if (auth()->user()?->isAdmin())
+                        <a
+                            href="{{ route('settings.edit') }}"
+                            class="header-icon-link {{ request()->routeIs('settings.*') ? 'is-active' : '' }}"
+                            title="{{ __('dobs.settings_title') }}"
+                            aria-label="{{ __('dobs.settings_title') }}"
+                        >
+                            <i class="fa-solid fa-gear" aria-hidden="true"></i>
+                        </a>
+                    @endif
                     @yield('header_actions')
                 </div>
             </header>
@@ -221,7 +220,16 @@
         </main>
     </div>
 
-    <script src="{{ asset('js/theme.js') }}?v={{ @filemtime(public_path('js/theme.js')) ?: 1 }}"></script>
+    @if (auth()->user()?->canDeleteRecords())
+        @include('partials.delete-password-modal')
+        <script>
+            window.DOBS_DELETE_LANG = {
+                defaultConfirm: @json(__('dobs.delete_password_default_confirm')),
+                passwordRequired: @json(__('dobs.delete_password_required')),
+            };
+        </script>
+        <script src="{{ asset('js/delete-password.js') }}?v={{ @filemtime(public_path('js/delete-password.js')) ?: 1 }}"></script>
+    @endif
     <script src="{{ asset('js/sidebar.js') }}?v={{ @filemtime(public_path('js/sidebar.js')) ?: 1 }}"></script>
     <script src="{{ asset('js/autofocus.js') }}?v={{ @filemtime(public_path('js/autofocus.js')) ?: 1 }}"></script>
     <script src="{{ asset('js/shortcuts.js') }}"></script>

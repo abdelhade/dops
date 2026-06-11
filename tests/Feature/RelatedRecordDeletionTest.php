@@ -27,7 +27,7 @@ class RelatedRecordDeletionTest extends TestCase
             'category_id' => $category->id,
         ]);
 
-        $response = $this->actingAs($admin)->delete(route('categories.destroy', $category));
+        $response = $this->actingAs($admin)->delete(route('categories.destroy', $category), $this->withDeletePassword());
 
         $response->assertRedirect(route('categories.index'));
         $response->assertSessionHas('error', __('dobs.cannot_delete_has_related'));
@@ -39,7 +39,7 @@ class RelatedRecordDeletionTest extends TestCase
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $category = Category::create(['name' => 'Empty Category']);
 
-        $response = $this->actingAs($admin)->delete(route('categories.destroy', $category));
+        $response = $this->actingAs($admin)->delete(route('categories.destroy', $category), $this->withDeletePassword());
 
         $response->assertRedirect(route('categories.index'));
         $response->assertSessionHas('success', __('dobs.flash_category_deleted'));
@@ -56,7 +56,7 @@ class RelatedRecordDeletionTest extends TestCase
             'client_id' => $client->id,
         ]);
 
-        $response = $this->actingAs($admin)->delete(route('clients.destroy', $client));
+        $response = $this->actingAs($admin)->delete(route('clients.destroy', $client), $this->withDeletePassword());
 
         $response->assertRedirect(route('clients.index'));
         $response->assertSessionHas('error', __('dobs.cannot_delete_has_related'));
@@ -78,7 +78,7 @@ class RelatedRecordDeletionTest extends TestCase
             'operation_status_id' => $status->id,
         ]);
 
-        $response = $this->actingAs($admin)->delete(route('operation-statuses.destroy', $status));
+        $response = $this->actingAs($admin)->delete(route('operation-statuses.destroy', $status), $this->withDeletePassword());
 
         $response->assertRedirect(route('operation-statuses.index'));
         $response->assertSessionHas('error', __('dobs.cannot_delete_has_related'));

@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(AdminUserSeeder::class);
+        $this->call(AppSettingsSeeder::class);
 
         // 1. Create categories
         $categories = [

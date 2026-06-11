@@ -471,6 +471,141 @@ body {
     color: var(--color-secondary);
 }
 
+.header-icon-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: var(--transition-smooth);
+}
+
+.header-icon-link:hover,
+.header-icon-link.is-active {
+    background: var(--bg-surface-hover);
+    border-color: var(--border-hover);
+    color: var(--color-primary);
+}
+
+.settings-card {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.settings-section + .settings-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.settings-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+}
+
+.settings-section-hint {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+}
+
+.settings-theme-control {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.settings-theme-label {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.settings-password-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: var(--color-success, #22c55e);
+    font-size: 0.9rem;
+}
+
+.settings-password-status--warning {
+    color: var(--color-warning, #f59e0b);
+}
+
+.form-hint {
+    color: var(--text-muted);
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.85rem;
+}
+
+.delete-password-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.delete-password-modal[hidden] {
+    display: none !important;
+}
+
+.delete-password-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+.delete-password-modal__dialog {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 420px);
+    margin: 0;
+}
+
+.delete-password-modal__title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.15rem;
+    margin-bottom: 0.75rem;
+}
+
+.delete-password-modal__message {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.delete-password-modal__error {
+    color: var(--color-danger);
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+}
+
+.delete-password-modal__actions {
+    margin-top: 0.5rem;
+}
+
+body.delete-password-modal-open {
+    overflow: hidden;
+}
+
 /* Grid & Cards */
 .stats-grid {
     display: grid;

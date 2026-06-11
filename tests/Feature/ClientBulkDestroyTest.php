@@ -18,9 +18,9 @@ class ClientBulkDestroyTest extends TestCase
         $clientA = Client::create(['name' => 'Client A']);
         $clientB = Client::create(['name' => 'Client B']);
 
-        $response = $this->actingAs($admin)->postJson(route('clients.bulk-destroy'), [
+        $response = $this->actingAs($admin)->postJson(route('clients.bulk-destroy'), $this->withDeletePassword([
             'ids' => [$clientA->id, $clientB->id],
-        ]);
+        ]));
 
         $response->assertOk();
         $response->assertJson([
@@ -44,9 +44,9 @@ class ClientBulkDestroyTest extends TestCase
             'client_id' => $protected->id,
         ]);
 
-        $response = $this->actingAs($admin)->postJson(route('clients.bulk-destroy'), [
+        $response = $this->actingAs($admin)->postJson(route('clients.bulk-destroy'), $this->withDeletePassword([
             'ids' => [$deletable->id, $protected->id],
-        ]);
+        ]));
 
         $response->assertOk();
         $response->assertJson([
