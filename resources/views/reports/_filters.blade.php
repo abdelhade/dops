@@ -49,6 +49,11 @@
             <a href="{{ $clearFiltersUrl }}" class="btn btn-secondary" title="{{ __('dobs.clear_filters') }}">
                 <i class="fa-solid fa-rotate-left"></i> {{ __('dobs.clear_filters') }}
             </a>
+            @if ($showPrintButton ?? false)
+                <button type="button" class="btn btn-secondary" onclick="window.print()">
+                    <i class="fa-solid fa-print"></i> {{ __('dobs.print') }}
+                </button>
+            @endif
         </div>
     </div>
 

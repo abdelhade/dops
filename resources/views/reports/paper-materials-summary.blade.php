@@ -8,44 +8,54 @@
 @section('styles')
 <style>
     .report-filters-card {
-        margin-bottom: 1.25rem;
-        padding: 1.1rem 1.25rem;
+        margin-bottom: 0.65rem;
+        padding: 0.55rem 0.75rem;
+    }
+
+    .report-filters-card .form-group {
+        margin-bottom: 0;
+    }
+
+    .report-filters-card .form-label {
+        font-size: 0.76rem;
+        margin-bottom: 0.15rem;
     }
 
     .report-filters-card-header {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: space-between;
-        gap: 1rem;
-        margin-bottom: 1rem;
-        padding-bottom: 0.85rem;
+        gap: 0.5rem;
+        margin-bottom: 0.45rem;
+        padding-bottom: 0.35rem;
         border-bottom: 1px solid var(--border-color);
     }
 
     .report-filters-card-title {
         display: flex;
         align-items: center;
-        gap: 0.55rem;
+        gap: 0.4rem;
         margin: 0;
-        font-size: 1rem;
+        font-size: 0.9rem;
         font-weight: 700;
         color: var(--text-primary);
     }
 
     .report-filters-card-title i {
         color: var(--color-secondary);
+        font-size: 0.85rem;
     }
 
     .report-filters-card-hint {
-        margin: 0.25rem 0 0;
-        font-size: 0.82rem;
+        margin: 0;
+        font-size: 0.72rem;
         color: var(--text-secondary);
     }
 
     .report-filters-primary {
         display: flex;
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: 0.45rem;
         align-items: flex-end;
         justify-content: space-between;
     }
@@ -53,23 +63,23 @@
     .report-filters-primary-fields {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.85rem;
+        gap: 0.45rem;
         flex: 1;
         min-width: min(100%, 520px);
     }
 
     .report-filter-field {
         margin-bottom: 0;
-        min-width: 160px;
+        min-width: 140px;
     }
 
     .report-filter-field-dates {
-        width: 170px;
+        width: 148px;
     }
 
     .report-filter-field-search {
         flex: 1;
-        min-width: 220px;
+        min-width: 180px;
     }
 
     .report-filter-search-wrap {
@@ -91,26 +101,33 @@
 
     .report-filters-actions {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.35rem;
         flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .report-filters-actions .btn {
+        padding: 0.3rem 0.55rem;
+        font-size: 0.8rem;
     }
 
     .report-filters-advanced {
-        margin-top: 0.9rem;
+        margin-top: 0.4rem;
         border-top: 1px dashed var(--border-color);
-        padding-top: 0.75rem;
+        padding-top: 0.35rem;
     }
 
     .report-filters-advanced-toggle {
         display: inline-flex;
         align-items: center;
-        gap: 0.45rem;
+        gap: 0.35rem;
         cursor: pointer;
-        font-size: 0.88rem;
+        font-size: 0.8rem;
         font-weight: 600;
         color: var(--text-secondary);
         list-style: none;
         user-select: none;
+        padding: 0.1rem 0;
     }
 
     .report-filters-advanced-toggle::-webkit-details-marker {
@@ -119,7 +136,7 @@
 
     .report-filters-advanced[open] .report-filters-advanced-toggle {
         color: var(--color-secondary);
-        margin-bottom: 0.85rem;
+        margin-bottom: 0.45rem;
     }
 
     .report-filters-advanced-chevron {
@@ -133,8 +150,8 @@
 
     .report-filters-advanced-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 0.85rem;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 0.45rem;
     }
 
     .report-filter-field-wide {
@@ -358,28 +375,19 @@
     }
 @endphp
 
-@if ($filtersApplied)
-    <div class="no-print" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
-        <button type="button" class="btn btn-secondary" onclick="window.print()">
-            <i class="fa-solid fa-print"></i> {{ __('dobs.print') }}
-        </button>
-    </div>
-@endif
-
 <div class="glass-card report-filters-card no-print">
     <div class="report-filters-card-header">
-        <div>
-            <h2 class="report-filters-card-title">
-                <i class="fa-solid fa-filter" aria-hidden="true"></i>
-                {{ __('dobs.report_filters_title') }}
-            </h2>
-            <p class="report-filters-card-hint">{{ __('dobs.report_filters_hint') }}</p>
-        </div>
+        <h2 class="report-filters-card-title">
+            <i class="fa-solid fa-filter" aria-hidden="true"></i>
+            {{ __('dobs.report_filters_title') }}
+        </h2>
+        <p class="report-filters-card-hint">{{ __('dobs.report_filters_hint') }}</p>
     </div>
 
     @include('reports._filters', [
         'filterAction' => route('reports.paper-materials-summary'),
         'clearFiltersUrl' => route('reports.paper-materials-summary'),
+        'showPrintButton' => $filtersApplied,
     ])
 </div>
 
