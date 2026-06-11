@@ -208,6 +208,7 @@
     .zanka-report-table .col-serial { width: 3.2rem; }
     .zanka-report-table .col-date { width: 4.5rem; }
     .zanka-report-table .col-client { width: 5rem; text-align: right; }
+    .zanka-report-table .col-sales-order { width: 4.5rem; text-align: right; }
     .zanka-report-table .col-item { width: 5rem; text-align: right; }
     .zanka-report-table .col-qty { width: 2.5rem; }
     .zanka-report-table .col-statement { width: 6rem; text-align: right; }
@@ -223,6 +224,7 @@
     .zanka-report-table .col-notes { width: 5rem; text-align: right; }
 
     .zanka-report-table tbody td.col-client,
+    .zanka-report-table tbody td.col-sales-order,
     .zanka-report-table tbody td.col-item,
     .zanka-report-table tbody td.col-statement,
     .zanka-report-table tbody td.col-paper,
@@ -391,6 +393,7 @@
                         <th class="col-serial">{{ __('dobs.operation_serial') }}</th>
                         <th class="col-date">{{ __('dobs.col_date') }}</th>
                         <th class="col-client">{{ __('dobs.operation_client') }}</th>
+                        <th class="col-sales-order">{{ __('dobs.operation_related_sales_order_number') }}</th>
                         <th class="col-item">{{ __('dobs.log_field_item_id') }}</th>
                         <th class="col-qty">{{ __('dobs.col_quantity') }}</th>
                         <th class="col-statement">{{ __('dobs.operation_statement') }}</th>
@@ -415,11 +418,13 @@
                                 ? number_format((float) $op->job_size, 0)
                                 : ($op->reportPaperDimension() ?? '');
                             $notes = trim((string) ($op->notes ?? ''));
+                            $salesOrder = trim((string) ($op->related_sales_order_number ?? ''));
                         @endphp
                         <tr>
                             <td class="col-serial">{{ $op->operation_number }}</td>
                             <td class="col-date">{{ $op->operation_date?->format('Y-m-d') ?? $dash }}</td>
                             <td class="col-client">{{ $op->client?->name ?? $dash }}</td>
+                            <td class="col-sales-order">{{ $salesOrder !== '' ? $salesOrder : $dash }}</td>
                             <td class="col-item">{{ $op->item?->name ?? $dash }}</td>
                             <td class="col-qty">{{ $op->quantity ?? $dash }}</td>
                             <td class="col-statement">{{ $op->statement ?? $dash }}</td>
@@ -438,7 +443,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="18" class="empty-state">
+                            <td colspan="19" class="empty-state">
                                 {{ __('dobs.report_no_data') }}
                             </td>
                         </tr>
