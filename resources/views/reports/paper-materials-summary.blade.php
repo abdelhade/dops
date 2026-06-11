@@ -122,6 +122,15 @@
         margin-bottom: 0.85rem;
     }
 
+    .report-filters-advanced-chevron {
+        font-size: 0.75rem;
+        transition: transform 0.2s ease;
+    }
+
+    .report-filters-advanced[open] .report-filters-advanced-chevron {
+        transform: rotate(180deg);
+    }
+
     .report-filters-advanced-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
