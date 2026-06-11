@@ -120,26 +120,6 @@
         </div>
 
         <div class="form-group report-filter-field">
-            <label class="form-label">{{ __('dobs.operation_service_2') }}</label>
-            <select name="service_2_id" class="form-control form-control-sm">
-                <option value="">{{ __('dobs.filter_all') }}</option>
-                @foreach($services as $service)
-                    <option value="{{ $service->id }}" @selected(request('service_2_id') == $service->id)>{{ $service->name }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="form-group report-filter-field">
-            <label class="form-label">{{ __('dobs.operation_service_3') }}</label>
-            <select name="service_3_id" class="form-control form-control-sm">
-                <option value="">{{ __('dobs.filter_all') }}</option>
-                @foreach($services as $service)
-                    <option value="{{ $service->id }}" @selected(request('service_3_id') == $service->id)>{{ $service->name }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="form-group report-filter-field">
             <label class="form-label">{{ __('dobs.operation_status') }}</label>
             <select name="operation_status_id" class="form-control form-control-sm">
                 <option value="">{{ __('dobs.filter_all') }}</option>
