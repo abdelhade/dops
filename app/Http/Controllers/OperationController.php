@@ -344,10 +344,21 @@ class OperationController extends Controller
             [__('dobs.operation_current_time'), $operation->formattedOperationTime() ?? ''],
             [__('dobs.operation_client'), $operation->client?->name ?? ''],
             [__('dobs.operation_related_sales_order_number'), $operation->related_sales_order_number ?? ''],
-            [__('dobs.operation_product_1'), $operation->item?->name ?? ''],
+            [
+                $operation->isSilkScreen() ? __('dobs.operation_silk_final_product') : __('dobs.operation_product_1'),
+                $operation->item?->name ?? '',
+            ],
             [__('dobs.col_quantity'), $operation->quantity ?? ''],
-            [__('dobs.operation_statement'), $operation->statement ?? $operation->notes ?? ''],
-            [__('dobs.operation_printing_press'), $operation->printingSupplier?->name ?? ''],
+        ];
+
+        if ($operation->isSilkScreen()) {
+            $rows[] = [__('dobs.operation_silk_unit'), $operation->silk_unit?->label() ?? ''];
+        }
+
+        $rows[] = [__('dobs.operation_statement'), $operation->statement ?? $operation->notes ?? ''];
+        $rows[] = [
+            $operation->isSilkScreen() ? __('dobs.operation_silk_supplier') : __('dobs.operation_printing_press'),
+            $operation->printingSupplier?->name ?? '',
         ];
 
         if ($operation->isOffset()) {
@@ -358,8 +369,7 @@ class OperationController extends Controller
         $rows[] = [__('dobs.operation_paper_material'), $operation->paperType?->name ?? ''];
 
         if ($operation->isSilkScreen()) {
-            $rows[] = [__('dobs.operation_stencil'), $operation->stencil?->label() ?? ''];
-            $rows[] = [__('dobs.operation_silk_unit'), $operation->silk_unit?->label() ?? ''];
+            $rows[] = [__('dobs.operation_silk_print_preparations'), $operation->stencil?->label() ?? ''];
         }
 
         if ($operation->isOffset()) {

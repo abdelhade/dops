@@ -27,7 +27,9 @@
             <div class="sidebar-top">
                 <div class="brand">
                     <div class="brand-icon">D</div>
+                    <a href="{{ route('dashboard') }}" class="brand-name-link">
                     <span class="brand-name">{{ __('dobs.app_name') }}</span>
+                    </a>
                 </div>
                 <button
                     type="button"

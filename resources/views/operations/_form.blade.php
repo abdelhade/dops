@@ -10,6 +10,9 @@
     $selectedType = old('operation_type', $op?->operation_type?->value ?? $fixedType->value);
     $isSilkScreen = $selectedType === OperationType::SilkScreen->value;
     $defaultOpNumber = old('operation_number', $op?->operation_number ?? ($opNumber ?? ''));
+    $productLabel = $isSilkScreen ? __('dobs.operation_silk_final_product') : __('dobs.operation_product_1');
+    $supplierLabel = $isSilkScreen ? __('dobs.operation_silk_supplier') : __('dobs.operation_printing_press');
+    $printPreparationsLabel = __('dobs.operation_silk_print_preparations');
 @endphp
 
 <input type="hidden" name="operation_type" value="{{ $selectedType }}">
@@ -90,9 +93,50 @@
         </div>
     </div>
 
+    @if($isSilkScreen)
+    <div class="form-row form-row-4">
+        <div class="form-group">
+            <label for="item_id" class="form-label">{{ $productLabel }} <span class="text-required">*</span></label>
+            <select name="item_id" id="item_id" class="form-control" data-allow-create="item" required>
+                <option value="">{{ __('dobs.choose_item') }}</option>
+                @foreach($items as $item)
+                    <option value="{{ $item->id }}" {{ (string) old('item_id', $op?->item_id) === (string) $item->id ? 'selected' : '' }}>
+                        {{ $item->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="quantity" class="form-label">{{ __('dobs.col_quantity') }} <span class="text-required">*</span></label>
+            <input type="number" min="1" name="quantity" id="quantity" class="form-control" value="{{ old('quantity', $op?->quantity ?? 1) }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="silk_unit" class="form-label">{{ __('dobs.operation_silk_unit') }} <span class="text-required">*</span></label>
+            <select name="silk_unit" id="silk_unit" class="form-control" required>
+                <option value="">{{ __('dobs.select_silk_unit') }}</option>
+                @foreach(OperationSilkUnit::casesForSelect() as $unitOption)
+                    <option value="{{ $unitOption->value }}" {{ old('silk_unit', $op?->silk_unit?->value) === $unitOption->value ? 'selected' : '' }}>
+                        {{ $unitOption->label() }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="color_count" class="form-label">{{ __('dobs.operation_color_count') }} <span class="text-required">*</span></label>
+            <select name="color_count" id="color_count" class="form-control" required>
+                @for($c = 1; $c <= 10; $c++)
+                    <option value="{{ $c }}" {{ (int) old('color_count', $op?->color_count ?? 1) === $c ? 'selected' : '' }}>{{ $c }}</option>
+                @endfor
+            </select>
+        </div>
+    </div>
+    @else
     <div class="form-row form-row-product">
         <div class="form-group">
-            <label for="item_id" class="form-label">{{ __('dobs.operation_product_1') }} <span class="text-required">*</span></label>
+            <label for="item_id" class="form-label">{{ $productLabel }} <span class="text-required">*</span></label>
             <select name="item_id" id="item_id" class="form-control" data-allow-create="item" required>
                 <option value="">{{ __('dobs.choose_item') }}</option>
                 @foreach($items as $item)
@@ -117,6 +161,7 @@
             </select>
         </div>
     </div>
+    @endif
 
     <div class="form-group">
         <label for="statement" class="form-label">{{ __('dobs.operation_statement') }}</label>
@@ -125,7 +170,7 @@
 
     <div class="form-row {{ $isSilkScreen ? 'form-row-2' : 'form-row-3' }}" id="operation-suppliers-row">
         <div class="form-group">
-            <label for="printing_supplier_id" class="form-label">{{ __('dobs.operation_printing_press') }}</label>
+            <label for="printing_supplier_id" class="form-label">{{ $supplierLabel }}</label>
             <select name="printing_supplier_id" id="printing_supplier_id" class="form-control" data-allow-create="supplier">
                 <option value="">{{ __('dobs.select_supplier') }}</option>
                 @foreach($suppliers as $supplier)
@@ -164,26 +209,14 @@
     </div>
 
     @if($isSilkScreen)
-    <div class="form-row form-row-2" id="operation-silk-screen-row">
+    <div class="form-row" id="operation-silk-screen-row">
         <div class="form-group">
-            <label for="stencil" class="form-label">{{ __('dobs.operation_stencil') }} <span class="text-required">*</span></label>
+            <label for="stencil" class="form-label">{{ $printPreparationsLabel }} <span class="text-required">*</span></label>
             <select name="stencil" id="stencil" class="form-control" required>
                 <option value="">{{ __('dobs.select_stencil') }}</option>
                 @foreach(OperationStencil::casesForSelect() as $stencilOption)
                     <option value="{{ $stencilOption->value }}" {{ old('stencil', $op?->stencil?->value) === $stencilOption->value ? 'selected' : '' }}>
                         {{ $stencilOption->label() }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="silk_unit" class="form-label">{{ __('dobs.operation_silk_unit') }} <span class="text-required">*</span></label>
-            <select name="silk_unit" id="silk_unit" class="form-control" required>
-                <option value="">{{ __('dobs.select_silk_unit') }}</option>
-                @foreach(OperationSilkUnit::casesForSelect() as $unitOption)
-                    <option value="{{ $unitOption->value }}" {{ old('silk_unit', $op?->silk_unit?->value) === $unitOption->value ? 'selected' : '' }}>
-                        {{ $unitOption->label() }}
                     </option>
                 @endforeach
             </select>

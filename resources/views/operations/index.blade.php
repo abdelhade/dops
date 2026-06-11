@@ -152,18 +152,20 @@
                         <span class="operation-card-metric-label">{{ __('dobs.col_quantity') }}</span>
                         <span class="operation-card-metric-value">{{ $op->quantity ?? __('dobs.dash') }}</span>
                     </div>
+                    @if($isOpSilkScreen)
+                    <div class="operation-card-metric">
+                        <span class="operation-card-metric-label">{{ __('dobs.operation_silk_unit') }}</span>
+                        <span class="operation-card-metric-value">{{ $op->silk_unit?->label() ?? __('dobs.dash') }}</span>
+                    </div>
+                    @endif
                     <div class="operation-card-metric">
                         <span class="operation-card-metric-label">{{ __('dobs.operation_color_count') }}</span>
                         <span class="operation-card-metric-value">{{ $op->color_count ?? __('dobs.dash') }}</span>
                     </div>
                     @if($isOpSilkScreen)
                     <div class="operation-card-metric">
-                        <span class="operation-card-metric-label">{{ __('dobs.operation_stencil') }}</span>
+                        <span class="operation-card-metric-label">{{ __('dobs.operation_silk_print_preparations') }}</span>
                         <span class="operation-card-metric-value">{{ $op->stencil?->label() ?? __('dobs.dash') }}</span>
-                    </div>
-                    <div class="operation-card-metric">
-                        <span class="operation-card-metric-label">{{ __('dobs.operation_silk_unit') }}</span>
-                        <span class="operation-card-metric-value">{{ $op->silk_unit?->label() ?? __('dobs.dash') }}</span>
                     </div>
                     @else
                     <div class="operation-card-metric">

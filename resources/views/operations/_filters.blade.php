@@ -57,7 +57,7 @@
         </div>
 
         <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label" style="font-size: 0.85rem;">{{ __('dobs.operation_printing_press') }}</label>
+            <label class="form-label" style="font-size: 0.85rem;">{{ $isSilkScreenFilters ? __('dobs.operation_silk_supplier') : __('dobs.operation_printing_press') }}</label>
             <select name="printing_supplier_id" class="form-control form-control-sm">
                 <option value="">{{ __('dobs.filter_all') }}</option>
                 @foreach($suppliers as $supplier)
@@ -100,7 +100,7 @@
 
         @if($isSilkScreenFilters)
         <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label" style="font-size: 0.85rem;">{{ __('dobs.operation_stencil') }}</label>
+            <label class="form-label" style="font-size: 0.85rem;">{{ __('dobs.operation_silk_print_preparations') }}</label>
             <select name="stencil" class="form-control form-control-sm">
                 <option value="">{{ __('dobs.filter_all') }}</option>
                 @foreach(OperationStencil::casesForSelect() as $stencilOption)
