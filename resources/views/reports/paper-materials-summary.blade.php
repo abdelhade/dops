@@ -405,8 +405,6 @@
                         <th class="col-pull">{{ __('dobs.operation_pull_count') }}</th>
                         <th class="col-qty-sheet">{{ __('dobs.operation_quantity_per_sheet') }}</th>
                         <th class="col-service">{{ __('dobs.operation_service_1') }}</th>
-                        <th class="col-service">{{ __('dobs.operation_service_2') }}</th>
-                        <th class="col-service">{{ __('dobs.operation_service_3') }}</th>
                         <th class="col-status">{{ __('dobs.operation_status') }}</th>
                         <th class="col-notes">{{ __('dobs.operation_notes') }}</th>
                     </tr>
@@ -436,14 +434,12 @@
                             <td class="col-pull">{{ $op->pull_count ?? $dash }}</td>
                             <td class="col-qty-sheet">{{ $op->quantity_per_sheet ?? $dash }}</td>
                             <td class="col-service">{{ $op->service1?->name ?? $dash }}</td>
-                            <td class="col-service">{{ $op->service2?->name ?? $dash }}</td>
-                            <td class="col-service">{{ $op->service3?->name ?? $dash }}</td>
                             <td class="col-status">{{ $op->operationStatus?->name ?? $dash }}</td>
                             <td class="col-notes">{{ $notes !== '' ? $notes : $dash }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="19" class="empty-state">
+                            <td colspan="17" class="empty-state">
                                 {{ __('dobs.report_no_data') }}
                             </td>
                         </tr>

@@ -161,37 +161,13 @@
         </div>
     </div>
 
-    <div class="form-row form-row-3">
+    <div class="form-row">
         <div class="form-group">
             <label for="service_1_id" class="form-label">{{ __('dobs.operation_service_1') }}</label>
             <select name="service_1_id" id="service_1_id" class="form-control" data-allow-create="service">
                 <option value="">{{ __('dobs.select_service') }}</option>
                 @foreach($services as $service)
                     <option value="{{ $service->id }}" {{ (string) old('service_1_id', $op?->service_1_id) === (string) $service->id ? 'selected' : '' }}>
-                        {{ $service->name }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="service_2_id" class="form-label">{{ __('dobs.operation_service_2') }}</label>
-            <select name="service_2_id" id="service_2_id" class="form-control" data-allow-create="service">
-                <option value="">{{ __('dobs.select_service') }}</option>
-                @foreach($services as $service)
-                    <option value="{{ $service->id }}" {{ (string) old('service_2_id', $op?->service_2_id) === (string) $service->id ? 'selected' : '' }}>
-                        {{ $service->name }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="service_3_id" class="form-label">{{ __('dobs.operation_service_3') }}</label>
-            <select name="service_3_id" id="service_3_id" class="form-control" data-allow-create="service">
-                <option value="">{{ __('dobs.select_service') }}</option>
-                @foreach($services as $service)
-                    <option value="{{ $service->id }}" {{ (string) old('service_3_id', $op?->service_3_id) === (string) $service->id ? 'selected' : '' }}>
                         {{ $service->name }}
                     </option>
                 @endforeach
