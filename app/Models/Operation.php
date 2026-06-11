@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\OperationStencil;
+use App\Enums\OperationType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -16,7 +18,20 @@ class Operation extends Model
         return [
             'operation_date' => 'date',
             'job_size' => 'decimal:2',
+            'operation_type' => OperationType::class,
+            'stencil' => OperationStencil::class,
         ];
+    }
+
+    public function isSilkScreen(): bool
+    {
+        return $this->operation_type === OperationType::SilkScreen;
+    }
+
+    public function isOffset(): bool
+    {
+        return $this->operation_type === OperationType::Offset
+            || $this->operation_type === null;
     }
 
     public function client(): BelongsTo
@@ -108,12 +123,16 @@ class Operation extends Model
         return (int) $this->pull_count * (int) $this->quantity_per_sheet;
     }
 
-    public static function nextOperationNumber(): string
+    public static function nextOperationNumber(?OperationType $type = null): string
     {
+        $type ??= OperationType::Offset;
+        $prefix = $type->serialPrefix();
+        $pattern = '/^' . preg_quote($prefix, '/') . '(\d+)$/i';
+
         $max = static::query()
             ->pluck('operation_number')
-            ->map(function (string $number) {
-                if (preg_match('/^OFF(\d+)$/i', $number, $matches)) {
+            ->map(function (string $number) use ($pattern) {
+                if (preg_match($pattern, $number, $matches)) {
                     return (int) $matches[1];
                 }
 
@@ -122,7 +141,7 @@ class Operation extends Model
             ->filter()
             ->max();
 
-        return 'OFF' . (($max ?? 0) + 1);
+        return $prefix . (($max ?? 0) + 1);
     }
 
     public function formattedOperationTime(): ?string

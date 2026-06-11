@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\OperationStencil;
+use App\Enums\OperationType;
 use App\Models\Client;
 use App\Models\Item;
 use App\Models\PaperType;
@@ -20,6 +22,8 @@ class OperationController extends Controller
 {
     /** @var list<string> */
     private const TRACKABLE_FIELDS = [
+        'operation_type',
+        'stencil',
         'operation_status_id',
         'client_id',
         'related_sales_order_number',
@@ -110,7 +114,8 @@ class OperationController extends Controller
     {
         $this->authorizeCreate();
 
-        $opNumber = Operation::nextOperationNumber();
+        $opNumberOffset = Operation::nextOperationNumber(OperationType::Offset);
+        $opNumberSilkScreen = Operation::nextOperationNumber(OperationType::SilkScreen);
 
         $op = null;
         if (request()->has('copy_from')) {
@@ -125,7 +130,12 @@ class OperationController extends Controller
 
         return view('operations.create', array_merge(
             $this->formOptions(),
-            ['opNumber' => $opNumber, 'op' => $op]
+            [
+                'opNumber' => $opNumberOffset,
+                'opNumberOffset' => $opNumberOffset,
+                'opNumberSilkScreen' => $opNumberSilkScreen,
+                'op' => $op,
+            ]
         ));
     }
 
@@ -189,7 +199,11 @@ class OperationController extends Controller
 
         return view('operations.edit', array_merge(
             $this->formOptions(),
-            ['operation' => $operation]
+            [
+                'operation' => $operation,
+                'opNumberOffset' => Operation::nextOperationNumber(OperationType::Offset),
+                'opNumberSilkScreen' => Operation::nextOperationNumber(OperationType::SilkScreen),
+            ]
         ));
     }
 
@@ -307,6 +321,7 @@ class OperationController extends Controller
 
         $rows = [
             [__('dobs.operation_serial'), $operation->operation_number],
+            [__('dobs.operation_type'), $operation->operation_type?->label() ?? ''],
             [__('dobs.operation_status'), $operation->operationStatus?->name ?? ''],
             [__('dobs.operation_date'), $operation->operation_date?->format('Y-m-d') ?? ''],
             [__('dobs.operation_current_time'), $operation->formattedOperationTime() ?? ''],
@@ -316,16 +331,29 @@ class OperationController extends Controller
             [__('dobs.col_quantity'), $operation->quantity ?? ''],
             [__('dobs.operation_statement'), $operation->statement ?? $operation->notes ?? ''],
             [__('dobs.operation_printing_press'), $operation->printingSupplier?->name ?? ''],
-            [__('dobs.operation_ctp'), $operation->ctpSupplier?->name ?? ''],
-            [__('dobs.operation_color_count'), $operation->color_count ?? ''],
-            [__('dobs.operation_paper_material'), $operation->paperType?->name ?? ''],
-            [__('dobs.operation_job_size'), $operation->job_size ?? ''],
-            [__('dobs.operation_pull_count'), $operation->pull_count ?? ''],
-            [__('dobs.operation_quantity_per_sheet'), $operation->quantity_per_sheet ?? ''],
-            [__('dobs.operation_service_1'), $operation->service1?->name ?? ''],
-            [__('dobs.operation_service_2'), $operation->service2?->name ?? ''],
-            [__('dobs.operation_service_3'), $operation->service3?->name ?? ''],
         ];
+
+        if ($operation->isOffset()) {
+            $rows[] = [__('dobs.operation_ctp'), $operation->ctpSupplier?->name ?? ''];
+        }
+
+        $rows[] = [__('dobs.operation_color_count'), $operation->color_count ?? ''];
+        $rows[] = [__('dobs.operation_paper_material'), $operation->paperType?->name ?? ''];
+
+        if ($operation->isSilkScreen()) {
+            $rows[] = [__('dobs.operation_stencil'), $operation->stencil?->label() ?? ''];
+        }
+
+        if ($operation->isOffset()) {
+            $rows = array_merge($rows, [
+                [__('dobs.operation_job_size'), $operation->job_size ?? ''],
+                [__('dobs.operation_pull_count'), $operation->pull_count ?? ''],
+                [__('dobs.operation_quantity_per_sheet'), $operation->quantity_per_sheet ?? ''],
+                [__('dobs.operation_service_1'), $operation->service1?->name ?? ''],
+                [__('dobs.operation_service_2'), $operation->service2?->name ?? ''],
+                [__('dobs.operation_service_3'), $operation->service3?->name ?? ''],
+            ]);
+        }
 
         return response()->streamDownload(function () use ($rows) {
             $handle = fopen('php://output', 'w');
@@ -409,8 +437,16 @@ class OperationController extends Controller
     private function validationRules(?Operation $operation = null): array
     {
         $operationId = $operation?->id;
+        $typeValues = array_map(fn (OperationType $type) => $type->value, OperationType::cases());
+        $stencilValues = array_map(fn (OperationStencil $stencil) => $stencil->value, OperationStencil::cases());
 
         return [
+            'operation_type' => ['required', Rule::in($typeValues)],
+            'stencil' => [
+                Rule::requiredIf(fn () => request('operation_type') === OperationType::SilkScreen->value),
+                'nullable',
+                Rule::in($stencilValues),
+            ],
             'operation_number' => [
                 'required',
                 'string',
@@ -444,7 +480,10 @@ class OperationController extends Controller
      */
     private function mapValidatedToAttributes(array $validated): array
     {
-        return [
+        $isSilkScreen = ($validated['operation_type'] ?? OperationType::Offset->value) === OperationType::SilkScreen->value;
+
+        $attributes = [
+            'operation_type' => $validated['operation_type'],
             'operation_number' => $validated['operation_number'],
             'operation_date' => $validated['operation_date'],
             'operation_time' => $validated['operation_time'] . ':00',
@@ -454,19 +493,32 @@ class OperationController extends Controller
             'quantity' => $validated['quantity'],
             'statement' => $validated['statement'] ?? null,
             'printing_supplier_id' => $validated['printing_supplier_id'] ?? null,
-            'ctp_supplier_id' => $validated['ctp_supplier_id'] ?? null,
             'color_count' => $validated['color_count'],
             'paper_type_id' => $validated['paper_type_id'] ?? null,
-            'job_size' => $validated['job_size'] ?? null,
-            'pull_count' => $validated['pull_count'] ?? null,
-            'quantity_per_sheet' => $this->calcQuantityPerSheet($validated),
-            'service_1_id' => $validated['service_1_id'] ?? null,
-            'service_2_id' => $validated['service_2_id'] ?? null,
-            'service_3_id' => $validated['service_3_id'] ?? null,
             'operation_status_id' => $validated['operation_status_id'],
             'notes' => $validated['statement'] ?? null,
             'total_amount' => 0,
+            'stencil' => $isSilkScreen ? ($validated['stencil'] ?? null) : null,
+            'ctp_supplier_id' => null,
+            'job_size' => null,
+            'pull_count' => null,
+            'quantity_per_sheet' => null,
+            'service_1_id' => null,
+            'service_2_id' => null,
+            'service_3_id' => null,
         ];
+
+        if (! $isSilkScreen) {
+            $attributes['ctp_supplier_id'] = $validated['ctp_supplier_id'] ?? null;
+            $attributes['job_size'] = $validated['job_size'] ?? null;
+            $attributes['pull_count'] = $validated['pull_count'] ?? null;
+            $attributes['quantity_per_sheet'] = $this->calcQuantityPerSheet($validated);
+            $attributes['service_1_id'] = $validated['service_1_id'] ?? null;
+            $attributes['service_2_id'] = $validated['service_2_id'] ?? null;
+            $attributes['service_3_id'] = $validated['service_3_id'] ?? null;
+        }
+
+        return $attributes;
     }
 
     private function applyStatusTransition(Operation $operation, ?int $newStatusId, ?int $oldStatusId): void
