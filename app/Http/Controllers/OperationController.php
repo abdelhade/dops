@@ -123,6 +123,14 @@ class OperationController extends Controller
 
         $operationKinds = OperationKind::orderBy('sort_order')->orderBy('id')->get();
 
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('operations._cards', compact('operations', 'operationStatuses', 'operationType', 'operationKinds'))->render(),
+                'has_more' => $operations->hasMorePages(),
+                'next_page_url' => $operations->nextPageUrl()
+            ]);
+        }
+
         return view('operations.index', compact(
             'operations', 'items', 'suppliers', 'paperTypes', 'services', 'operationStatuses', 'operationType', 'operationTypes', 'operationKinds'
         ));
