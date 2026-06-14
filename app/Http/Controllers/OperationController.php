@@ -111,7 +111,7 @@ class OperationController extends Controller
         $operations = $query
             ->orderByDesc('created_at')
             ->orderByDesc('id')
-            ->paginate(50)
+            ->paginate(8)
             ->withQueryString();
 
         $items = Item::orderBy('name')->get();
