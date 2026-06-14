@@ -52,19 +52,16 @@
     }
 
     function buildCardHtml(operation) {
-        var dateTimeLabel = operation.operation_date || config.dash;
-        if (operation.operation_time) {
-            dateTimeLabel += ' · ' + operation.operation_time;
-        }
-
         var readonlyClass = config.canDrag ? '' : ' is-readonly';
 
         return (
             '<article class="ops-kanban-card' + readonlyClass + '" data-operation-id="' + escapeHtml(operation.id) + '">' +
-                '<a href="' + escapeHtml(operation.show_url) + '" class="ops-kanban-card-serial">' + escapeHtml(operation.operation_number) + '</a>' +
-                '<div class="ops-kanban-card-datetime">' + escapeHtml(dateTimeLabel) + '</div>' +
-                '<div class="ops-kanban-card-product">' + escapeHtml(operation.item_name || config.dash) + '</div>' +
-                '<div class="ops-kanban-card-client">' + escapeHtml(operation.client_name || config.dash) + '</div>' +
+                '<div style="margin-bottom: 0.45rem; display: flex; align-items: baseline; gap: 0.35rem; flex-wrap: wrap;">' +
+                    '<a href="' + escapeHtml(operation.show_url) + '" class="ops-kanban-card-serial" style="display: inline; margin-bottom: 0;">' + escapeHtml(operation.operation_number) + '</a>' +
+                    '<span style="color: var(--text-muted); font-size: 0.85rem;">-</span>' +
+                    '<span class="ops-kanban-card-client" style="display: inline; font-weight: 600;">' + escapeHtml(operation.client_name || config.dash) + '</span>' +
+                '</div>' +
+                '<div class="ops-kanban-card-product" style="margin-bottom: 0;">' + escapeHtml(operation.item_name || config.dash) + '</div>' +
             '</article>'
         );
     }
@@ -148,16 +145,18 @@
 
             updateColumnCount(parts.$column, state.total);
 
+            renderEmpty(parts.$list);
+
             if (state.hasMore) {
                 renderSentinel(parts.$list, statusId);
             }
 
-            renderEmpty(parts.$list);
             observeSentinels();
         }).fail(function () {
             parts.$list.find('.ops-kanban-loading, [data-ops-kanban-temp-loading]').remove();
             state.loading = false;
             columnState[statusId] = state;
+            
             renderEmpty(parts.$list);
 
             if (state.hasMore) {
