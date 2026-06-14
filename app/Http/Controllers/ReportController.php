@@ -19,7 +19,7 @@ class ReportController extends Controller
         'search', 'operation_number', 'date_from', 'date_to', 'client_id', 'item_id', 'quantity',
         'statement', 'printing_supplier_id', 'ctp_supplier_id', 'color_count', 'paper_type_id',
         'job_size', 'pull_count', 'quantity_per_sheet', 'service_1_id', 'service_2_id', 'service_3_id',
-        'operation_status_id', 'notes',
+        'operation_status_id', 'notes', 'related_sales_order_number',
     ];
 
     public function paperMaterialsSummary(Request $request)
@@ -174,6 +174,9 @@ class ReportController extends Controller
         if ($request->filled('operation_number')) {
             $query->where('operation_number', 'like', '%' . $request->operation_number . '%');
         }
+        if ($request->filled('related_sales_order_number')) {
+            $query->where('related_sales_order_number', 'like', '%' . $request->related_sales_order_number . '%');
+        }
         if ($request->filled('date_from')) {
             $query->whereDate('operation_date', '>=', $request->date_from);
         }
@@ -232,6 +235,7 @@ class ReportController extends Controller
             $term = '%' . $request->search . '%';
             $query->where(function ($q) use ($term) {
                 $q->where('operation_number', 'like', $term)
+                    ->orWhere('related_sales_order_number', 'like', $term)
                     ->orWhere('statement', 'like', $term)
                     ->orWhere('notes', 'like', $term)
                     ->orWhereHas('client', fn ($clientQuery) => $clientQuery->where('name', 'like', $term))

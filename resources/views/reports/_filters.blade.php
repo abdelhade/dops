@@ -4,7 +4,7 @@
     $defaultDateFrom = request('date_from', now()->startOfMonth()->format('Y-m-d'));
     $defaultDateTo = request('date_to', now()->format('Y-m-d'));
     $advancedFilterKeys = [
-        'operation_number', 'client_id', 'item_id', 'quantity', 'statement',
+        'operation_number', 'related_sales_order_number', 'client_id', 'item_id', 'quantity', 'statement',
         'printing_supplier_id', 'ctp_supplier_id', 'color_count', 'paper_type_id',
         'job_size', 'pull_count', 'quantity_per_sheet', 'service_1_id',
         'operation_status_id', 'notes',
@@ -67,6 +67,11 @@
             <div class="form-group report-filter-field">
                 <label class="form-label">{{ __('dobs.operation_serial') }}</label>
                 <input type="text" name="operation_number" class="form-control form-control-sm" value="{{ request('operation_number') }}" placeholder="{{ __('dobs.report_search_by_serial') }}">
+            </div>
+
+            <div class="form-group report-filter-field">
+                <label class="form-label">{{ __('dobs.operation_related_sales_order_number') }}</label>
+                <input type="text" name="related_sales_order_number" class="form-control form-control-sm" value="{{ request('related_sales_order_number') }}" placeholder="{{ __('dobs.operation_related_sales_order_number') }}">
             </div>
 
             <div class="form-group report-filter-field">
