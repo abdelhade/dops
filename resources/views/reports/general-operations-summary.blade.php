@@ -233,9 +233,9 @@
 
     .zanka-report-table .col-serial { width: auto; white-space: nowrap; }
     .zanka-report-table .col-date { width: auto; white-space: nowrap; }
-    .zanka-report-table .col-client { width: auto; white-space: nowrap; text-align: right; }
+    .zanka-report-table .col-client { width: 5.5rem; text-align: right; }
     .zanka-report-table .col-sales-order { width: auto; white-space: nowrap; text-align: right; }
-    .zanka-report-table .col-item { width: auto; white-space: nowrap; text-align: right; }
+    .zanka-report-table .col-item { width: 5.5rem; text-align: right; }
     .zanka-report-table .col-qty { width: auto; white-space: nowrap; }
     .zanka-report-table .col-statement { width: 6rem; text-align: right; }
     .zanka-report-table .col-press { width: 3.5rem; }
