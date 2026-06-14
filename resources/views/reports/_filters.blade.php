@@ -7,7 +7,7 @@
         'operation_number', 'related_sales_order_number', 'client_id', 'item_id', 'quantity', 'statement',
         'printing_supplier_id', 'ctp_supplier_id', 'color_count', 'paper_type_id',
         'job_size', 'pull_count', 'quantity_per_sheet', 'service_1_id',
-        'operation_status_id', 'notes',
+        'operation_status_id', 'notes', 'operation_kind_id', 'stencil', 'silk_unit'
     ];
     $hasAdvancedFilters = collect($advancedFilterKeys)->contains(fn ($key) => request()->filled($key));
 @endphp
@@ -105,7 +105,7 @@
             </div>
 
             <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.operation_printing_press') }}</label>
+                <label class="form-label">{{ $reportType === 'general' ? __('dobs.operation_silk_supplier') : __('dobs.operation_printing_press') }}</label>
                 <select name="printing_supplier_id" class="form-control form-control-sm">
                     <option value="">{{ __('dobs.filter_all') }}</option>
                     @foreach($suppliers as $supplier)
@@ -114,6 +114,7 @@
                 </select>
             </div>
 
+            @if($reportType === 'offset')
             <div class="form-group report-filter-field">
                 <label class="form-label">{{ __('dobs.operation_ctp') }}</label>
                 <select name="ctp_supplier_id" class="form-control form-control-sm">
@@ -158,6 +159,39 @@
                 <label class="form-label">{{ __('dobs.operation_quantity_per_sheet') }}</label>
                 <input type="number" min="0" step="1" name="quantity_per_sheet" class="form-control form-control-sm" value="{{ request('quantity_per_sheet') }}">
             </div>
+            @endif
+
+            @if($reportType === 'general')
+            <div class="form-group report-filter-field">
+                <label class="form-label">{{ __('dobs.report_col_kind') }}</label>
+                <select name="operation_kind_id" class="form-control form-control-sm">
+                    <option value="">{{ __('dobs.filter_all') }}</option>
+                    @foreach($operationKinds as $kind)
+                        <option value="{{ $kind->id }}" @selected(request('operation_kind_id') == $kind->id)>{{ $kind->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="form-group report-filter-field">
+                <label class="form-label">{{ __('dobs.report_col_stencil') }}</label>
+                <select name="stencil" class="form-control form-control-sm">
+                    <option value="">{{ __('dobs.filter_all') }}</option>
+                    @foreach(\App\Enums\OperationStencil::cases() as $case)
+                        <option value="{{ $case->value }}" @selected(request('stencil') === $case->value)>{{ $case->label() }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="form-group report-filter-field">
+                <label class="form-label">{{ __('dobs.report_col_silk_unit') }}</label>
+                <select name="silk_unit" class="form-control form-control-sm">
+                    <option value="">{{ __('dobs.filter_all') }}</option>
+                    @foreach(\App\Enums\OperationSilkUnit::cases() as $case)
+                        <option value="{{ $case->value }}" @selected(request('silk_unit') === $case->value)>{{ $case->label() }}</option>
+                    @endforeach
+                </select>
+            </div>
+            @endif
 
             <div class="form-group report-filter-field">
                 <label class="form-label">{{ __('dobs.operation_service_1') }}</label>

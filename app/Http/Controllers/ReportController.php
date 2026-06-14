@@ -20,6 +20,7 @@ class ReportController extends Controller
         'statement', 'printing_supplier_id', 'ctp_supplier_id', 'color_count', 'paper_type_id',
         'job_size', 'pull_count', 'quantity_per_sheet', 'service_1_id', 'service_2_id', 'service_3_id',
         'operation_status_id', 'notes', 'related_sales_order_number',
+        'operation_kind_id', 'stencil', 'silk_unit'
     ];
 
     public function paperMaterialsSummary(Request $request)
@@ -36,6 +37,7 @@ class ReportController extends Controller
                         'total_pull_count' => 0,
                         'total_quantity_per_sheet' => 0,
                     ],
+                    'reportType' => 'offset',
                 ],
                 $this->filterOptions(),
             ));
@@ -79,8 +81,9 @@ class ReportController extends Controller
             'total_quantity_per_sheet' => (int) $rows->sum('total_quantity_per_sheet'),
         ];
 
+        $reportType = 'offset';
         return view('reports.paper-materials-summary', array_merge(
-            compact('operations', 'rows', 'totals', 'filtersApplied'),
+            compact('operations', 'rows', 'totals', 'filtersApplied', 'reportType'),
             $this->filterOptions(),
         ));
     }
@@ -98,6 +101,7 @@ class ReportController extends Controller
                     'totals' => (object) [
                         'total_quantity' => 0,
                     ],
+                    'reportType' => 'general',
                 ],
                 $this->filterOptions(),
             ));
@@ -137,8 +141,9 @@ class ReportController extends Controller
             'total_quantity' => (int) $rows->sum('total_quantity'),
         ];
 
+        $reportType = 'general';
         return view('reports.general-operations-summary', array_merge(
-            compact('operations', 'rows', 'totals', 'filtersApplied'),
+            compact('operations', 'rows', 'totals', 'filtersApplied', 'reportType'),
             $this->filterOptions(),
         ));
     }
@@ -164,6 +169,7 @@ class ReportController extends Controller
             'paperTypes' => PaperType::orderBy('name')->get(),
             'services' => Service::orderBy('name')->get(),
             'operationStatuses' => OperationStatus::orderBy('sort_order')->get(),
+            'operationKinds' => \App\Models\OperationKind::orderBy('name')->get(),
         ];
     }
 
@@ -215,6 +221,15 @@ class ReportController extends Controller
         }
         if ($request->filled('quantity_per_sheet')) {
             $query->where('quantity_per_sheet', $request->quantity_per_sheet);
+        }
+        if ($request->filled('operation_kind_id')) {
+            $query->where('operation_kind_id', $request->operation_kind_id);
+        }
+        if ($request->filled('stencil')) {
+            $query->where('stencil', $request->stencil);
+        }
+        if ($request->filled('silk_unit')) {
+            $query->where('silk_unit', $request->silk_unit);
         }
         if ($request->filled('service_1_id')) {
             $query->where('service_1_id', $request->service_1_id);

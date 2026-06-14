@@ -169,12 +169,70 @@
 
     function reloadAllColumns() {
         destroyLazyObservers();
+        destroyColumnObservers();
 
         $('[data-ops-kanban-column]').each(function () {
-            var statusId = String($(this).data('status-id'));
-            columnState[statusId] = { page: 1, hasMore: true, loading: false, total: 0 };
-            loadColumnPage(statusId, 1, true);
+            var $column = $(this);
+            var statusId = String($column.data('status-id'));
+            var $list = $column.find('[data-ops-kanban-list]');
+            
+            columnState[statusId] = { page: 1, hasMore: true, loading: false, total: 0, initialized: false };
+            $list.empty();
+            renderLoading($list);
         });
+
+        observeColumns();
+    }
+
+    var columnObservers = [];
+
+    function destroyColumnObservers() {
+        columnObservers.forEach(function (observer) {
+            observer.disconnect();
+        });
+        columnObservers = [];
+    }
+
+    function observeColumns() {
+        if (!window.IntersectionObserver) {
+            $('[data-ops-kanban-column]').each(function () {
+                var statusId = String($(this).data('status-id'));
+                if (columnState[statusId] && !columnState[statusId].initialized) {
+                    columnState[statusId].initialized = true;
+                    loadColumnPage(statusId, 1, true);
+                }
+            });
+            return;
+        }
+
+        destroyColumnObservers();
+
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) {
+                    return;
+                }
+
+                var $column = $(entry.target);
+                var statusId = String($column.data('status-id'));
+                var state = columnState[statusId];
+
+                if (state && !state.initialized) {
+                    state.initialized = true;
+                    loadColumnPage(statusId, 1, true);
+                }
+            });
+        }, {
+            root: null,
+            rootMargin: '200px',
+            threshold: 0
+        });
+
+        $('[data-ops-kanban-column]').each(function () {
+            observer.observe(this);
+        });
+
+        columnObservers.push(observer);
     }
 
     function destroyLazyObservers() {
