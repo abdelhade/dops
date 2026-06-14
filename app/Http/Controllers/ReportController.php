@@ -43,6 +43,10 @@ class ReportController extends Controller
 
         $query = $this->filteredOperationsQuery($request);
 
+        $query->whereHas('operationType', function($q) {
+            $q->where('form_mode', \App\Enums\OperationTypeMode::Offset);
+        });
+
         $operations = (clone $query)
             ->with([
                 'client', 'item', 'paperType', 'operationStatus',
@@ -76,6 +80,64 @@ class ReportController extends Controller
         ];
 
         return view('reports.paper-materials-summary', array_merge(
+            compact('operations', 'rows', 'totals', 'filtersApplied'),
+            $this->filterOptions(),
+        ));
+    }
+
+    public function generalOperationsSummary(Request $request)
+    {
+        $filtersApplied = $this->filtersApplied($request);
+
+        if (! $filtersApplied) {
+            return view('reports.general-operations-summary', array_merge(
+                [
+                    'filtersApplied' => false,
+                    'operations' => collect(),
+                    'rows' => collect(),
+                    'totals' => (object) [
+                        'total_quantity' => 0,
+                    ],
+                ],
+                $this->filterOptions(),
+            ));
+        }
+
+        $query = $this->filteredOperationsQuery($request);
+
+        $query->whereHas('operationType', function($q) {
+            $q->where('form_mode', \App\Enums\OperationTypeMode::General);
+        });
+
+        $operations = (clone $query)
+            ->with([
+                'client', 'item', 'operationStatus',
+                'printingSupplier', 'operationKind'
+            ])
+            ->orderBy('operation_date')
+            ->orderBy('id')
+            ->get();
+
+        $rows = (clone $query)
+            ->leftJoin('operation_kinds', 'operations.operation_kind_id', '=', 'operation_kinds.id')
+            ->select(
+                'operations.operation_kind_id',
+                'operation_kinds.name as operation_kind_name',
+                DB::raw('COALESCE(SUM(operations.quantity), 0) as total_quantity'),
+            )
+            ->groupBy('operations.operation_kind_id', 'operation_kinds.name')
+            ->orderByRaw('operation_kinds.name IS NULL, operation_kinds.name')
+            ->get()
+            ->map(function ($row) {
+                $row->operation_kind_name = $row->operation_kind_name ?? __('dobs.report_unspecified_kind');
+                return $row;
+            });
+
+        $totals = (object) [
+            'total_quantity' => (int) $rows->sum('total_quantity'),
+        ];
+
+        return view('reports.general-operations-summary', array_merge(
             compact('operations', 'rows', 'totals', 'filtersApplied'),
             $this->filterOptions(),
         ));
