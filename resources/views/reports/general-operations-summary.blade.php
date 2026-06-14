@@ -231,16 +231,16 @@
         font-size: 0.68rem;
     }
 
-    .zanka-report-table .col-serial { width: 3.2rem; }
-    .zanka-report-table .col-date { width: 4.5rem; }
+    .zanka-report-table .col-serial { width: auto; white-space: nowrap; }
+    .zanka-report-table .col-date { width: auto; white-space: nowrap; }
     .zanka-report-table .col-client { width: auto; white-space: nowrap; text-align: right; }
-    .zanka-report-table .col-sales-order { width: 4.5rem; text-align: right; }
+    .zanka-report-table .col-sales-order { width: auto; white-space: nowrap; text-align: right; }
     .zanka-report-table .col-item { width: auto; white-space: nowrap; text-align: right; }
-    .zanka-report-table .col-qty { width: 2.5rem; }
+    .zanka-report-table .col-qty { width: auto; white-space: nowrap; }
     .zanka-report-table .col-statement { width: 6rem; text-align: right; }
     .zanka-report-table .col-press { width: 3.5rem; }
     .zanka-report-table .col-ctp { width: 3rem; }
-    .zanka-report-table .col-colors { width: 2.2rem; }
+    .zanka-report-table .col-colors { width: auto; white-space: nowrap; }
     .zanka-report-table .col-paper { width: 6rem; text-align: right; }
     .zanka-report-table .col-size { width: 3rem; }
     .zanka-report-table .col-pull { width: 2.5rem; }
