@@ -16,12 +16,117 @@
             }
         })();
     </script>
+    <style>
+        .click-ripple {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            background: rgba(var(--primary-rgb, 100, 150, 255), 0.4);
+            pointer-events: none;
+            width: 20px;
+            height: 20px;
+            margin-top: -10px;
+            margin-left: -10px;
+            z-index: 9999;
+        }
+
+        @keyframes ripple-animation {
+            to {
+                transform: scale(15);
+                opacity: 0;
+            }
+        }
+
+        .login-card {
+            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        .parallax-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.4;
+            transition: transform 0.1s ease-out;
+            will-change: transform;
+        }
+
+        .shape-1 {
+            width: 400px; height: 400px;
+            background: #4facfe;
+            top: -100px; left: -100px;
+        }
+
+        .shape-2 {
+            width: 500px; height: 500px;
+            background: #00f2fe;
+            bottom: -150px; right: -150px;
+        }
+        
+        [data-theme="dark"] .shape-1 { background: #6a11cb; }
+        [data-theme="dark"] .shape-2 { background: #2575fc; }
+    </style>
 </head>
 <body class="guest-body">
+    <div class="parallax-bg">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+    </div>
     <div class="guest-wrapper">
         @yield('content')
     </div>
     <script src="{{ asset('js/autofocus.js') }}?v={{ @filemtime(public_path('js/autofocus.js')) ?: 1 }}"></script>
     <script src="{{ asset('js/shortcuts.js') }}"></script>
+    <script>
+        document.addEventListener('mousemove', function(e) {
+            const cards = document.querySelectorAll('.login-card');
+            const x = (window.innerWidth / 2 - e.pageX) / 40;
+            const y = (window.innerHeight / 2 - e.pageY) / 40;
+
+            cards.forEach(card => {
+                card.style.transform = `perspective(1000px) rotateY(${x}deg) rotateX(${y}deg)`;
+                // Optional: Add dynamic shadow
+                card.style.boxShadow = `${-x}px ${-y}px 20px rgba(0,0,0,0.1)`;
+            });
+
+            const shapes = document.querySelectorAll('.shape');
+            shapes.forEach((shape, index) => {
+                const speed = (index + 1) * 3;
+                const xOffset = (window.innerWidth / 2 - e.pageX) / speed;
+                const yOffset = (window.innerHeight / 2 - e.pageY) / speed;
+                shape.style.transform = `translate(${xOffset}px, ${yOffset}px)`;
+            });
+        });
+
+        document.addEventListener('mouseleave', function() {
+            const cards = document.querySelectorAll('.login-card');
+            cards.forEach(card => {
+                card.style.transform = `perspective(1000px) rotateY(0deg) rotateX(0deg)`;
+                card.style.boxShadow = '';
+            });
+        });
+
+        document.addEventListener('click', function(e) {
+            const ripple = document.createElement('div');
+            ripple.className = 'click-ripple';
+            ripple.style.left = `${e.pageX}px`;
+            ripple.style.top = `${e.pageY}px`;
+            document.body.appendChild(ripple);
+
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    </script>
 </body>
 </html>

@@ -1,14 +1,25 @@
 @php
+    use App\Enums\OperationSilkUnit;
+    use App\Enums\OperationStencil;
+
     $filterAction = $filterAction ?? route('reports.paper-materials-summary');
     $clearFiltersUrl = $clearFiltersUrl ?? route('reports.paper-materials-summary');
+    $reportType = $reportType ?? 'offset';
+    $isGeneralReport = $reportType === 'general';
     $defaultDateFrom = request('date_from', now()->startOfMonth()->format('Y-m-d'));
     $defaultDateTo = request('date_to', now()->format('Y-m-d'));
-    $advancedFilterKeys = [
-        'operation_number', 'related_sales_order_number', 'client_id', 'item_id', 'quantity', 'statement',
-        'printing_supplier_id', 'ctp_supplier_id', 'color_count', 'paper_type_id',
-        'job_size', 'pull_count', 'quantity_per_sheet', 'service_1_id',
-        'operation_status_id', 'notes', 'operation_kind_id', 'stencil', 'silk_unit'
-    ];
+    $advancedFilterKeys = $isGeneralReport
+        ? [
+            'operation_number', 'related_sales_order_number', 'client_id', 'operation_kind_id',
+            'item_id', 'quantity', 'silk_unit', 'color_count', 'statement',
+            'printing_supplier_id', 'paper_type_id', 'stencil', 'operation_status_id',
+        ]
+        : [
+            'operation_number', 'related_sales_order_number', 'client_id', 'item_id', 'quantity', 'statement',
+            'printing_supplier_id', 'ctp_supplier_id', 'color_count', 'paper_type_id',
+            'job_size', 'pull_count', 'quantity_per_sheet', 'service_1_id',
+            'operation_status_id', 'notes',
+        ];
     $hasAdvancedFilters = collect($advancedFilterKeys)->contains(fn ($key) => request()->filled($key));
 @endphp
 
@@ -64,159 +75,237 @@
         </summary>
 
         <div class="report-filters-advanced-grid">
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.operation_serial') }}</label>
-                <input type="text" name="operation_number" class="form-control form-control-sm" value="{{ request('operation_number') }}" placeholder="{{ __('dobs.report_search_by_serial') }}">
-            </div>
+            @if($isGeneralReport)
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_serial') }}</label>
+                    <input type="text" name="operation_number" class="form-control form-control-sm" value="{{ request('operation_number') }}" placeholder="{{ __('dobs.report_search_by_serial') }}">
+                </div>
 
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.operation_related_sales_order_number') }}</label>
-                <input type="text" name="related_sales_order_number" class="form-control form-control-sm" value="{{ request('related_sales_order_number') }}" placeholder="{{ __('dobs.operation_related_sales_order_number') }}">
-            </div>
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_related_sales_order_number') }}</label>
+                    <input type="text" name="related_sales_order_number" class="form-control form-control-sm" value="{{ request('related_sales_order_number') }}" placeholder="{{ __('dobs.operation_related_sales_order_number') }}">
+                </div>
 
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.operation_client') }}</label>
-                <select name="client_id" class="form-control form-control-sm">
-                    <option value="">{{ __('dobs.filter_all') }}</option>
-                    @foreach($clients as $client)
-                        <option value="{{ $client->id }}" @selected(request('client_id') == $client->id)>{{ $client->name }}</option>
-                    @endforeach
-                </select>
-            </div>
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_client') }}</label>
+                    <select name="client_id" class="form-control form-control-sm">
+                        <option value="">{{ __('dobs.filter_all') }}</option>
+                        @foreach($clients as $client)
+                            <option value="{{ $client->id }}" @selected(request('client_id') == $client->id)>{{ $client->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.log_field_item_id') }}</label>
-                <select name="item_id" class="form-control form-control-sm">
-                    <option value="">{{ __('dobs.filter_all') }}</option>
-                    @foreach($items as $item)
-                        <option value="{{ $item->id }}" @selected(request('item_id') == $item->id)>{{ $item->name }}</option>
-                    @endforeach
-                </select>
-            </div>
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_kind') }}</label>
+                    <select name="operation_kind_id" class="form-control form-control-sm">
+                        <option value="">{{ __('dobs.filter_all') }}</option>
+                        @foreach($operationKinds as $kind)
+                            <option value="{{ $kind->id }}" @selected(request('operation_kind_id') == $kind->id)>{{ $kind->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.col_quantity') }}</label>
-                <input type="number" min="0" step="1" name="quantity" class="form-control form-control-sm" value="{{ request('quantity') }}">
-            </div>
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_silk_final_product') }}</label>
+                    <select name="item_id" class="form-control form-control-sm">
+                        <option value="">{{ __('dobs.filter_all') }}</option>
+                        @foreach($items as $item)
+                            <option value="{{ $item->id }}" @selected(request('item_id') == $item->id)>{{ $item->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.operation_statement') }}</label>
-                <input type="text" name="statement" class="form-control form-control-sm" value="{{ request('statement') }}" placeholder="{{ __('dobs.operation_statement_placeholder') }}">
-            </div>
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.col_quantity') }}</label>
+                    <input type="number" min="0" step="1" name="quantity" class="form-control form-control-sm" value="{{ request('quantity') }}">
+                </div>
 
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ $reportType === 'general' ? __('dobs.operation_silk_supplier') : __('dobs.operation_printing_press') }}</label>
-                <select name="printing_supplier_id" class="form-control form-control-sm">
-                    <option value="">{{ __('dobs.filter_all') }}</option>
-                    @foreach($suppliers as $supplier)
-                        <option value="{{ $supplier->id }}" @selected(request('printing_supplier_id') == $supplier->id)>{{ $supplier->name }}</option>
-                    @endforeach
-                </select>
-            </div>
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_silk_unit') }}</label>
+                    <select name="silk_unit" class="form-control form-control-sm">
+                        <option value="">{{ __('dobs.filter_all') }}</option>
+                        @foreach(OperationSilkUnit::casesForSelect() as $unitOption)
+                            <option value="{{ $unitOption->value }}" @selected(request('silk_unit') === $unitOption->value)>{{ $unitOption->label() }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-            @if($reportType === 'offset')
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.operation_ctp') }}</label>
-                <select name="ctp_supplier_id" class="form-control form-control-sm">
-                    <option value="">{{ __('dobs.filter_all') }}</option>
-                    @foreach($suppliers as $supplier)
-                        <option value="{{ $supplier->id }}" @selected(request('ctp_supplier_id') == $supplier->id)>{{ $supplier->name }}</option>
-                    @endforeach
-                </select>
-            </div>
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_color_count') }}</label>
+                    <select name="color_count" class="form-control form-control-sm">
+                        <option value="">{{ __('dobs.filter_all') }}</option>
+                        @for($c = 1; $c <= 10; $c++)
+                            <option value="{{ $c }}" @selected(request('color_count') == $c)>{{ $c }}</option>
+                        @endfor
+                    </select>
+                </div>
 
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.operation_color_count') }}</label>
-                <select name="color_count" class="form-control form-control-sm">
-                    <option value="">{{ __('dobs.filter_all') }}</option>
-                    @for($c = 1; $c <= 10; $c++)
-                        <option value="{{ $c }}" @selected(request('color_count') == $c)>{{ $c }}</option>
-                    @endfor
-                </select>
-            </div>
+                <div class="form-group report-filter-field report-filter-field-wide">
+                    <label class="form-label">{{ __('dobs.operation_statement') }}</label>
+                    <input type="text" name="statement" class="form-control form-control-sm" value="{{ request('statement') }}" placeholder="{{ __('dobs.operation_statement_placeholder') }}">
+                </div>
 
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.operation_paper_material') }}</label>
-                <select name="paper_type_id" class="form-control form-control-sm">
-                    <option value="">{{ __('dobs.filter_all') }}</option>
-                    @foreach($paperTypes as $paperType)
-                        <option value="{{ $paperType->id }}" @selected(request('paper_type_id') == $paperType->id)>{{ $paperType->name }}</option>
-                    @endforeach
-                </select>
-            </div>
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_silk_supplier') }}</label>
+                    <select name="printing_supplier_id" class="form-control form-control-sm">
+                        <option value="">{{ __('dobs.filter_all') }}</option>
+                        @foreach($suppliers as $supplier)
+                            <option value="{{ $supplier->id }}" @selected(request('printing_supplier_id') == $supplier->id)>{{ $supplier->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.operation_job_size') }}</label>
-                <input type="number" step="0.01" min="0" name="job_size" class="form-control form-control-sm" value="{{ request('job_size') }}">
-            </div>
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_paper_material') }}</label>
+                    <select name="paper_type_id" class="form-control form-control-sm">
+                        <option value="">{{ __('dobs.filter_all') }}</option>
+                        @foreach($paperTypes as $paperType)
+                            <option value="{{ $paperType->id }}" @selected(request('paper_type_id') == $paperType->id)>{{ $paperType->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.operation_pull_count') }}</label>
-                <input type="number" min="0" step="1" name="pull_count" class="form-control form-control-sm" value="{{ request('pull_count') }}">
-            </div>
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_silk_print_preparations') }}</label>
+                    <select name="stencil" class="form-control form-control-sm">
+                        <option value="">{{ __('dobs.filter_all') }}</option>
+                        @foreach(OperationStencil::casesForSelect() as $stencilOption)
+                            <option value="{{ $stencilOption->value }}" @selected(request('stencil') === $stencilOption->value)>{{ $stencilOption->label() }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.operation_quantity_per_sheet') }}</label>
-                <input type="number" min="0" step="1" name="quantity_per_sheet" class="form-control form-control-sm" value="{{ request('quantity_per_sheet') }}">
-            </div>
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_status') }}</label>
+                    <select name="operation_status_id" class="form-control form-control-sm">
+                        <option value="">{{ __('dobs.filter_all') }}</option>
+                        @foreach($operationStatuses as $status)
+                            <option value="{{ $status->id }}" @selected(request('operation_status_id') == $status->id)>{{ $status->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            @else
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_serial') }}</label>
+                    <input type="text" name="operation_number" class="form-control form-control-sm" value="{{ request('operation_number') }}" placeholder="{{ __('dobs.report_search_by_serial') }}">
+                </div>
+
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_related_sales_order_number') }}</label>
+                    <input type="text" name="related_sales_order_number" class="form-control form-control-sm" value="{{ request('related_sales_order_number') }}" placeholder="{{ __('dobs.operation_related_sales_order_number') }}">
+                </div>
+
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_client') }}</label>
+                    <select name="client_id" class="form-control form-control-sm">
+                        <option value="">{{ __('dobs.filter_all') }}</option>
+                        @foreach($clients as $client)
+                            <option value="{{ $client->id }}" @selected(request('client_id') == $client->id)>{{ $client->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.log_field_item_id') }}</label>
+                    <select name="item_id" class="form-control form-control-sm">
+                        <option value="">{{ __('dobs.filter_all') }}</option>
+                        @foreach($items as $item)
+                            <option value="{{ $item->id }}" @selected(request('item_id') == $item->id)>{{ $item->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.col_quantity') }}</label>
+                    <input type="number" min="0" step="1" name="quantity" class="form-control form-control-sm" value="{{ request('quantity') }}">
+                </div>
+
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_statement') }}</label>
+                    <input type="text" name="statement" class="form-control form-control-sm" value="{{ request('statement') }}" placeholder="{{ __('dobs.operation_statement_placeholder') }}">
+                </div>
+
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_printing_press') }}</label>
+                    <select name="printing_supplier_id" class="form-control form-control-sm">
+                        <option value="">{{ __('dobs.filter_all') }}</option>
+                        @foreach($suppliers as $supplier)
+                            <option value="{{ $supplier->id }}" @selected(request('printing_supplier_id') == $supplier->id)>{{ $supplier->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_ctp') }}</label>
+                    <select name="ctp_supplier_id" class="form-control form-control-sm">
+                        <option value="">{{ __('dobs.filter_all') }}</option>
+                        @foreach($suppliers as $supplier)
+                            <option value="{{ $supplier->id }}" @selected(request('ctp_supplier_id') == $supplier->id)>{{ $supplier->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_color_count') }}</label>
+                    <select name="color_count" class="form-control form-control-sm">
+                        <option value="">{{ __('dobs.filter_all') }}</option>
+                        @for($c = 1; $c <= 10; $c++)
+                            <option value="{{ $c }}" @selected(request('color_count') == $c)>{{ $c }}</option>
+                        @endfor
+                    </select>
+                </div>
+
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_paper_material') }}</label>
+                    <select name="paper_type_id" class="form-control form-control-sm">
+                        <option value="">{{ __('dobs.filter_all') }}</option>
+                        @foreach($paperTypes as $paperType)
+                            <option value="{{ $paperType->id }}" @selected(request('paper_type_id') == $paperType->id)>{{ $paperType->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_job_size') }}</label>
+                    <input type="number" step="0.01" min="0" name="job_size" class="form-control form-control-sm" value="{{ request('job_size') }}">
+                </div>
+
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_pull_count') }}</label>
+                    <input type="number" min="0" step="1" name="pull_count" class="form-control form-control-sm" value="{{ request('pull_count') }}">
+                </div>
+
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_quantity_per_sheet') }}</label>
+                    <input type="number" min="0" step="1" name="quantity_per_sheet" class="form-control form-control-sm" value="{{ request('quantity_per_sheet') }}">
+                </div>
+
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_service_1') }}</label>
+                    <select name="service_1_id" class="form-control form-control-sm">
+                        <option value="">{{ __('dobs.filter_all') }}</option>
+                        @foreach($services as $service)
+                            <option value="{{ $service->id }}" @selected(request('service_1_id') == $service->id)>{{ $service->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group report-filter-field">
+                    <label class="form-label">{{ __('dobs.operation_status') }}</label>
+                    <select name="operation_status_id" class="form-control form-control-sm">
+                        <option value="">{{ __('dobs.filter_all') }}</option>
+                        @foreach($operationStatuses as $status)
+                            <option value="{{ $status->id }}" @selected(request('operation_status_id') == $status->id)>{{ $status->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group report-filter-field report-filter-field-wide">
+                    <label class="form-label">{{ __('dobs.operation_notes') }}</label>
+                    <input type="text" name="notes" class="form-control form-control-sm" value="{{ request('notes') }}" placeholder="{{ __('dobs.report_search_in_notes') }}">
+                </div>
             @endif
-
-            @if($reportType === 'general')
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.report_col_kind') }}</label>
-                <select name="operation_kind_id" class="form-control form-control-sm">
-                    <option value="">{{ __('dobs.filter_all') }}</option>
-                    @foreach($operationKinds as $kind)
-                        <option value="{{ $kind->id }}" @selected(request('operation_kind_id') == $kind->id)>{{ $kind->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.report_col_stencil') }}</label>
-                <select name="stencil" class="form-control form-control-sm">
-                    <option value="">{{ __('dobs.filter_all') }}</option>
-                    @foreach(\App\Enums\OperationStencil::cases() as $case)
-                        <option value="{{ $case->value }}" @selected(request('stencil') === $case->value)>{{ $case->label() }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.report_col_silk_unit') }}</label>
-                <select name="silk_unit" class="form-control form-control-sm">
-                    <option value="">{{ __('dobs.filter_all') }}</option>
-                    @foreach(\App\Enums\OperationSilkUnit::cases() as $case)
-                        <option value="{{ $case->value }}" @selected(request('silk_unit') === $case->value)>{{ $case->label() }}</option>
-                    @endforeach
-                </select>
-            </div>
-            @endif
-
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.operation_service_1') }}</label>
-                <select name="service_1_id" class="form-control form-control-sm">
-                    <option value="">{{ __('dobs.filter_all') }}</option>
-                    @foreach($services as $service)
-                        <option value="{{ $service->id }}" @selected(request('service_1_id') == $service->id)>{{ $service->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="form-group report-filter-field">
-                <label class="form-label">{{ __('dobs.operation_status') }}</label>
-                <select name="operation_status_id" class="form-control form-control-sm">
-                    <option value="">{{ __('dobs.filter_all') }}</option>
-                    @foreach($operationStatuses as $status)
-                        <option value="{{ $status->id }}" @selected(request('operation_status_id') == $status->id)>{{ $status->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="form-group report-filter-field report-filter-field-wide">
-                <label class="form-label">{{ __('dobs.operation_notes') }}</label>
-                <input type="text" name="notes" class="form-control form-control-sm" value="{{ request('notes') }}" placeholder="{{ __('dobs.report_search_in_notes') }}">
-            </div>
         </div>
     </details>
 </form>

@@ -636,6 +636,7 @@ return [
     'report_totals' => 'Totals',
     'report_no_data' => 'No data for the selected period.',
     'report_unspecified_paper_type' => 'Unspecified',
+    'report_unspecified_item' => 'Unspecified',
     'report_footer_copyright' => 'copyright by HORSTEC',
     'report_global_search' => 'Global search',
     'report_global_search_placeholder' => 'Search any field: serial, description, paper, suppliers, services, notes...',

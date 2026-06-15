@@ -638,6 +638,7 @@ return [
     'report_no_data' => 'لا توجد بيانات للفترة المحددة.',
     'report_unspecified_paper_type' => 'غير محدد',
     'report_unspecified_kind' => 'غير محدد',
+    'report_unspecified_item' => 'غير محدد',
     'report_footer_copyright' => 'copyright by HORSTEC',
     'report_general_operations_summary' => 'قائمة عمليات العام',
     'report_general_operations_summary_subtitle' => 'تقرير تشغيلات الطباعة للنوع العام.',

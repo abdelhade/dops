@@ -123,17 +123,17 @@ class ReportController extends Controller
             ->get();
 
         $rows = (clone $query)
-            ->leftJoin('operation_kinds', 'operations.operation_kind_id', '=', 'operation_kinds.id')
+            ->leftJoin('items', 'operations.item_id', '=', 'items.id')
             ->select(
-                'operations.operation_kind_id',
-                'operation_kinds.name as operation_kind_name',
+                'operations.item_id',
+                'items.name as item_name',
                 DB::raw('COALESCE(SUM(operations.quantity), 0) as total_quantity'),
             )
-            ->groupBy('operations.operation_kind_id', 'operation_kinds.name')
-            ->orderByRaw('operation_kinds.name IS NULL, operation_kinds.name')
+            ->groupBy('operations.item_id', 'items.name')
+            ->orderByRaw('items.name IS NULL, items.name')
             ->get()
             ->map(function ($row) {
-                $row->operation_kind_name = $row->operation_kind_name ?? __('dobs.report_unspecified_kind');
+                $row->item_name = $row->item_name ?? __('dobs.report_unspecified_item');
                 return $row;
             });
 

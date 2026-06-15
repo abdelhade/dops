@@ -208,19 +208,18 @@
     .zanka-report-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.72rem;
-        line-height: 1.35;
-        table-layout: fixed;
+        font-size: 0.78rem;
+        line-height: 1.4;
+        table-layout: auto;
         color: #000;
     }
 
     .zanka-report-table th,
     .zanka-report-table td {
         border: 1px solid #333;
-        padding: 0.3rem 0.25rem;
+        padding: 0.35rem 0.45rem;
         vertical-align: top;
         text-align: center;
-        word-wrap: break-word;
         background: #fff;
         color: #000;
     }
@@ -228,35 +227,19 @@
     .zanka-report-table thead th {
         background: #e8e8e8;
         font-weight: 700;
-        font-size: 0.68rem;
+        font-size: 0.74rem;
+        white-space: nowrap;
     }
 
-    .zanka-report-table .col-serial { width: auto; white-space: nowrap; }
-    .zanka-report-table .col-date { width: auto; white-space: nowrap; }
-    .zanka-report-table .col-client { width: 5.5rem; text-align: right; }
-    .zanka-report-table .col-sales-order { width: auto; white-space: nowrap; text-align: right; }
-    .zanka-report-table .col-item { width: 5.5rem; text-align: right; }
-    .zanka-report-table .col-qty { width: auto; white-space: nowrap; }
-    .zanka-report-table .col-statement { width: 6rem; text-align: right; }
-    .zanka-report-table .col-press { width: 3.5rem; }
-    .zanka-report-table .col-ctp { width: 3rem; }
-    .zanka-report-table .col-colors { width: auto; white-space: nowrap; }
-    .zanka-report-table .col-paper { width: 6rem; text-align: right; }
-    .zanka-report-table .col-size { width: 3rem; }
-    .zanka-report-table .col-pull { width: 2.5rem; }
-    .zanka-report-table .col-qty-sheet { width: 2.8rem; }
-    .zanka-report-table .col-service { width: 3.5rem; text-align: right; }
-    .zanka-report-table .col-status { width: 3rem; }
-    .zanka-report-table .col-notes { width: 5rem; text-align: right; }
+    .zanka-report-table .col-compact {
+        width: 1%;
+        white-space: nowrap;
+    }
 
-    .zanka-report-table tbody td.col-client,
-    .zanka-report-table tbody td.col-sales-order,
-    .zanka-report-table tbody td.col-item,
-    .zanka-report-table tbody td.col-statement,
-    .zanka-report-table tbody td.col-paper,
-    .zanka-report-table tbody td.col-service,
-    .zanka-report-table tbody td.col-notes {
+    .zanka-report-table .col-text {
         text-align: right;
+        white-space: normal;
+        word-break: break-word;
     }
 
     .zanka-summary-table {
@@ -388,6 +371,7 @@
         'filterAction' => route('reports.general-operations-summary'),
         'clearFiltersUrl' => route('reports.general-operations-summary'),
         'showPrintButton' => $filtersApplied,
+        'reportType' => 'general',
     ])
 </div>
 
@@ -407,19 +391,19 @@
             <table class="zanka-report-table">
                 <thead>
                     <tr>
-                        <th class="col-serial">{{ __('dobs.operation_serial') }}</th>
-                        <th class="col-date">{{ __('dobs.col_date') }}</th>
-                        <th class="col-client">{{ __('dobs.operation_client') }}</th>
-                        <th class="col-sales-order">{{ __('dobs.operation_related_sales_order_number') }}</th>
-                        <th class="col-item">{{ __('dobs.log_field_item_id') }}</th>
-                        <th class="col-qty">{{ __('dobs.col_quantity') }}</th>
-                        <th class="col-kind">{{ __('dobs.report_col_kind') }}</th>
-                        <th class="col-stencil">{{ __('dobs.report_col_stencil') }}</th>
-                        <th class="col-unit">{{ __('dobs.report_col_silk_unit') }}</th>
-                        <th class="col-statement">{{ __('dobs.operation_statement') }}</th>
-                        <th class="col-press">{{ __('dobs.operation_silk_supplier') }}</th>
-                        <th class="col-status">{{ __('dobs.operation_status') }}</th>
-                        <th class="col-notes">{{ __('dobs.operation_notes') }}</th>
+                        <th class="col-compact">{{ __('dobs.operation_serial') }}</th>
+                        <th class="col-compact">{{ __('dobs.col_date') }}</th>
+                        <th class="col-text">{{ __('dobs.operation_client') }}</th>
+                        <th class="col-text">{{ __('dobs.operation_related_sales_order_number') }}</th>
+                        <th class="col-text">{{ __('dobs.operation_silk_final_product') }}</th>
+                        <th class="col-compact">{{ __('dobs.col_quantity') }}</th>
+                        <th class="col-compact">{{ __('dobs.operation_kind') }}</th>
+                        <th class="col-compact">{{ __('dobs.operation_silk_print_preparations') }}</th>
+                        <th class="col-compact">{{ __('dobs.operation_silk_unit') }}</th>
+                        <th class="col-text">{{ __('dobs.operation_statement') }}</th>
+                        <th class="col-text">{{ __('dobs.operation_silk_supplier') }}</th>
+                        <th class="col-compact">{{ __('dobs.operation_status') }}</th>
+                        <th class="col-text">{{ __('dobs.operation_notes') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -429,19 +413,19 @@
                             $salesOrder = trim((string) ($op->related_sales_order_number ?? ''));
                         @endphp
                         <tr>
-                            <td class="col-serial">{{ $op->operation_number }}</td>
-                            <td class="col-date">{{ $op->operation_date?->format('Y-m-d') ?? $dash }}</td>
-                            <td class="col-client">{{ $op->client?->name ?? $dash }}</td>
-                            <td class="col-sales-order">{{ $salesOrder !== '' ? $salesOrder : $dash }}</td>
-                            <td class="col-item">{{ $op->item?->name ?? $dash }}</td>
-                            <td class="col-qty">{{ $op->quantity ?? $dash }}</td>
-                            <td class="col-kind">{{ $op->operationKind?->name ?? $dash }}</td>
-                            <td class="col-stencil">{{ $op->stencil?->label() ?? $dash }}</td>
-                            <td class="col-unit">{{ $op->silk_unit?->label() ?? $dash }}</td>
-                            <td class="col-statement">{{ $op->statement ?? $dash }}</td>
-                            <td class="col-press">{{ $op->printingSupplier?->name ?? $dash }}</td>
-                            <td class="col-status">{{ $op->operationStatus?->name ?? $dash }}</td>
-                            <td class="col-notes">{{ $notes !== '' ? $notes : $dash }}</td>
+                            <td class="col-compact">{{ $op->operation_number }}</td>
+                            <td class="col-compact">{{ $op->operation_date?->format('Y-m-d') ?? $dash }}</td>
+                            <td class="col-text">{{ $op->client?->name ?? $dash }}</td>
+                            <td class="col-text">{{ $salesOrder !== '' ? $salesOrder : $dash }}</td>
+                            <td class="col-text">{{ $op->item?->name ?? $dash }}</td>
+                            <td class="col-compact">{{ $op->quantity ?? $dash }}</td>
+                            <td class="col-compact">{{ $op->operationKind?->name ?? $dash }}</td>
+                            <td class="col-compact">{{ $op->stencil?->label() ?? $dash }}</td>
+                            <td class="col-compact">{{ $op->silk_unit?->label() ?? $dash }}</td>
+                            <td class="col-text">{{ $op->statement ?? $dash }}</td>
+                            <td class="col-text">{{ $op->printingSupplier?->name ?? $dash }}</td>
+                            <td class="col-compact">{{ $op->operationStatus?->name ?? $dash }}</td>
+                            <td class="col-text">{{ $notes !== '' ? $notes : $dash }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -458,14 +442,14 @@
             <table class="zanka-report-table zanka-summary-table">
                 <thead>
                     <tr>
-                        <th>{{ __('dobs.report_col_kind') }}</th>
+                        <th>{{ __('dobs.operation_silk_final_product') }}</th>
                         <th>{{ __('dobs.report_col_total_quantity') }}</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($rows as $row)
                         <tr>
-                            <td>{{ $row->operation_kind_name }}</td>
+                            <td>{{ $row->item_name }}</td>
                             <td>{{ number_format($row->total_quantity) }}</td>
                         </tr>
                     @endforeach
