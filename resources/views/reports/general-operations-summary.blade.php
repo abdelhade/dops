@@ -400,6 +400,7 @@
                         <th class="col-compact">{{ __('dobs.operation_kind') }}</th>
                         <th class="col-compact">{{ __('dobs.operation_silk_print_preparations') }}</th>
                         <th class="col-compact">{{ __('dobs.operation_silk_unit') }}</th>
+                        <th class="col-compact">{{ __('dobs.operation_color_count') }}</th>
                         <th class="col-text">{{ __('dobs.operation_statement') }}</th>
                         <th class="col-text">{{ __('dobs.operation_silk_supplier') }}</th>
                         <th class="col-compact">{{ __('dobs.operation_status') }}</th>
@@ -422,6 +423,7 @@
                             <td class="col-compact">{{ $op->operationKind?->name ?? $dash }}</td>
                             <td class="col-compact">{{ $op->stencil?->label() ?? $dash }}</td>
                             <td class="col-compact">{{ $op->silk_unit?->label() ?? $dash }}</td>
+                            <td class="col-compact">{{ $op->color_count ?? $dash }}</td>
                             <td class="col-text">{{ $op->statement ?? $dash }}</td>
                             <td class="col-text">{{ $op->printingSupplier?->name ?? $dash }}</td>
                             <td class="col-compact">{{ $op->operationStatus?->name ?? $dash }}</td>
@@ -429,7 +431,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="13" class="empty-state">
+                            <td colspan="14" class="empty-state">
                                 {{ __('dobs.report_no_data') }}
                             </td>
                         </tr>
