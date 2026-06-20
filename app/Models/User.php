@@ -111,4 +111,15 @@ class User extends Authenticatable
 
         return mb_strtoupper($initials !== '' ? $initials : 'U');
     }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
 }
