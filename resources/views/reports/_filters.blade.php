@@ -148,32 +148,31 @@
 
                 <div class="form-group report-filter-field">
                     <label class="form-label">{{ __('dobs.operation_silk_supplier') }}</label>
-                    <div class="custom-multiselect-container" id="printing-supplier-multiselect-general">
-                        <div class="custom-multiselect-trigger form-control form-control-sm" tabindex="0">
-                            <span class="custom-multiselect-label" data-default-text="{{ __('dobs.filter_all') }}">{{ __('dobs.filter_all') }}</span>
-                            <i class="fa-solid fa-chevron-down custom-multiselect-chevron"></i>
+                    <div class="ms-wrap" id="printing-supplier-multiselect-general">
+                        <div class="ms-trigger" tabindex="0">
+                            <span class="ms-trigger-label" data-default="{{ __('dobs.filter_all') }}">{{ __('dobs.filter_all') }}</span>
+                            <i class="fa-solid fa-chevron-down ms-trigger-chevron"></i>
                         </div>
-                        <div class="custom-multiselect-dropdown">
-                            <div class="custom-multiselect-search-box">
-                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                                <input type="text" class="custom-multiselect-search-input" placeholder="{{ __('dobs.select_search_placeholder') }}">
+                        <div class="ms-dropdown">
+                            <div class="ms-search-wrap">
+                                <i class="fa-solid fa-magnifying-glass ms-search-icon"></i>
+                                <input type="text" class="ms-search-input" placeholder="{{ __('dobs.select_search_placeholder') }}" autocomplete="off">
                             </div>
-                            <div class="custom-multiselect-actions-checkbox" style="padding-bottom: 0.4rem; margin-bottom: 0.4rem; border-bottom: 1px solid var(--bs-border-color, #dee2e6);">
-                                <label class="custom-multiselect-option-label select-all-label" style="font-weight: 600;">
-                                    <input type="checkbox" class="custom-multiselect-select-all-checkbox" style="width: 15px; height: 15px; cursor: pointer; margin: 0; margin-top: 0.15rem; flex-shrink: 0;">
-                                    <span class="option-text">{{ __('dobs.bulk_select_all') }}</span>
-                                </label>
-                            </div>
-                            <div class="custom-multiselect-options">
+                            <label class="ms-option is-select-all">
+                                <input type="checkbox" class="ms-checkbox ms-select-all-cb">
+                                <span class="ms-option-text">{{ __('dobs.bulk_select_all') }}</span>
+                            </label>
+                            <div class="ms-divider"></div>
+                            <div class="ms-options-list">
                                 @foreach($suppliers as $supplier)
                                     @php
                                         $isSelected = is_array(request('printing_supplier_id'))
                                             ? in_array($supplier->id, request('printing_supplier_id'))
                                             : request('printing_supplier_id') == $supplier->id;
                                     @endphp
-                                    <label class="custom-multiselect-option-label" data-search-name="{{ mb_strtolower($supplier->name, 'UTF-8') }}">
-                                        <input type="checkbox" name="printing_supplier_id[]" value="{{ $supplier->id }}" class="custom-multiselect-checkbox" @checked($isSelected)>
-                                        <span class="option-text">{{ $supplier->name }}</span>
+                                    <label class="ms-option" data-search="{{ mb_strtolower($supplier->name, 'UTF-8') }}">
+                                        <input type="checkbox" name="printing_supplier_id[]" value="{{ $supplier->id }}" class="ms-checkbox" @checked($isSelected)>
+                                        <span class="ms-option-text">{{ $supplier->name }}</span>
                                     </label>
                                 @endforeach
                             </div>
@@ -253,32 +252,31 @@
 
                 <div class="form-group report-filter-field">
                     <label class="form-label">{{ __('dobs.operation_printing_press') }}</label>
-                    <div class="custom-multiselect-container" id="printing-supplier-multiselect-offset">
-                        <div class="custom-multiselect-trigger form-control form-control-sm" tabindex="0">
-                            <span class="custom-multiselect-label" data-default-text="{{ __('dobs.filter_all') }}">{{ __('dobs.filter_all') }}</span>
-                            <i class="fa-solid fa-chevron-down custom-multiselect-chevron"></i>
+                    <div class="ms-wrap" id="printing-supplier-multiselect-offset">
+                        <div class="ms-trigger" tabindex="0">
+                            <span class="ms-trigger-label" data-default="{{ __('dobs.filter_all') }}">{{ __('dobs.filter_all') }}</span>
+                            <i class="fa-solid fa-chevron-down ms-trigger-chevron"></i>
                         </div>
-                        <div class="custom-multiselect-dropdown">
-                            <div class="custom-multiselect-search-box">
-                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                                <input type="text" class="custom-multiselect-search-input" placeholder="{{ __('dobs.select_search_placeholder') }}">
+                        <div class="ms-dropdown">
+                            <div class="ms-search-wrap">
+                                <i class="fa-solid fa-magnifying-glass ms-search-icon"></i>
+                                <input type="text" class="ms-search-input" placeholder="{{ __('dobs.select_search_placeholder') }}" autocomplete="off">
                             </div>
-                            <div class="custom-multiselect-actions-checkbox" style="padding-bottom: 0.4rem; margin-bottom: 0.4rem; border-bottom: 1px solid var(--bs-border-color, #dee2e6);">
-                                <label class="custom-multiselect-option-label select-all-label" style="font-weight: 600;">
-                                    <input type="checkbox" class="custom-multiselect-select-all-checkbox" style="width: 15px; height: 15px; cursor: pointer; margin: 0; margin-top: 0.15rem; flex-shrink: 0;">
-                                    <span class="option-text">{{ __('dobs.bulk_select_all') }}</span>
-                                </label>
-                            </div>
-                            <div class="custom-multiselect-options">
+                            <label class="ms-option is-select-all">
+                                <input type="checkbox" class="ms-checkbox ms-select-all-cb">
+                                <span class="ms-option-text">{{ __('dobs.bulk_select_all') }}</span>
+                            </label>
+                            <div class="ms-divider"></div>
+                            <div class="ms-options-list">
                                 @foreach($suppliers as $supplier)
                                     @php
                                         $isSelected = is_array(request('printing_supplier_id'))
                                             ? in_array($supplier->id, request('printing_supplier_id'))
                                             : request('printing_supplier_id') == $supplier->id;
                                     @endphp
-                                    <label class="custom-multiselect-option-label" data-search-name="{{ mb_strtolower($supplier->name, 'UTF-8') }}">
-                                        <input type="checkbox" name="printing_supplier_id[]" value="{{ $supplier->id }}" class="custom-multiselect-checkbox" @checked($isSelected)>
-                                        <span class="option-text">{{ $supplier->name }}</span>
+                                    <label class="ms-option" data-search="{{ mb_strtolower($supplier->name, 'UTF-8') }}">
+                                        <input type="checkbox" name="printing_supplier_id[]" value="{{ $supplier->id }}" class="ms-checkbox" @checked($isSelected)>
+                                        <span class="ms-option-text">{{ $supplier->name }}</span>
                                     </label>
                                 @endforeach
                             </div>
@@ -363,10 +361,325 @@
 @section('styles')
     @parent
     <style>
-        .custom-multiselect-container {
+        /* =============================================
+           MULTISELECT COMPONENT - Clean build
+           ============================================= */
+        .ms-wrap {
             position: relative;
             width: 100%;
         }
+
+        /* The visible trigger button - styled exactly like .form-control in style.css */
+        .ms-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.4rem;
+            width: 100%;
+            padding: 0.45rem 0.65rem;
+            font-size: 0.875rem;
+            font-family: inherit;
+            font-weight: 400;
+            line-height: 1.5;
+            cursor: pointer;
+            user-select: none;
+            border-radius: var(--radius-sm, 8px);
+            border: 1px solid var(--border-color, rgba(255,255,255,0.08));
+            background: rgba(17, 24, 39, 0.5);
+            color: var(--text-primary, #f3f4f6);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        [data-theme="monokai"] .ms-trigger {
+            background: rgba(255, 255, 255, 0.92);
+            border-color: rgba(39, 40, 34, 0.15);
+            color: #272822;
+        }
+
+        .ms-wrap.is-open .ms-trigger,
+        .ms-trigger:focus {
+            outline: none;
+            border-color: var(--color-focus-border, rgba(34,211,238,0.65));
+            box-shadow: 0 0 0 3px var(--color-focus-glow, rgba(34,211,238,0.28));
+        }
+
+        .ms-trigger-label {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        .ms-trigger-chevron {
+            font-size: 0.65rem;
+            flex-shrink: 0;
+            opacity: 0.6;
+            transition: transform 0.2s ease;
+        }
+
+        .ms-wrap.is-open .ms-trigger-chevron {
+            transform: rotate(180deg);
+        }
+
+        /* The dropdown panel - absolutely positioned below the trigger */
+        .ms-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            right: 0;
+            left: 0;
+            width: 100%;
+            z-index: 9999;
+            border-radius: var(--radius-sm, 8px);
+            border: 1px solid var(--border-color, rgba(255,255,255,0.08));
+            background: #1a2035;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+            padding: 0.5rem;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        [data-theme="monokai"] .ms-dropdown {
+            background: #fff;
+            border-color: rgba(39, 40, 34, 0.15);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .ms-wrap.is-open .ms-dropdown {
+            display: block;
+        }
+
+        /* Search input inside dropdown */
+        .ms-search-wrap {
+            position: relative;
+            margin-bottom: 0.4rem;
+        }
+
+        .ms-search-icon {
+            position: absolute;
+            top: 50%;
+            right: 0.55rem;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .ms-search-input {
+            display: block;
+            width: 100%;
+            padding: 0.3rem 1.75rem 0.3rem 0.55rem;
+            font-size: 0.82rem;
+            font-family: inherit;
+            border-radius: var(--radius-sm, 6px);
+            border: 1px solid var(--border-color, rgba(255,255,255,0.08));
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--text-primary, #f3f4f6);
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.15s ease;
+        }
+
+        [data-theme="monokai"] .ms-search-input {
+            background: rgba(0, 0, 0, 0.04);
+            border-color: rgba(39, 40, 34, 0.15);
+            color: #272822;
+        }
+
+        .ms-search-input:focus {
+            border-color: var(--color-secondary, #06b6d4);
+        }
+
+        /* Divider after select-all row */
+        .ms-divider {
+            height: 1px;
+            background: var(--border-color, rgba(255,255,255,0.08));
+            margin: 0.3rem 0;
+        }
+
+        [data-theme="monokai"] .ms-divider {
+            background: rgba(39, 40, 34, 0.1);
+        }
+
+        /* Scrollable options list */
+        .ms-options-list {
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-height: 210px;
+        }
+
+        /* Each option row */
+        .ms-option {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.45rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.83rem;
+            font-family: inherit;
+            color: var(--text-primary, #f3f4f6);
+            transition: background 0.12s ease;
+            /* KEY: no white-space, allow wrapping */
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        [data-theme="monokai"] .ms-option {
+            color: #272822;
+        }
+
+        .ms-option:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        [data-theme="monokai"] .ms-option:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .ms-option.is-select-all {
+            font-weight: 600;
+            color: var(--color-secondary, #06b6d4);
+        }
+
+        [data-theme="monokai"] .ms-option.is-select-all {
+            color: #006994;
+        }
+
+        .ms-option.is-hidden {
+            display: none;
+        }
+
+        .ms-checkbox {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            cursor: pointer;
+            margin: 0;
+            /* align to top of text for multi-line items */
+            align-self: flex-start;
+            margin-top: 0.15rem;
+        }
+
+        .ms-option-text {
+            flex: 1;
+            min-width: 0;
+        }
+    </style>
+@endsection
+
+@section('scripts')
+    @parent
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.ms-wrap').forEach(wrap => {
+                const trigger      = wrap.querySelector('.ms-trigger');
+                const triggerLabel = wrap.querySelector('.ms-trigger-label');
+                const dropdown     = wrap.querySelector('.ms-dropdown');
+                const searchInput  = wrap.querySelector('.ms-search-input');
+                const optionsList  = wrap.querySelector('.ms-options-list');
+                const checkboxes   = wrap.querySelectorAll('.ms-checkbox:not(.ms-select-all-cb)');
+                const selectAllCb  = wrap.querySelector('.ms-select-all-cb');
+                const defaultText  = triggerLabel.dataset.default || 'الكل';
+
+                // --- Open / Close ---
+                trigger.addEventListener('click', e => {
+                    e.stopPropagation();
+                    document.querySelectorAll('.ms-wrap.is-open').forEach(other => {
+                        if (other !== wrap) other.classList.remove('is-open');
+                    });
+                    wrap.classList.toggle('is-open');
+                    if (wrap.classList.contains('is-open')) {
+                        // Sync dropdown width to trigger's actual rendered width
+                        dropdown.style.width = trigger.offsetWidth + 'px';
+                        searchInput.focus();
+                    }
+                });
+
+                trigger.addEventListener('keydown', e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        trigger.click();
+                    }
+                });
+
+                dropdown.addEventListener('click', e => e.stopPropagation());
+                document.addEventListener('click', () => wrap.classList.remove('is-open'));
+
+                // --- Label update ---
+                function updateLabel() {
+                    const selected = [];
+                    checkboxes.forEach(cb => {
+                        if (cb.checked) {
+                            selected.push(cb.closest('.ms-option').querySelector('.ms-option-text').textContent.trim());
+                        }
+                    });
+                    if (selected.length === 0) {
+                        triggerLabel.textContent = defaultText;
+                    } else if (selected.length <= 2) {
+                        triggerLabel.textContent = selected.join('، ');
+                    } else {
+                        triggerLabel.textContent = selected.slice(0, 2).join('، ') + ` (+${selected.length - 2})`;
+                    }
+                }
+
+                // --- Select-all state ---
+                function syncSelectAll() {
+                    if (!selectAllCb) return;
+                    const visible = Array.from(optionsList.querySelectorAll('.ms-option:not(.is-hidden) .ms-checkbox'));
+                    const checkedCount = visible.filter(cb => cb.checked).length;
+                    if (checkedCount === 0) {
+                        selectAllCb.checked = false;
+                        selectAllCb.indeterminate = false;
+                    } else if (checkedCount === visible.length) {
+                        selectAllCb.checked = true;
+                        selectAllCb.indeterminate = false;
+                    } else {
+                        selectAllCb.checked = false;
+                        selectAllCb.indeterminate = true;
+                    }
+                }
+
+                // --- Search ---
+                searchInput.addEventListener('input', () => {
+                    const q = searchInput.value.toLowerCase().trim();
+                    optionsList.querySelectorAll('.ms-option').forEach(opt => {
+                        const name = opt.dataset.search || '';
+                        opt.classList.toggle('is-hidden', q !== '' && !name.includes(q));
+                    });
+                    syncSelectAll();
+                });
+
+                // --- Checkbox events ---
+                checkboxes.forEach(cb => {
+                    cb.addEventListener('change', () => {
+                        updateLabel();
+                        syncSelectAll();
+                    });
+                });
+
+                if (selectAllCb) {
+                    selectAllCb.addEventListener('change', e => {
+                        const check = e.target.checked;
+                        optionsList.querySelectorAll('.ms-option:not(.is-hidden) .ms-checkbox').forEach(cb => {
+                            cb.checked = check;
+                        });
+                        updateLabel();
+                        syncSelectAll();
+                    });
+                }
+
+                // --- Init ---
+                updateLabel();
+                syncSelectAll();
+            });
+        });
+    </script>
+@endsection
+
 
         .custom-multiselect-trigger {
             display: flex !important;
