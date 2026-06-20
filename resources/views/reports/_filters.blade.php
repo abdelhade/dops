@@ -403,7 +403,8 @@
             position: absolute;
             top: 100%;
             left: 0;
-            min-width: 100%;
+            right: 0;
+            width: 100%;
             z-index: 9999;
             background-color: var(--bs-body-bg, #fff);
             border: 1px solid var(--bs-border-color, #dee2e6);
@@ -523,9 +524,7 @@
             min-width: 0;
         }
 
-        .custom-multiselect-checkbox {
-            margin-top: 0.15rem;
-        }
+
 
         .custom-multiselect-option-label:hover {
             background-color: rgba(0,0,0,0.05);
@@ -542,6 +541,7 @@
             height: 15px;
             cursor: pointer;
             margin: 0;
+            margin-top: 0.15rem;
             flex-shrink: 0;
         }
 
