@@ -10,6 +10,7 @@
     .report-filters-card {
         margin-bottom: 0.65rem;
         padding: 0.55rem 0.75rem;
+        overflow: visible; /* Fix for multiselect dropdown being cut off */
     }
 
     .report-filters-card .form-group {
