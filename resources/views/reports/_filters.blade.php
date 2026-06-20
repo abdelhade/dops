@@ -681,19 +681,6 @@
 @endsection
 
 
-        .custom-multiselect-trigger {
-            display: flex !important;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            user-select: none;
-            gap: 0.5rem;
-            padding-right: 0.5rem !important;
-            padding-left: 0.5rem !important;
-        }
-
-        .custom-multiselect-label {
-            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             flex-grow: 1;
