@@ -402,9 +402,10 @@
             display: none;
             position: absolute;
             top: 100%;
-            left: 0;
             right: 0;
-            width: 100%;
+            min-width: 100%;
+            width: max-content;
+            max-width: 350px;
             z-index: 9999;
             background-color: var(--bs-body-bg, #fff);
             border: 1px solid var(--bs-border-color, #dee2e6);
@@ -514,12 +515,16 @@
             text-align: right;
             margin-bottom: 0.15rem;
             word-break: break-word;
-            white-space: normal;
+            overflow-wrap: break-word;
+            white-space: normal !important;
         }
 
         .custom-multiselect-option-label .option-text {
             flex: 1;
             min-width: 0;
+            width: 100%;
+            display: block;
+            white-space: normal !important;
         }
 
 
