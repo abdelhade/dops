@@ -82,6 +82,55 @@
                 >
             </div>
 
+            <section class="settings-section" style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+                <h2 class="settings-section-title">
+                    <i class="fa-solid fa-envelope"></i>
+                    {{ __('dobs.settings_mail_section') }}
+                </h2>
+                <p class="settings-section-hint">{{ __('dobs.settings_mail_hint') }}</p>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label for="mail_host" class="form-label">{{ __('dobs.settings_mail_host') }}</label>
+                        <input type="text" name="mail_host" id="mail_host" class="form-control" value="{{ old('mail_host', $mailHost) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mail_port" class="form-label">{{ __('dobs.settings_mail_port') }}</label>
+                        <input type="number" name="mail_port" id="mail_port" class="form-control" value="{{ old('mail_port', $mailPort) }}">
+                    </div>
+                </div>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label for="mail_username" class="form-label">{{ __('dobs.settings_mail_username') }}</label>
+                        <input type="text" name="mail_username" id="mail_username" class="form-control" value="{{ old('mail_username', $mailUsername) }}" autocomplete="off">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mail_password" class="form-label">{{ __('dobs.settings_mail_password') }}</label>
+                        <input type="password" name="mail_password" id="mail_password" class="form-control" value="{{ old('mail_password', $mailPassword) }}" autocomplete="new-password">
+                    </div>
+                </div>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label for="mail_encryption" class="form-label">{{ __('dobs.settings_mail_encryption') }}</label>
+                        <input type="text" name="mail_encryption" id="mail_encryption" class="form-control" value="{{ old('mail_encryption', $mailEncryption) }}" placeholder="tls / ssl">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mail_from_address" class="form-label">{{ __('dobs.settings_mail_from_address') }}</label>
+                        <input type="email" name="mail_from_address" id="mail_from_address" class="form-control" value="{{ old('mail_from_address', $mailFromAddress) }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mail_from_name" class="form-label">{{ __('dobs.settings_mail_from_name') }}</label>
+                        <input type="text" name="mail_from_name" id="mail_from_name" class="form-control" value="{{ old('mail_from_name', $mailFromName) }}" placeholder="{{ __('dobs.app_name') }}">
+                    </div>
+                </div>
+            </section>
+
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i> {{ __('dobs.save_settings') }}

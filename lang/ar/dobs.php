@@ -704,4 +704,26 @@ return [
     'delete_password_required' => 'أدخل كلمة مرور الحذف.',
     'delete_password_invalid' => 'كلمة مرور الحذف غير صحيحة.',
     'delete_password_not_configured' => 'لم يتم تعيين كلمة مرور الحذف. راجع الإعدادات أولاً.',
+    
+    // Password Reset
+    'forgot_password_title' => 'نسيت كلمة المرور؟',
+    'forgot_password_subtitle' => 'أدخل بريدك الإلكتروني وسنرسل لك رابطاً لإعادة تعيين كلمة المرور.',
+    'forgot_password_link' => 'نسيت كلمة المرور؟',
+    'send_password_reset_link' => 'إرسال رابط استعادة كلمة المرور',
+    'back_to_login' => 'العودة لتسجيل الدخول',
+    'reset_password_title' => 'إعادة تعيين كلمة المرور',
+    'reset_password_subtitle' => 'أدخل كلمة المرور الجديدة الخاصة بك.',
+    'new_password' => 'كلمة المرور الجديدة',
+    'reset_password_button' => 'إعادة تعيين كلمة المرور',
+    
+    // Mail Settings
+    'settings_mail_section' => 'إعدادات البريد الإلكتروني (SMTP)',
+    'settings_mail_hint' => 'تكوين خادم البريد الإلكتروني لإرسال الإشعارات وروابط استعادة كلمة المرور.',
+    'settings_mail_host' => 'خادم البريد (Host)',
+    'settings_mail_port' => 'المنفذ (Port)',
+    'settings_mail_username' => 'اسم المستخدم (Username)',
+    'settings_mail_password' => 'كلمة المرور (Password)',
+    'settings_mail_encryption' => 'التشفير (Encryption)',
+    'settings_mail_from_address' => 'البريد المُرسِل (From Address)',
+    'settings_mail_from_name' => 'اسم المُرسِل (From Name)',
 ];

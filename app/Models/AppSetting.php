@@ -11,6 +11,13 @@ use Illuminate\Support\Facades\Hash;
 class AppSetting extends Model
 {
     public const KEY_DELETE_PASSWORD_HASH = 'delete_password_hash';
+    public const KEY_MAIL_HOST = 'mail_host';
+    public const KEY_MAIL_PORT = 'mail_port';
+    public const KEY_MAIL_USERNAME = 'mail_username';
+    public const KEY_MAIL_PASSWORD = 'mail_password';
+    public const KEY_MAIL_ENCRYPTION = 'mail_encryption';
+    public const KEY_MAIL_FROM_ADDRESS = 'mail_from_address';
+    public const KEY_MAIL_FROM_NAME = 'mail_from_name';
 
     private const CACHE_KEY = 'app_settings_all';
 

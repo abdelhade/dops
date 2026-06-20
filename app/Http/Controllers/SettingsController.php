@@ -17,6 +17,13 @@ class SettingsController extends Controller
 
         return view('settings.edit', [
             'deletePasswordConfigured' => AppSetting::isDeletePasswordConfigured(),
+            'mailHost' => AppSetting::get(AppSetting::KEY_MAIL_HOST),
+            'mailPort' => AppSetting::get(AppSetting::KEY_MAIL_PORT),
+            'mailUsername' => AppSetting::get(AppSetting::KEY_MAIL_USERNAME),
+            'mailPassword' => AppSetting::get(AppSetting::KEY_MAIL_PASSWORD),
+            'mailEncryption' => AppSetting::get(AppSetting::KEY_MAIL_ENCRYPTION),
+            'mailFromAddress' => AppSetting::get(AppSetting::KEY_MAIL_FROM_ADDRESS),
+            'mailFromName' => AppSetting::get(AppSetting::KEY_MAIL_FROM_NAME),
         ]);
     }
 
@@ -26,6 +33,22 @@ class SettingsController extends Controller
 
         if (filled($password)) {
             AppSetting::setDeletePassword($password);
+        }
+
+        $mailFields = [
+            AppSetting::KEY_MAIL_HOST => 'mail_host',
+            AppSetting::KEY_MAIL_PORT => 'mail_port',
+            AppSetting::KEY_MAIL_USERNAME => 'mail_username',
+            AppSetting::KEY_MAIL_PASSWORD => 'mail_password',
+            AppSetting::KEY_MAIL_ENCRYPTION => 'mail_encryption',
+            AppSetting::KEY_MAIL_FROM_ADDRESS => 'mail_from_address',
+            AppSetting::KEY_MAIL_FROM_NAME => 'mail_from_name',
+        ];
+
+        foreach ($mailFields as $key => $field) {
+            if ($request->has($field)) {
+                AppSetting::set($key, $request->input($field));
+            }
         }
 
         return redirect()

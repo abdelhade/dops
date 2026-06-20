@@ -36,10 +36,16 @@
             <input type="password" name="password" id="password" class="form-control" required>
         </div>
 
-        <label class="remember-row">
-            <input type="checkbox" name="remember" value="1" {{ old('remember') ? 'checked' : '' }}>
-            <span>{{ __('dobs.remember_me') }}</span>
-        </label>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <label class="remember-row" style="margin-bottom: 0;">
+                <input type="checkbox" name="remember" value="1" {{ old('remember') ? 'checked' : '' }}>
+                <span>{{ __('dobs.remember_me') }}</span>
+            </label>
+            
+            <a href="{{ route('password.request') }}" class="text-muted" style="text-decoration: none; font-size: 0.9rem;">
+                {{ __('dobs.forgot_password_link') }}
+            </a>
+        </div>
 
         <button type="submit" class="btn btn-primary btn-block">
             <i class="fa-solid fa-right-to-bracket"></i> {{ __('dobs.login') }}
