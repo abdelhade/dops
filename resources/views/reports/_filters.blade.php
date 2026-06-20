@@ -526,7 +526,7 @@
             right: 0;
             left: 0;
             width: 100%;
-            z-index: 9999;
+            z-index: 9999999;
             border-radius: var(--radius-sm, 8px);
             border: 1px solid var(--border-color, rgba(255,255,255,0.08));
             background: #1a2035;
