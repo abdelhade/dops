@@ -496,11 +496,9 @@
 
         .custom-multiselect-options {
             overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 0.15rem;
             max-height: 200px;
             overflow-x: hidden;
+            display: block;
         }
 
         .custom-multiselect-option-label {
@@ -514,7 +512,7 @@
             user-select: none;
             transition: background-color 0.15s ease;
             text-align: right;
-            margin-bottom: 0;
+            margin-bottom: 0.15rem;
             word-break: break-word;
             white-space: normal;
         }
