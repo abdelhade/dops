@@ -1,4 +1,4 @@
-﻿@php
+@php
     use App\Enums\OperationSilkUnit;
     use App\Enums\OperationStencil;
 
@@ -358,12 +358,10 @@
     </details>
 </form>
 
-@section('styles')
-    @parent
-    <style>
-        /* =============================================
-           MULTISELECT COMPONENT - Clean build
-           ============================================= */
+<style>
+    /* =============================================
+       MULTISELECT COMPONENT - Clean build
+       ============================================= */
         .ms-wrap {
             position: relative;
             width: 100%;
@@ -569,10 +567,7 @@
             min-width: 0;
         }
     </style>
-@endsection
 
-@section('scripts')
-    @parent
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.ms-wrap').forEach(wrap => {
@@ -678,4 +673,3 @@
             });
         });
     </script>
-@endsection
