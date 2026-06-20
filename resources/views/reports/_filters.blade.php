@@ -158,9 +158,11 @@
                                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
                                 <input type="text" class="custom-multiselect-search-input" placeholder="{{ __('dobs.select_search_placeholder') }}">
                             </div>
-                            <div class="custom-multiselect-actions">
-                                <button type="button" class="btn-select-all">{{ __('dobs.bulk_select_all') }}</button>
-                                <button type="button" class="btn-clear-all">{{ __('dobs.clear_filters') }}</button>
+                            <div class="custom-multiselect-actions-checkbox" style="padding-bottom: 0.4rem; margin-bottom: 0.4rem; border-bottom: 1px solid var(--bs-border-color, #dee2e6);">
+                                <label class="custom-multiselect-option-label select-all-label" style="font-weight: 600;">
+                                    <input type="checkbox" class="custom-multiselect-select-all-checkbox" style="width: 15px; height: 15px; cursor: pointer; margin: 0; margin-top: 0.15rem; flex-shrink: 0;">
+                                    <span class="option-text">{{ __('dobs.bulk_select_all') }}</span>
+                                </label>
                             </div>
                             <div class="custom-multiselect-options">
                                 @foreach($suppliers as $supplier)
@@ -261,9 +263,11 @@
                                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
                                 <input type="text" class="custom-multiselect-search-input" placeholder="{{ __('dobs.select_search_placeholder') }}">
                             </div>
-                            <div class="custom-multiselect-actions">
-                                <button type="button" class="btn-select-all">{{ __('dobs.bulk_select_all') }}</button>
-                                <button type="button" class="btn-clear-all">{{ __('dobs.clear_filters') }}</button>
+                            <div class="custom-multiselect-actions-checkbox" style="padding-bottom: 0.4rem; margin-bottom: 0.4rem; border-bottom: 1px solid var(--bs-border-color, #dee2e6);">
+                                <label class="custom-multiselect-option-label select-all-label" style="font-weight: 600;">
+                                    <input type="checkbox" class="custom-multiselect-select-all-checkbox" style="width: 15px; height: 15px; cursor: pointer; margin: 0; margin-top: 0.15rem; flex-shrink: 0;">
+                                    <span class="option-text">{{ __('dobs.bulk_select_all') }}</span>
+                                </label>
                             </div>
                             <div class="custom-multiselect-options">
                                 @foreach($suppliers as $supplier)
@@ -559,10 +563,36 @@
                 const searchInput = container.querySelector('.custom-multiselect-search-input');
                 const optionsContainer = container.querySelector('.custom-multiselect-options');
                 const checkboxes = container.querySelectorAll('.custom-multiselect-checkbox');
-                const selectAllBtn = container.querySelector('.btn-select-all');
-                const clearAllBtn = container.querySelector('.btn-clear-all');
+                const selectAllCheckbox = container.querySelector('.custom-multiselect-select-all-checkbox');
                 const labelEl = container.querySelector('.custom-multiselect-label');
                 
+                // Update select all checkbox state
+                const updateSelectAllState = () => {
+                    if (!selectAllCheckbox) return;
+                    const visibleLabels = Array.from(optionsContainer.querySelectorAll('.custom-multiselect-option-label:not(.is-hidden):not(.select-all-label)'));
+                    if (visibleLabels.length === 0) {
+                        selectAllCheckbox.checked = false;
+                        selectAllCheckbox.indeterminate = false;
+                        return;
+                    }
+                    
+                    const checkedCount = visibleLabels.filter(label => {
+                        const cb = label.querySelector('.custom-multiselect-checkbox');
+                        return cb && cb.checked;
+                    }).length;
+                    
+                    if (checkedCount === 0) {
+                        selectAllCheckbox.checked = false;
+                        selectAllCheckbox.indeterminate = false;
+                    } else if (checkedCount === visibleLabels.length) {
+                        selectAllCheckbox.checked = true;
+                        selectAllCheckbox.indeterminate = false;
+                    } else {
+                        selectAllCheckbox.checked = false;
+                        selectAllCheckbox.indeterminate = true;
+                    }
+                };
+
                 // Toggle dropdown
                 trigger.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -611,6 +641,8 @@
                             label.classList.add('is-hidden');
                         }
                     });
+                    
+                    updateSelectAllState();
                 });
                 
                 // Update label
@@ -632,33 +664,31 @@
                     }
                 };
                 
-                // Initial label update
+                // Initial update
                 updateLabel();
+                updateSelectAllState();
                 
                 // Checkbox change
                 checkboxes.forEach(cb => {
-                    cb.addEventListener('change', updateLabel);
+                    cb.addEventListener('change', () => {
+                        updateLabel();
+                        updateSelectAllState();
+                    });
                 });
                 
-                // Select All (only visible ones)
-                selectAllBtn.addEventListener('click', () => {
-                    const optionLabels = optionsContainer.querySelectorAll('.custom-multiselect-option-label');
-                    optionLabels.forEach(label => {
-                        if (!label.classList.contains('is-hidden')) {
+                // Select All Checkbox change
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.addEventListener('change', (e) => {
+                        const isChecked = e.target.checked;
+                        const optionLabels = optionsContainer.querySelectorAll('.custom-multiselect-option-label:not(.is-hidden):not(.select-all-label)');
+                        optionLabels.forEach(label => {
                             const cb = label.querySelector('.custom-multiselect-checkbox');
-                            if (cb) cb.checked = true;
-                        }
+                            if (cb) cb.checked = isChecked;
+                        });
+                        updateLabel();
+                        updateSelectAllState(); // Resync state visually
                     });
-                    updateLabel();
-                });
-                
-                // Clear All
-                clearAllBtn.addEventListener('click', () => {
-                    checkboxes.forEach(cb => {
-                        cb.checked = false;
-                    });
-                    updateLabel();
-                });
+                }
             });
         });
     </script>
