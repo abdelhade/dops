@@ -88,12 +88,36 @@
 
                 <div class="form-group report-filter-field">
                     <label class="form-label">{{ __('dobs.operation_client') }}</label>
-                    <select name="client_id" class="form-control form-control-sm">
-                        <option value="">{{ __('dobs.filter_all') }}</option>
-                        @foreach($clients as $client)
-                            <option value="{{ $client->id }}" @selected(request('client_id') == $client->id)>{{ $client->name }}</option>
-                        @endforeach
-                    </select>
+                    <div class="ms-wrap" id="client-multiselect-general">
+                        <div class="ms-trigger" tabindex="0">
+                            <span class="ms-trigger-label" data-default="{{ __('dobs.filter_all') }}">{{ __('dobs.filter_all') }}</span>
+                            <i class="fa-solid fa-chevron-down ms-trigger-chevron"></i>
+                        </div>
+                        <div class="ms-dropdown">
+                            <div class="ms-search-wrap">
+                                <i class="fa-solid fa-magnifying-glass ms-search-icon"></i>
+                                <input type="text" class="ms-search-input" placeholder="{{ __('dobs.select_search_placeholder') }}" autocomplete="off">
+                            </div>
+                            <label class="ms-option is-select-all">
+                                <input type="checkbox" class="ms-checkbox ms-select-all-cb">
+                                <span class="ms-option-text">{{ __('dobs.bulk_select_all') }}</span>
+                            </label>
+                            <div class="ms-divider"></div>
+                            <div class="ms-options-list">
+                                @foreach($clients as $client)
+                                    @php
+                                        $isSelected = is_array(request('client_id'))
+                                            ? in_array($client->id, request('client_id'))
+                                            : request('client_id') == $client->id;
+                                    @endphp
+                                    <label class="ms-option" data-search="{{ mb_strtolower($client->name, 'UTF-8') }}">
+                                        <input type="checkbox" name="client_id[]" value="{{ $client->id }}" class="ms-checkbox" @checked($isSelected)>
+                                        <span class="ms-option-text">{{ $client->name }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group report-filter-field">
@@ -202,12 +226,36 @@
 
                 <div class="form-group report-filter-field">
                     <label class="form-label">{{ __('dobs.operation_status') }}</label>
-                    <select name="operation_status_id" class="form-control form-control-sm">
-                        <option value="">{{ __('dobs.filter_all') }}</option>
-                        @foreach($operationStatuses as $status)
-                            <option value="{{ $status->id }}" @selected(request('operation_status_id') == $status->id)>{{ $status->name }}</option>
-                        @endforeach
-                    </select>
+                    <div class="ms-wrap" id="status-multiselect-general">
+                        <div class="ms-trigger" tabindex="0">
+                            <span class="ms-trigger-label" data-default="{{ __('dobs.filter_all') }}">{{ __('dobs.filter_all') }}</span>
+                            <i class="fa-solid fa-chevron-down ms-trigger-chevron"></i>
+                        </div>
+                        <div class="ms-dropdown">
+                            <div class="ms-search-wrap">
+                                <i class="fa-solid fa-magnifying-glass ms-search-icon"></i>
+                                <input type="text" class="ms-search-input" placeholder="{{ __('dobs.select_search_placeholder') }}" autocomplete="off">
+                            </div>
+                            <label class="ms-option is-select-all">
+                                <input type="checkbox" class="ms-checkbox ms-select-all-cb">
+                                <span class="ms-option-text">{{ __('dobs.bulk_select_all') }}</span>
+                            </label>
+                            <div class="ms-divider"></div>
+                            <div class="ms-options-list">
+                                @foreach($operationStatuses as $status)
+                                    @php
+                                        $isSelected = is_array(request('operation_status_id'))
+                                            ? in_array($status->id, request('operation_status_id'))
+                                            : request('operation_status_id') == $status->id;
+                                    @endphp
+                                    <label class="ms-option" data-search="{{ mb_strtolower($status->name, 'UTF-8') }}">
+                                        <input type="checkbox" name="operation_status_id[]" value="{{ $status->id }}" class="ms-checkbox" @checked($isSelected)>
+                                        <span class="ms-option-text">{{ $status->name }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
             @else
                 <div class="form-group report-filter-field">
@@ -222,12 +270,36 @@
 
                 <div class="form-group report-filter-field">
                     <label class="form-label">{{ __('dobs.operation_client') }}</label>
-                    <select name="client_id" class="form-control form-control-sm">
-                        <option value="">{{ __('dobs.filter_all') }}</option>
-                        @foreach($clients as $client)
-                            <option value="{{ $client->id }}" @selected(request('client_id') == $client->id)>{{ $client->name }}</option>
-                        @endforeach
-                    </select>
+                    <div class="ms-wrap" id="client-multiselect-offset">
+                        <div class="ms-trigger" tabindex="0">
+                            <span class="ms-trigger-label" data-default="{{ __('dobs.filter_all') }}">{{ __('dobs.filter_all') }}</span>
+                            <i class="fa-solid fa-chevron-down ms-trigger-chevron"></i>
+                        </div>
+                        <div class="ms-dropdown">
+                            <div class="ms-search-wrap">
+                                <i class="fa-solid fa-magnifying-glass ms-search-icon"></i>
+                                <input type="text" class="ms-search-input" placeholder="{{ __('dobs.select_search_placeholder') }}" autocomplete="off">
+                            </div>
+                            <label class="ms-option is-select-all">
+                                <input type="checkbox" class="ms-checkbox ms-select-all-cb">
+                                <span class="ms-option-text">{{ __('dobs.bulk_select_all') }}</span>
+                            </label>
+                            <div class="ms-divider"></div>
+                            <div class="ms-options-list">
+                                @foreach($clients as $client)
+                                    @php
+                                        $isSelected = is_array(request('client_id'))
+                                            ? in_array($client->id, request('client_id'))
+                                            : request('client_id') == $client->id;
+                                    @endphp
+                                    <label class="ms-option" data-search="{{ mb_strtolower($client->name, 'UTF-8') }}">
+                                        <input type="checkbox" name="client_id[]" value="{{ $client->id }}" class="ms-checkbox" @checked($isSelected)>
+                                        <span class="ms-option-text">{{ $client->name }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group report-filter-field">
@@ -341,12 +413,36 @@
 
                 <div class="form-group report-filter-field">
                     <label class="form-label">{{ __('dobs.operation_status') }}</label>
-                    <select name="operation_status_id" class="form-control form-control-sm">
-                        <option value="">{{ __('dobs.filter_all') }}</option>
-                        @foreach($operationStatuses as $status)
-                            <option value="{{ $status->id }}" @selected(request('operation_status_id') == $status->id)>{{ $status->name }}</option>
-                        @endforeach
-                    </select>
+                    <div class="ms-wrap" id="status-multiselect-offset">
+                        <div class="ms-trigger" tabindex="0">
+                            <span class="ms-trigger-label" data-default="{{ __('dobs.filter_all') }}">{{ __('dobs.filter_all') }}</span>
+                            <i class="fa-solid fa-chevron-down ms-trigger-chevron"></i>
+                        </div>
+                        <div class="ms-dropdown">
+                            <div class="ms-search-wrap">
+                                <i class="fa-solid fa-magnifying-glass ms-search-icon"></i>
+                                <input type="text" class="ms-search-input" placeholder="{{ __('dobs.select_search_placeholder') }}" autocomplete="off">
+                            </div>
+                            <label class="ms-option is-select-all">
+                                <input type="checkbox" class="ms-checkbox ms-select-all-cb">
+                                <span class="ms-option-text">{{ __('dobs.bulk_select_all') }}</span>
+                            </label>
+                            <div class="ms-divider"></div>
+                            <div class="ms-options-list">
+                                @foreach($operationStatuses as $status)
+                                    @php
+                                        $isSelected = is_array(request('operation_status_id'))
+                                            ? in_array($status->id, request('operation_status_id'))
+                                            : request('operation_status_id') == $status->id;
+                                    @endphp
+                                    <label class="ms-option" data-search="{{ mb_strtolower($status->name, 'UTF-8') }}">
+                                        <input type="checkbox" name="operation_status_id[]" value="{{ $status->id }}" class="ms-checkbox" @checked($isSelected)>
+                                        <span class="ms-option-text">{{ $status->name }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group report-filter-field report-filter-field-wide">

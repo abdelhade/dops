@@ -190,7 +190,12 @@ class ReportController extends Controller
             $query->whereDate('operation_date', '<=', $request->date_to);
         }
         if ($request->filled('client_id')) {
-            $query->where('client_id', $request->client_id);
+            $clientId = $request->client_id;
+            if (is_array($clientId)) {
+                $query->whereIn('client_id', $clientId);
+            } else {
+                $query->where('client_id', $clientId);
+            }
         }
         if ($request->filled('item_id')) {
             $query->where('item_id', $request->item_id);
@@ -199,7 +204,12 @@ class ReportController extends Controller
             $query->where('quantity', $request->quantity);
         }
         if ($request->filled('operation_status_id')) {
-            $query->where('operation_status_id', $request->operation_status_id);
+            $statusId = $request->operation_status_id;
+            if (is_array($statusId)) {
+                $query->whereIn('operation_status_id', $statusId);
+            } else {
+                $query->where('operation_status_id', $statusId);
+            }
         }
         if ($request->filled('printing_supplier_id')) {
             $printingSupplierId = $request->printing_supplier_id;

@@ -697,6 +697,18 @@ class OperationController extends Controller
             return true;
         }
 
+        if ($from instanceof \BackedEnum) {
+            $from = $from->value;
+        } elseif ($from instanceof \UnitEnum) {
+            $from = $from->name;
+        }
+
+        if ($to instanceof \BackedEnum) {
+            $to = $to->value;
+        } elseif ($to instanceof \UnitEnum) {
+            $to = $to->name;
+        }
+
         if (is_numeric($from) && is_numeric($to)) {
             return (float) $from === (float) $to;
         }
