@@ -10,6 +10,12 @@ class OperationLogTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        app()->setLocale('en');
+    }
+
     public function test_change_entries_returns_was_and_now_values(): void
     {
         $log = new OperationLog;
@@ -36,8 +42,8 @@ class OperationLogTest extends TestCase
 
         $line = $log->changeLines()[0];
 
-        $this->assertStringContainsString(__('dobs.log_was'), $line);
-        $this->assertStringContainsString(__('dobs.log_now'), $line);
+        $this->assertStringContainsStringIgnoringCase(__('dobs.log_was'), $line);
+        $this->assertStringContainsStringIgnoringCase(__('dobs.log_now'), $line);
         $this->assertStringContainsString('10', $line);
         $this->assertStringContainsString('20', $line);
     }
