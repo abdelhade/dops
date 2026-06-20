@@ -202,7 +202,12 @@ class ReportController extends Controller
             $query->where('operation_status_id', $request->operation_status_id);
         }
         if ($request->filled('printing_supplier_id')) {
-            $query->where('printing_supplier_id', $request->printing_supplier_id);
+            $printingSupplierId = $request->printing_supplier_id;
+            if (is_array($printingSupplierId)) {
+                $query->whereIn('printing_supplier_id', $printingSupplierId);
+            } else {
+                $query->where('printing_supplier_id', $printingSupplierId);
+            }
         }
         if ($request->filled('ctp_supplier_id')) {
             $query->where('ctp_supplier_id', $request->ctp_supplier_id);

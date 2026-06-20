@@ -148,12 +148,35 @@
 
                 <div class="form-group report-filter-field">
                     <label class="form-label">{{ __('dobs.operation_silk_supplier') }}</label>
-                    <select name="printing_supplier_id" class="form-control form-control-sm">
-                        <option value="">{{ __('dobs.filter_all') }}</option>
-                        @foreach($suppliers as $supplier)
-                            <option value="{{ $supplier->id }}" @selected(request('printing_supplier_id') == $supplier->id)>{{ $supplier->name }}</option>
-                        @endforeach
-                    </select>
+                    <div class="custom-multiselect-container" id="printing-supplier-multiselect-general">
+                        <div class="custom-multiselect-trigger form-control form-control-sm" tabindex="0">
+                            <span class="custom-multiselect-label" data-default-text="{{ __('dobs.filter_all') }}">{{ __('dobs.filter_all') }}</span>
+                            <i class="fa-solid fa-chevron-down custom-multiselect-chevron"></i>
+                        </div>
+                        <div class="custom-multiselect-dropdown">
+                            <div class="custom-multiselect-search-box">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="text" class="custom-multiselect-search-input" placeholder="{{ __('dobs.select_search_placeholder') }}">
+                            </div>
+                            <div class="custom-multiselect-actions">
+                                <button type="button" class="btn-select-all">{{ __('dobs.bulk_select_all') }}</button>
+                                <button type="button" class="btn-clear-all">{{ __('dobs.clear_filters') }}</button>
+                            </div>
+                            <div class="custom-multiselect-options">
+                                @foreach($suppliers as $supplier)
+                                    @php
+                                        $isSelected = is_array(request('printing_supplier_id'))
+                                            ? in_array($supplier->id, request('printing_supplier_id'))
+                                            : request('printing_supplier_id') == $supplier->id;
+                                    @endphp
+                                    <label class="custom-multiselect-option-label" data-search-name="{{ mb_strtolower($supplier->name, 'UTF-8') }}">
+                                        <input type="checkbox" name="printing_supplier_id[]" value="{{ $supplier->id }}" class="custom-multiselect-checkbox" @checked($isSelected)>
+                                        <span class="option-text">{{ $supplier->name }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group report-filter-field">
@@ -228,12 +251,35 @@
 
                 <div class="form-group report-filter-field">
                     <label class="form-label">{{ __('dobs.operation_printing_press') }}</label>
-                    <select name="printing_supplier_id" class="form-control form-control-sm">
-                        <option value="">{{ __('dobs.filter_all') }}</option>
-                        @foreach($suppliers as $supplier)
-                            <option value="{{ $supplier->id }}" @selected(request('printing_supplier_id') == $supplier->id)>{{ $supplier->name }}</option>
-                        @endforeach
-                    </select>
+                    <div class="custom-multiselect-container" id="printing-supplier-multiselect-offset">
+                        <div class="custom-multiselect-trigger form-control form-control-sm" tabindex="0">
+                            <span class="custom-multiselect-label" data-default-text="{{ __('dobs.filter_all') }}">{{ __('dobs.filter_all') }}</span>
+                            <i class="fa-solid fa-chevron-down custom-multiselect-chevron"></i>
+                        </div>
+                        <div class="custom-multiselect-dropdown">
+                            <div class="custom-multiselect-search-box">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="text" class="custom-multiselect-search-input" placeholder="{{ __('dobs.select_search_placeholder') }}">
+                            </div>
+                            <div class="custom-multiselect-actions">
+                                <button type="button" class="btn-select-all">{{ __('dobs.bulk_select_all') }}</button>
+                                <button type="button" class="btn-clear-all">{{ __('dobs.clear_filters') }}</button>
+                            </div>
+                            <div class="custom-multiselect-options">
+                                @foreach($suppliers as $supplier)
+                                    @php
+                                        $isSelected = is_array(request('printing_supplier_id'))
+                                            ? in_array($supplier->id, request('printing_supplier_id'))
+                                            : request('printing_supplier_id') == $supplier->id;
+                                    @endphp
+                                    <label class="custom-multiselect-option-label" data-search-name="{{ mb_strtolower($supplier->name, 'UTF-8') }}">
+                                        <input type="checkbox" name="printing_supplier_id[]" value="{{ $supplier->id }}" class="custom-multiselect-checkbox" @checked($isSelected)>
+                                        <span class="option-text">{{ $supplier->name }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group report-filter-field">
@@ -309,3 +355,286 @@
         </div>
     </details>
 </form>
+
+@section('styles')
+    @parent
+    <style>
+        .custom-multiselect-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-multiselect-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            background-color: var(--card-bg, #fff);
+            border: 1px solid var(--border-color, #ccc);
+            border-radius: var(--radius-sm, 4px);
+            padding: 0.35rem 0.55rem;
+            font-size: 0.8rem;
+            min-height: 31px;
+            user-select: none;
+            color: var(--text-primary, #000);
+            gap: 0.5rem;
+        }
+
+        .custom-multiselect-trigger:focus {
+            outline: none;
+            border-color: var(--color-secondary, #6c757d);
+            box-shadow: 0 0 0 2px rgba(108, 117, 125, 0.25);
+        }
+
+        .custom-multiselect-label {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-grow: 1;
+            text-align: right;
+        }
+
+        .custom-multiselect-chevron {
+            font-size: 0.7rem;
+            transition: transform 0.2s ease;
+            color: var(--text-secondary, #6c757d);
+            flex-shrink: 0;
+        }
+
+        .custom-multiselect-container.is-open .custom-multiselect-chevron {
+            transform: rotate(180deg);
+        }
+
+        .custom-multiselect-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 1050;
+            background-color: var(--card-bg, #fff);
+            border: 1px solid var(--border-color, #ccc);
+            border-radius: var(--radius-sm, 4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-top: 2px;
+            padding: 0.5rem;
+            max-height: 320px;
+            flex-direction: column;
+        }
+
+        .custom-multiselect-container.is-open .custom-multiselect-dropdown {
+            display: flex;
+        }
+
+        .custom-multiselect-search-box {
+            position: relative;
+            margin-bottom: 0.4rem;
+        }
+
+        .custom-multiselect-search-box i {
+            position: absolute;
+            top: 50%;
+            right: 0.55rem;
+            transform: translateY(-50%);
+            color: var(--text-muted, #999);
+            font-size: 0.75rem;
+            pointer-events: none;
+        }
+
+        .custom-multiselect-search-input {
+            width: 100%;
+            padding: 0.25rem 1.65rem 0.25rem 0.55rem;
+            font-size: 0.76rem;
+            border: 1px solid var(--border-color, #ccc);
+            border-radius: var(--radius-sm, 4px);
+            background-color: var(--bg-primary, #fff);
+            color: var(--text-primary, #000);
+        }
+
+        .custom-multiselect-search-input:focus {
+            outline: none;
+            border-color: var(--color-secondary, #6c757d);
+        }
+
+        .custom-multiselect-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.4rem;
+            margin-bottom: 0.4rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid var(--border-color, #eee);
+        }
+
+        .custom-multiselect-actions button {
+            background: none;
+            border: none;
+            color: var(--color-secondary, #007bff);
+            font-size: 0.72rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.1rem 0.3rem;
+            border-radius: 2px;
+        }
+
+        .custom-multiselect-actions button:hover {
+            background-color: var(--bg-hover, #f8f9fa);
+            text-decoration: underline;
+        }
+
+        .custom-multiselect-options {
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            max-height: 200px;
+        }
+
+        .custom-multiselect-option-label {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.3rem 0.45rem;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 0.76rem;
+            user-select: none;
+            color: var(--text-primary, #000);
+            transition: background-color 0.15s ease;
+            text-align: right;
+        }
+
+        .custom-multiselect-option-label:hover {
+            background-color: var(--bg-hover, #f8f9fa);
+        }
+
+        .custom-multiselect-checkbox {
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        .custom-multiselect-option-label.is-hidden {
+            display: none;
+        }
+    </style>
+@endsection
+
+@section('scripts')
+    @parent
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const multiselects = document.querySelectorAll('.custom-multiselect-container');
+            
+            multiselects.forEach(container => {
+                const trigger = container.querySelector('.custom-multiselect-trigger');
+                const dropdown = container.querySelector('.custom-multiselect-dropdown');
+                const searchInput = container.querySelector('.custom-multiselect-search-input');
+                const optionsContainer = container.querySelector('.custom-multiselect-options');
+                const checkboxes = container.querySelectorAll('.custom-multiselect-checkbox');
+                const selectAllBtn = container.querySelector('.btn-select-all');
+                const clearAllBtn = container.querySelector('.btn-clear-all');
+                const labelEl = container.querySelector('.custom-multiselect-label');
+                
+                // Toggle dropdown
+                trigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    // Close other custom multiselects first
+                    multiselects.forEach(other => {
+                        if (other !== container) {
+                            other.classList.remove('is-open');
+                        }
+                    });
+                    
+                    container.classList.toggle('is-open');
+                    if (container.classList.contains('is-open')) {
+                        searchInput.focus();
+                    }
+                });
+                
+                // Keyboard trigger access
+                trigger.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                        e.preventDefault();
+                        trigger.click();
+                    }
+                });
+                
+                // Prevent closing dropdown when clicking inside it
+                dropdown.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', () => {
+                    container.classList.remove('is-open');
+                });
+                
+                // Search filter
+                searchInput.addEventListener('input', () => {
+                    const query = searchInput.value.toLowerCase().trim();
+                    const optionLabels = optionsContainer.querySelectorAll('.custom-multiselect-option-label');
+                    
+                    optionLabels.forEach(label => {
+                        const name = label.dataset.searchName || '';
+                        if (name.includes(query)) {
+                            label.classList.remove('is-hidden');
+                        } else {
+                            label.classList.add('is-hidden');
+                        }
+                    });
+                });
+                
+                // Update label
+                const updateLabel = () => {
+                    const checkedLabels = [];
+                    checkboxes.forEach(cb => {
+                        if (cb.checked) {
+                            const text = cb.nextElementSibling.textContent.trim();
+                            checkedLabels.push(text);
+                        }
+                    });
+                    
+                    if (checkedLabels.length === 0) {
+                        labelEl.textContent = labelEl.dataset.defaultText || 'الكل';
+                    } else if (checkedLabels.length <= 2) {
+                        labelEl.textContent = checkedLabels.join('، ');
+                    } else {
+                        labelEl.textContent = `${checkedLabels.slice(0, 2).join('، ')} (+${checkedLabels.length - 2})`;
+                    }
+                };
+                
+                // Initial label update
+                updateLabel();
+                
+                // Checkbox change
+                checkboxes.forEach(cb => {
+                    cb.addEventListener('change', updateLabel);
+                });
+                
+                // Select All (only visible ones)
+                selectAllBtn.addEventListener('click', () => {
+                    const optionLabels = optionsContainer.querySelectorAll('.custom-multiselect-option-label');
+                    optionLabels.forEach(label => {
+                        if (!label.classList.contains('is-hidden')) {
+                            const cb = label.querySelector('.custom-multiselect-checkbox');
+                            if (cb) cb.checked = true;
+                        }
+                    });
+                    updateLabel();
+                });
+                
+                // Clear All
+                clearAllBtn.addEventListener('click', () => {
+                    checkboxes.forEach(cb => {
+                        cb.checked = false;
+                    });
+                    updateLabel();
+                });
+            });
+        });
+    </script>
+@endsection
