@@ -67,16 +67,14 @@ class DashboardController extends Controller
             ->values();
 
         $monthlyRaw = Operation::query()
-            ->select(
-                DB::raw("DATE_FORMAT(operation_date, '%Y-%m') as month"),
-                DB::raw('COUNT(*) as count'),
-                DB::raw('COALESCE(SUM(total_amount), 0) as revenue'),
-            )
             ->whereDate('operation_date', '>=', now()->subMonths(5)->startOfMonth())
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get()
-            ->keyBy('month');
+            ->get(['operation_date', 'total_amount'])
+            ->groupBy(fn (Operation $operation) => $operation->operation_date?->format('Y-m') ?? '')
+            ->map(fn ($group, string $month) => (object) [
+                'month' => $month,
+                'count' => $group->count(),
+                'revenue' => (float) $group->sum('total_amount'),
+            ]);
 
         $monthlyOperations = $monthKeys->map(function (string $month) use ($monthlyRaw) {
             $row = $monthlyRaw->get($month);

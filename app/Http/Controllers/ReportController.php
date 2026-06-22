@@ -9,6 +9,7 @@ use App\Models\OperationStatus;
 use App\Models\PaperType;
 use App\Models\Service;
 use App\Models\Supplier;
+use App\Services\StatisticsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -281,6 +282,16 @@ class ReportController extends Controller
         }
 
         return $query;
+    }
+
+    public function statistics(Request $request, StatisticsService $statisticsService)
+    {
+        $dateFrom = $request->input('date_from', now()->startOfQuarter()->format('Y-m-d'));
+        $dateTo = $request->input('date_to', now()->format('Y-m-d'));
+
+        $stats = $statisticsService->build($dateFrom, $dateTo);
+
+        return view('reports.statistics', compact('stats', 'dateFrom', 'dateTo'));
     }
 
     public function operationsKanban(Request $request)

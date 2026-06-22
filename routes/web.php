@@ -70,6 +70,7 @@ Route::middleware(['auth', 'verify.delete.password'])->group(function () {
     Route::resource('services', ServiceController::class);
     Route::resource('stages', StageController::class);
     Route::get('activities', [ActivityController::class, 'index'])->name('activities.index');
+    Route::get('reports/statistics', [ReportController::class, 'statistics'])->name('reports.statistics');
     Route::get('reports/paper-materials-summary', [ReportController::class, 'paperMaterialsSummary'])->name('reports.paper-materials-summary');
     Route::get('reports/general-operations-summary', [ReportController::class, 'generalOperationsSummary'])->name('reports.general-operations-summary');
     Route::get('reports/operations-kanban', [ReportController::class, 'operationsKanban'])->name('reports.operations-kanban');

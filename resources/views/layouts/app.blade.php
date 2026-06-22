@@ -119,6 +119,11 @@
                         <i class="fa-solid fa-chevron-down nav-group-chevron" aria-hidden="true"></i>
                     </button>
                     <ul class="nav-submenu">
+                        <li class="nav-subitem {{ request()->routeIs('reports.statistics') ? 'active' : '' }}">
+                            <a href="{{ route('reports.statistics') }}">
+                                <span>{{ __('dobs.report_statistics') }}</span>
+                            </a>
+                        </li>
                         <li class="nav-subitem {{ request()->routeIs('reports.paper-materials-summary') ? 'active' : '' }}">
                             <a href="{{ route('reports.paper-materials-summary') }}">
                                 <span>{{ __('dobs.report_paper_materials_summary') }}</span>
