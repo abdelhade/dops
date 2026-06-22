@@ -15,31 +15,25 @@ use Illuminate\Support\Facades\DB;
 
 class StatisticsService
 {
-    private const NOT_STARTED_STATUS_ID = 7;
-
     private const PRINTING_STATUS_ID = 8;
-
-    private const FINISHED_STATUS_ID = 12;
 
     /**
      * @param  list<int>|null  $operationStatusIds
      * @return array<string, mixed>
      */
-    public function build(string $dateFrom, string $dateTo, ?array $operationStatusIds = null): array
-    {
+    public function build(
+        string $dateFrom,
+        string $dateTo,
+        ?array $operationStatusIds = null,
+        ?int $leadTimeFromStatusId = null,
+        ?int $leadTimeToStatusId = null,
+    ): array {
         $from = Carbon::parse($dateFrom)->startOfDay();
         $to = Carbon::parse($dateTo)->endOfDay();
         $periodDays = max(1, (int) $from->copy()->startOfDay()->diffInDays($to->copy()->startOfDay()) + 1);
 
         $statuses = OperationStatus::query()->orderBy('sort_order')->get()->keyBy('id');
-        $endStatusIds = $statuses->where('is_end', true)->pluck('id')->map(fn ($id) => (int) $id)->all();
-        if ($endStatusIds === [] && $statuses->has(self::FINISHED_STATUS_ID)) {
-            $endStatusIds = [self::FINISHED_STATUS_ID];
-        }
-
-        $notStartedStatusId = $statuses->has(self::NOT_STARTED_STATUS_ID)
-            ? self::NOT_STARTED_STATUS_ID
-            : (int) ($statuses->sortBy('sort_order')->first()?->id ?? 0);
+        $leadTimeBounds = $this->resolveLeadTimeBounds($statuses, $leadTimeFromStatusId, $leadTimeToStatusId);
 
         $printingStatusId = $statuses->has(self::PRINTING_STATUS_ID)
             ? self::PRINTING_STATUS_ID
@@ -81,8 +75,8 @@ class StatisticsService
 
         $leadTimes = $this->calculateLeadTimes(
             $timelines,
-            $notStartedStatusId,
-            $endStatusIds,
+            $leadTimeBounds['start_id'],
+            $leadTimeBounds['end_ids'],
             $operationIds,
         );
 
@@ -92,7 +86,7 @@ class StatisticsService
             $printingStatusId,
         );
 
-        $ctpEfficiency = $this->ctpSupplierEfficiency($operationsQuery, $timelines, $notStartedStatusId);
+        $ctpEfficiency = $this->ctpSupplierEfficiency($operationsQuery, $timelines, $leadTimeBounds['start_id']);
 
         $wasteStats = $this->materialWasteStats($offsetQuery);
         $stockAnomalyRate = $this->stockAnomalyRate();
@@ -114,6 +108,10 @@ class StatisticsService
             'operational' => [
                 'avg_lead_time_days' => $leadTimes['average_days'],
                 'completed_lead_samples' => $leadTimes['sample_count'],
+                'lead_time_from_status_id' => $leadTimeBounds['start_id'],
+                'lead_time_to_status_id' => $leadTimeBounds['selected_end_id'],
+                'lead_time_from_status_name' => $leadTimeBounds['start_name'],
+                'lead_time_to_status_name' => $leadTimeBounds['end_name'],
                 'sop_compliance_rate' => $dwellStats['compliance_rate'],
                 'sop_compliant_periods' => $dwellStats['compliant_periods'],
                 'sop_total_periods' => $dwellStats['total_periods'],
@@ -245,6 +243,55 @@ class StatisticsService
     }
 
     /**
+     * @param  Collection<int, OperationStatus>  $statuses
+     * @return array{
+     *     start_id: int,
+     *     end_ids: list<int>,
+     *     selected_end_id: int|null,
+     *     start_name: string,
+     *     end_name: string
+     * }
+     */
+    private function resolveLeadTimeBounds(
+        Collection $statuses,
+        ?int $fromStatusId,
+        ?int $toStatusId,
+    ): array {
+        $ordered = $statuses->sortBy('sort_order')->values();
+
+        $startId = ($fromStatusId !== null && $statuses->has($fromStatusId))
+            ? $fromStatusId
+            : (int) ($ordered->first()?->id ?? 0);
+
+        $endStatuses = $statuses->where('is_end', true);
+        $defaultEndIds = $endStatuses->isNotEmpty()
+            ? $endStatuses->pluck('id')->map(fn ($id) => (int) $id)->values()->all()
+            : [(int) ($ordered->last()?->id ?? 0)];
+
+        $defaultEndIds = array_values(array_filter($defaultEndIds));
+
+        if ($toStatusId !== null && $statuses->has($toStatusId)) {
+            $endIds = [$toStatusId];
+            $selectedEndId = $toStatusId;
+            $endName = (string) ($statuses->get($toStatusId)?->name ?? __('dobs.na'));
+        } else {
+            $endIds = $defaultEndIds;
+            $selectedEndId = null;
+            $endName = $endStatuses->isNotEmpty()
+                ? $endStatuses->pluck('name')->implode(' / ')
+                : (string) ($ordered->last()?->name ?? __('dobs.na'));
+        }
+
+        return [
+            'start_id' => $startId,
+            'end_ids' => $endIds,
+            'selected_end_id' => $selectedEndId,
+            'start_name' => (string) ($statuses->get($startId)?->name ?? __('dobs.na')),
+            'end_name' => $endName,
+        ];
+    }
+
+    /**
      * @param  array<int, list<array{status_id: int, at: Carbon}>>  $timelines
      * @param  list<int>  $endStatusIds
      * @param  Collection<int, int>  $operationIds
@@ -252,7 +299,7 @@ class StatisticsService
      */
     private function calculateLeadTimes(
         array $timelines,
-        int $notStartedStatusId,
+        int $startStatusId,
         array $endStatusIds,
         Collection $operationIds,
     ): array {
@@ -271,7 +318,7 @@ class StatisticsService
             $startAt = null;
 
             foreach ($events as $event) {
-                if ($event['status_id'] === $notStartedStatusId) {
+                if ($event['status_id'] === $startStatusId) {
                     $startAt = $event['at'];
                     break;
                 }

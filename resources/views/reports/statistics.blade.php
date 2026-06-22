@@ -163,6 +163,27 @@
                 @endforeach
             </select>
         </div>
+        <div class="form-group">
+            <label class="form-label">{{ __('dobs.stats_lead_time_from_status') }}</label>
+            <select name="lead_time_from_status_id" class="form-control form-control-sm">
+                @foreach ($operationStatuses as $status)
+                    <option value="{{ $status->id }}" @selected((string) $selectedLeadTimeFrom === (string) $status->id)>
+                        {{ $status->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">{{ __('dobs.stats_lead_time_to_status') }}</label>
+            <select name="lead_time_to_status_id" class="form-control form-control-sm">
+                <option value="">{{ __('dobs.stats_lead_time_all_end_statuses') }}</option>
+                @foreach ($operationStatuses as $status)
+                    <option value="{{ $status->id }}" @selected((string) $selectedLeadTimeTo === (string) $status->id)>
+                        {{ $status->name }}@if($status->is_end) ({{ __('dobs.stats_status_end') }})@endif
+                    </option>
+                @endforeach
+            </select>
+        </div>
         <button type="submit" class="btn btn-primary btn-sm">
             <i class="fa-solid fa-filter"></i> {{ __('dobs.apply_filters') }}
         </button>
@@ -184,7 +205,11 @@
         <div class="glass-card stats-kpi-card">
             <span class="stats-kpi-label">{{ __('dobs.stats_kpi_lead_time') }}</span>
             <span class="stats-kpi-value">{{ number_format($stats['operational']['avg_lead_time_days'], 1) }} {{ __('dobs.stats_days_unit') }}</span>
-            <span class="stats-kpi-hint">{{ __('dobs.stats_kpi_lead_time_hint', ['count' => $stats['operational']['completed_lead_samples']]) }}</span>
+            <span class="stats-kpi-hint">{{ __('dobs.stats_kpi_lead_time_hint', [
+                'from' => $stats['operational']['lead_time_from_status_name'],
+                'to' => $stats['operational']['lead_time_to_status_name'],
+                'count' => $stats['operational']['completed_lead_samples'],
+            ]) }}</span>
         </div>
         <div class="glass-card stats-kpi-card">
             <span class="stats-kpi-label">{{ __('dobs.stats_kpi_sop_compliance') }}</span>

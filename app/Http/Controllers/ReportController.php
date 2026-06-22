@@ -301,7 +301,26 @@ class ReportController extends Controller
         $operationStatuses = OperationStatus::orderBy('sort_order')->get();
         $selectedStatusId = $request->input('operation_status_id');
 
-        $stats = $statisticsService->build($dateFrom, $dateTo, $operationStatusIds);
+        $leadTimeFromStatusId = $request->filled('lead_time_from_status_id')
+            ? (int) $request->input('lead_time_from_status_id')
+            : null;
+        $leadTimeToStatusId = $request->filled('lead_time_to_status_id')
+            ? (int) $request->input('lead_time_to_status_id')
+            : null;
+
+        $stats = $statisticsService->build(
+            $dateFrom,
+            $dateTo,
+            $operationStatusIds,
+            $leadTimeFromStatusId,
+            $leadTimeToStatusId,
+        );
+
+        $selectedLeadTimeFrom = $request->input(
+            'lead_time_from_status_id',
+            $stats['operational']['lead_time_from_status_id'],
+        );
+        $selectedLeadTimeTo = $request->input('lead_time_to_status_id', '');
 
         return view('reports.statistics', compact(
             'stats',
@@ -309,6 +328,8 @@ class ReportController extends Controller
             'dateTo',
             'operationStatuses',
             'selectedStatusId',
+            'selectedLeadTimeFrom',
+            'selectedLeadTimeTo',
         ));
     }
 
