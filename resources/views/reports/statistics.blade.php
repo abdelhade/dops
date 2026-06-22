@@ -164,6 +164,17 @@
             </select>
         </div>
         <div class="form-group">
+            <label class="form-label">{{ __('dobs.col_supplier') }}</label>
+            <select name="supplier_id" class="form-control form-control-sm">
+                <option value="">{{ __('dobs.filter_all') }}</option>
+                @foreach ($suppliers as $supplier)
+                    <option value="{{ $supplier->id }}" @selected((string) $selectedSupplierId === (string) $supplier->id)>
+                        {{ $supplier->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="form-group">
             <label class="form-label">{{ __('dobs.stats_lead_time_from_status') }}</label>
             <select name="lead_time_from_status_id" class="form-control form-control-sm">
                 @foreach ($operationStatuses as $status)

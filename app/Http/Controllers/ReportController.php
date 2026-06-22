@@ -308,12 +308,20 @@ class ReportController extends Controller
             ? (int) $request->input('lead_time_to_status_id')
             : null;
 
+        $supplierId = $request->filled('supplier_id')
+            ? (int) $request->input('supplier_id')
+            : null;
+
+        $suppliers = Supplier::orderBy('name')->get();
+        $selectedSupplierId = $request->input('supplier_id');
+
         $stats = $statisticsService->build(
             $dateFrom,
             $dateTo,
             $operationStatusIds,
             $leadTimeFromStatusId,
             $leadTimeToStatusId,
+            $supplierId,
         );
 
         $selectedLeadTimeFrom = $request->input(
@@ -327,7 +335,9 @@ class ReportController extends Controller
             'dateFrom',
             'dateTo',
             'operationStatuses',
+            'suppliers',
             'selectedStatusId',
+            'selectedSupplierId',
             'selectedLeadTimeFrom',
             'selectedLeadTimeTo',
         ));

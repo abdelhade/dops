@@ -27,6 +27,7 @@ class StatisticsService
         ?array $operationStatusIds = null,
         ?int $leadTimeFromStatusId = null,
         ?int $leadTimeToStatusId = null,
+        ?int $supplierId = null,
     ): array {
         $from = Carbon::parse($dateFrom)->startOfDay();
         $to = Carbon::parse($dateTo)->endOfDay();
@@ -48,6 +49,13 @@ class StatisticsService
 
         if ($operationStatusIds !== null && $operationStatusIds !== []) {
             $operationsQuery->whereIn('operation_status_id', $operationStatusIds);
+        }
+
+        if ($supplierId !== null) {
+            $operationsQuery->where(function ($query) use ($supplierId): void {
+                $query->where('printing_supplier_id', $supplierId)
+                    ->orWhere('ctp_supplier_id', $supplierId);
+            });
         }
 
         $operationIds = (clone $operationsQuery)->pluck('id');
