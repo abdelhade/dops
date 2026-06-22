@@ -22,9 +22,10 @@ class StatisticsService
     private const FINISHED_STATUS_ID = 12;
 
     /**
+     * @param  list<int>|null  $operationStatusIds
      * @return array<string, mixed>
      */
-    public function build(string $dateFrom, string $dateTo): array
+    public function build(string $dateFrom, string $dateTo, ?array $operationStatusIds = null): array
     {
         $from = Carbon::parse($dateFrom)->startOfDay();
         $to = Carbon::parse($dateTo)->endOfDay();
@@ -50,6 +51,10 @@ class StatisticsService
         $operationsQuery = Operation::query()
             ->whereDate('operation_date', '>=', $from->toDateString())
             ->whereDate('operation_date', '<=', $to->toDateString());
+
+        if ($operationStatusIds !== null && $operationStatusIds !== []) {
+            $operationsQuery->whereIn('operation_status_id', $operationStatusIds);
+        }
 
         $operationIds = (clone $operationsQuery)->pluck('id');
         $totalOperations = $operationIds->count();

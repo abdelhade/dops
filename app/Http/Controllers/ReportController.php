@@ -289,9 +289,27 @@ class ReportController extends Controller
         $dateFrom = $request->input('date_from', now()->startOfQuarter()->format('Y-m-d'));
         $dateTo = $request->input('date_to', now()->format('Y-m-d'));
 
-        $stats = $statisticsService->build($dateFrom, $dateTo);
+        $operationStatusIds = null;
+        if ($request->filled('operation_status_id')) {
+            $raw = $request->input('operation_status_id');
+            $operationStatusIds = array_values(array_map(
+                'intval',
+                is_array($raw) ? $raw : [$raw],
+            ));
+        }
 
-        return view('reports.statistics', compact('stats', 'dateFrom', 'dateTo'));
+        $operationStatuses = OperationStatus::orderBy('sort_order')->get();
+        $selectedStatusId = $request->input('operation_status_id');
+
+        $stats = $statisticsService->build($dateFrom, $dateTo, $operationStatusIds);
+
+        return view('reports.statistics', compact(
+            'stats',
+            'dateFrom',
+            'dateTo',
+            'operationStatuses',
+            'selectedStatusId',
+        ));
     }
 
     public function operationsKanban(Request $request)

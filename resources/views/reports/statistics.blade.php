@@ -152,6 +152,17 @@
             <label class="form-label">{{ __('dobs.date_to') }}</label>
             <input type="date" name="date_to" class="form-control form-control-sm" value="{{ $dateTo }}" required>
         </div>
+        <div class="form-group">
+            <label class="form-label">{{ __('dobs.operation_status') }}</label>
+            <select name="operation_status_id" class="form-control form-control-sm">
+                <option value="">{{ __('dobs.filter_all') }}</option>
+                @foreach ($operationStatuses as $status)
+                    <option value="{{ $status->id }}" @selected((string) $selectedStatusId === (string) $status->id)>
+                        {{ $status->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
         <button type="submit" class="btn btn-primary btn-sm">
             <i class="fa-solid fa-filter"></i> {{ __('dobs.apply_filters') }}
         </button>
