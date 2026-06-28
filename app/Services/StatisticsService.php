@@ -94,6 +94,30 @@ class StatisticsService
             $printingStatusId,
         );
 
+        $printingDwells = [];
+        $printingSlaCompliantCount = 0;
+        $printingSlaTotalCount = 0;
+        $printingStatus = $statuses->get($printingStatusId);
+        $printingTargetDays = $printingStatus ? (float) $printingStatus->days : 0.0;
+
+        foreach ($operationIds as $operationId) {
+            $events = collect($timelines[$operationId] ?? [])->sortBy('at')->values();
+            $dwell = $this->dwellInStatus($events, $printingStatusId);
+
+            if ($dwell !== null) {
+                $printingDwells[] = $dwell;
+                if ($printingTargetDays > 0) {
+                    $printingSlaTotalCount++;
+                    if ($dwell <= $printingTargetDays) {
+                        $printingSlaCompliantCount++;
+                    }
+                }
+            }
+        }
+
+        $avgPrintingDwell = $printingDwells !== [] ? array_sum($printingDwells) / count($printingDwells) : 0.0;
+        $printingSlaComplianceRate = $printingSlaTotalCount > 0 ? ($printingSlaCompliantCount / $printingSlaTotalCount) * 100 : 100.0;
+
         $ctpEfficiency = $this->ctpSupplierEfficiency($operationsQuery, $timelines, $leadTimeBounds['start_id']);
 
         $wasteStats = $this->materialWasteStats($offsetQuery);
@@ -129,6 +153,10 @@ class StatisticsService
                 'total_operations' => $totalOperations,
                 'offset_output' => $offsetOutput,
                 'general_output' => $generalOutput,
+                'avg_printing_dwell_days' => round($avgPrintingDwell, 1),
+                'printing_sla_compliance_rate' => round($printingSlaComplianceRate, 1),
+                'printing_sla_compliant_count' => $printingSlaCompliantCount,
+                'printing_sla_total_count' => $printingSlaTotalCount,
             ],
             'supplier' => [
                 'printing_turnaround' => $printingTurnaround,
