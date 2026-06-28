@@ -228,6 +228,16 @@
             <span class="stats-kpi-hint">{{ __('dobs.stats_kpi_sop_compliance_hint', ['compliant' => $stats['operational']['sop_compliant_periods'], 'total' => $stats['operational']['sop_total_periods']]) }}</span>
         </div>
         <div class="glass-card stats-kpi-card">
+            <span class="stats-kpi-label">{{ __('dobs.stats_kpi_avg_printing_dwell') }}</span>
+            <span class="stats-kpi-value">{{ number_format($stats['operational']['avg_printing_dwell_days'], 1) }} {{ __('dobs.stats_days_unit') }}</span>
+            <span class="stats-kpi-hint">{{ __('dobs.stats_kpi_avg_printing_dwell_hint', ['count' => $stats['operational']['printing_sla_total_count']]) }}</span>
+        </div>
+        <div class="glass-card stats-kpi-card">
+            <span class="stats-kpi-label">{{ __('dobs.stats_kpi_printing_sla_compliance') }}</span>
+            <span class="stats-kpi-value">{{ number_format($stats['operational']['printing_sla_compliance_rate'], 1) }}%</span>
+            <span class="stats-kpi-hint">{{ __('dobs.stats_kpi_printing_sla_compliance_hint', ['compliant' => $stats['operational']['printing_sla_compliant_count'], 'total' => $stats['operational']['printing_sla_total_count']]) }}</span>
+        </div>
+        <div class="glass-card stats-kpi-card">
             <span class="stats-kpi-label">{{ __('dobs.stats_kpi_throughput_pulls') }}</span>
             <span class="stats-kpi-value">{{ number_format($stats['operational']['throughput_pulls_per_day'], 2) }}</span>
             <span class="stats-kpi-hint">{{ __('dobs.stats_kpi_throughput_pulls_hint') }}</span>
