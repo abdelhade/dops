@@ -49,6 +49,8 @@ Route::middleware(['auth', 'verify.delete.password'])->group(function () {
     Route::get('clients/template', [ClientController::class, 'template'])->name('clients.template');
     Route::post('clients/import', [ClientController::class, 'import'])->name('clients.import');
     Route::post('clients/bulk-destroy', [ClientController::class, 'bulkDestroy'])->name('clients.bulk-destroy');
+    Route::get('clients/daftara/sync', [ClientController::class, 'daftaraSyncForm'])->name('clients.daftara.sync-form');
+    Route::post('clients/daftara/sync', [ClientController::class, 'daftaraSync'])->name('clients.daftara.sync');
     Route::resource('clients', ClientController::class);
 
     Route::get('items/export', [ItemController::class, 'export'])->name('items.export');
@@ -73,6 +75,7 @@ Route::middleware(['auth', 'verify.delete.password'])->group(function () {
     Route::get('reports/statistics', [ReportController::class, 'statistics'])->name('reports.statistics');
     Route::get('reports/paper-materials-summary', [ReportController::class, 'paperMaterialsSummary'])->name('reports.paper-materials-summary');
     Route::get('reports/general-operations-summary', [ReportController::class, 'generalOperationsSummary'])->name('reports.general-operations-summary');
+    Route::get('reports/general-operations-summary/export', [ReportController::class, 'exportGeneralOperationsSummary'])->name('reports.general-operations-summary.export');
     Route::get('reports/operations-kanban', [ReportController::class, 'operationsKanban'])->name('reports.operations-kanban');
     Route::get('reports/operations-kanban/load', [ReportController::class, 'operationsKanbanLoad'])->name('reports.operations-kanban.load');
     Route::resource('operation-statuses', OperationStatusController::class)->except(['show']);

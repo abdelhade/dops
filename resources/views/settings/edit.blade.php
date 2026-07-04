@@ -131,6 +131,26 @@
                 </div>
             </section>
 
+            <section class="settings-section" style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+                <h2 class="settings-section-title">
+                    <i class="fa-solid fa-cloud-arrow-down"></i>
+                    {{ __('dobs.settings_daftara_section') }}
+                </h2>
+                <p class="settings-section-hint">{{ __('dobs.settings_daftara_hint') }}</p>
+
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label for="daftara_subdomain" class="form-label">{{ __('dobs.settings_daftara_subdomain') }}</label>
+                        <input type="text" name="daftara_subdomain" id="daftara_subdomain" class="form-control" value="{{ old('daftara_subdomain', $daftaraSubdomain) }}" placeholder="e.g. company">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="daftara_api_key" class="form-label">{{ __('dobs.settings_daftara_api_key') }}</label>
+                        <input type="password" name="daftara_api_key" id="daftara_api_key" class="form-control" value="{{ old('daftara_api_key', $daftaraApiKey) }}" autocomplete="off">
+                    </div>
+                </div>
+            </section>
+
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i> {{ __('dobs.save_settings') }}

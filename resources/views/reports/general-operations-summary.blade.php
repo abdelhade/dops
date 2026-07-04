@@ -373,6 +373,7 @@
     @include('reports._filters', [
         'filterAction' => route('reports.general-operations-summary'),
         'clearFiltersUrl' => route('reports.general-operations-summary'),
+        'exportExcelUrl' => route('reports.general-operations-summary.export', request()->query()),
         'showPrintButton' => $filtersApplied,
         'reportType' => 'general',
     ])

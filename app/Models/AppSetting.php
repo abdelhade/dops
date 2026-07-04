@@ -18,6 +18,8 @@ class AppSetting extends Model
     public const KEY_MAIL_ENCRYPTION = 'mail_encryption';
     public const KEY_MAIL_FROM_ADDRESS = 'mail_from_address';
     public const KEY_MAIL_FROM_NAME = 'mail_from_name';
+    public const KEY_DAFTARA_SUBDOMAIN = 'daftara_subdomain';
+    public const KEY_DAFTARA_API_KEY = 'daftara_api_key';
 
     private const CACHE_KEY = 'app_settings_all';
 

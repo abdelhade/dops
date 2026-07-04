@@ -10,8 +10,10 @@ use App\Models\PaperType;
 use App\Models\Service;
 use App\Models\Supplier;
 use App\Services\StatisticsService;
+use App\Support\SpreadsheetExporter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
@@ -147,7 +149,63 @@ class ReportController extends Controller
             compact('operations', 'rows', 'totals', 'filtersApplied', 'reportType'),
             $this->filterOptions(),
         ));
-    }
+     }
+
+     public function exportGeneralOperationsSummary(Request $request, SpreadsheetExporter $exporter): StreamedResponse
+     {
+         $query = $this->filteredOperationsQuery($request);
+
+         $query->whereHas('operationType', function($q) {
+             $q->where('form_mode', \App\Enums\OperationTypeMode::General);
+         });
+
+         $operations = $query
+             ->with([
+                 'client', 'item', 'operationStatus',
+                 'printingSupplier', 'operationKind'
+             ])
+             ->orderBy('operation_date')
+             ->orderBy('id')
+             ->get();
+
+         $headers = [
+             __('dobs.operation_serial'),
+             __('dobs.col_date'),
+             __('dobs.operation_client'),
+             __('dobs.operation_related_sales_order_number'),
+             __('dobs.operation_silk_final_product'),
+             __('dobs.col_quantity'),
+             __('dobs.operation_kind'),
+             __('dobs.operation_silk_print_preparations'),
+             __('dobs.operation_silk_unit'),
+             __('dobs.operation_color_count'),
+             __('dobs.operation_statement'),
+             __('dobs.operation_silk_supplier'),
+             __('dobs.operation_status'),
+             __('dobs.operation_notes'),
+         ];
+
+         $rows = $operations->map(function ($op) {
+             return [
+                 $op->operation_number,
+                 $op->operation_date?->format('Y-m-d') ?? '',
+                 $op->client?->name ?? '',
+                 $op->related_sales_order_number ?? '',
+                 $op->item?->name ?? '',
+                 $op->quantity,
+                 $op->operationKind?->name ?? '',
+                 $op->stencil?->label() ?? '',
+                 $op->silk_unit?->label() ?? '',
+                 $op->color_count,
+                 $op->statement ?? '',
+                 $op->printingSupplier?->name ?? '',
+                 $op->operationStatus?->name ?? '',
+                 $op->notes ?? '',
+             ];
+         })->all();
+
+         return $exporter->downloadXlsx('general_operations_summary', $headers, $rows);
+     }
 
     private function filtersApplied(Request $request): bool
     {

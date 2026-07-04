@@ -65,6 +65,11 @@
                     <i class="fa-solid fa-print"></i> {{ __('dobs.print') }}
                 </button>
             @endif
+            @if (($showPrintButton ?? false) && isset($exportExcelUrl))
+                <a href="{{ $exportExcelUrl }}" class="btn btn-secondary">
+                    <i class="fa-solid fa-file-excel"></i> {{ __('dobs.export_excel') }}
+                </a>
+            @endif
         </div>
     </div>
 

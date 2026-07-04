@@ -24,6 +24,8 @@ class SettingsController extends Controller
             'mailEncryption' => AppSetting::get(AppSetting::KEY_MAIL_ENCRYPTION),
             'mailFromAddress' => AppSetting::get(AppSetting::KEY_MAIL_FROM_ADDRESS),
             'mailFromName' => AppSetting::get(AppSetting::KEY_MAIL_FROM_NAME),
+            'daftaraSubdomain' => AppSetting::get(AppSetting::KEY_DAFTARA_SUBDOMAIN),
+            'daftaraApiKey' => AppSetting::get(AppSetting::KEY_DAFTARA_API_KEY),
         ]);
     }
 
@@ -43,6 +45,8 @@ class SettingsController extends Controller
             AppSetting::KEY_MAIL_ENCRYPTION => 'mail_encryption',
             AppSetting::KEY_MAIL_FROM_ADDRESS => 'mail_from_address',
             AppSetting::KEY_MAIL_FROM_NAME => 'mail_from_name',
+            AppSetting::KEY_DAFTARA_SUBDOMAIN => 'daftara_subdomain',
+            AppSetting::KEY_DAFTARA_API_KEY => 'daftara_api_key',
         ];
 
         foreach ($mailFields as $key => $field) {

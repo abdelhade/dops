@@ -779,4 +779,18 @@ return [
     'settings_mail_encryption' => 'التشفير (Encryption)',
     'settings_mail_from_address' => 'البريد المُرسِل (From Address)',
     'settings_mail_from_name' => 'اسم المُرسِل (From Name)',
+
+    // Daftara Sync
+    'settings_daftara_section' => 'ربط نظام دفترة (Daftara Integration)',
+    'settings_daftara_hint' => 'تكوين بيانات الاتصال بنظام دفترة لمزامنة العملاء تلقائياً.',
+    'settings_daftara_subdomain' => 'اسم النطاق الفرعي (Subdomain)',
+    'settings_daftara_api_key' => 'مفتاح API Key',
+    'daftara_sync' => 'مزامنة دفترة',
+    'daftara_sync_subtitle' => 'مقارنة عملاء دفترة بالعملاء الحاليين واستيراد غير الموجودين بالاسم.',
+    'daftara_not_configured' => 'لم يتم إعداد بيانات الربط بدفترة في صفحة الإعدادات.',
+    'daftara_all_synced' => 'جميع العملاء متطابقين!',
+    'daftara_all_synced_hint' => 'لا توجد أسماء عملاء جديدة في سيستم دفترة غير مسجلة حالياً بالاسم لدينا.',
+    'daftara_found_count' => 'تم العثور على :count عميل في دفترة غير موجودين محلياً بالاسم.',
+    'sync_now' => 'مزامنة الآن',
+    'flash_daftara_sync_success' => 'تمت مزامنة واستيراد :count عميل بنجاح من دفترة.',
 ];

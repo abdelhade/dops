@@ -7,6 +7,9 @@
 
 @section('header_actions')
     @if (auth()->user()?->canCreateRecords())
+        <a href="{{ route('clients.daftara.sync-form') }}" class="btn btn-secondary" style="margin-left: 0.5rem; margin-right: 0.5rem;">
+            <i class="fa-solid fa-cloud-arrow-down"></i> {{ __('dobs.daftara_sync') }}
+        </a>
         <a href="{{ route('clients.create') }}" class="btn btn-primary">
             <i class="fa-solid fa-plus"></i> {{ __('dobs.new_client') }}
         </a>

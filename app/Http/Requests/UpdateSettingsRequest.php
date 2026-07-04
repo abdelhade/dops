@@ -27,6 +27,8 @@ class UpdateSettingsRequest extends FormRequest
             'mail_encryption' => ['nullable', 'string', 'max:255'],
             'mail_from_address' => ['nullable', 'email', 'max:255'],
             'mail_from_name' => ['nullable', 'string', 'max:255'],
+            'daftara_subdomain' => ['nullable', 'string', 'max:255'],
+            'daftara_api_key' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

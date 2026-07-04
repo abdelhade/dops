@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Support\SpreadsheetExporter;
+use App\Support\DaftaraClient;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -188,5 +189,65 @@ class ClientController extends Controller
         return redirect()
             ->route('clients.index')
             ->with('success', __('dobs.flash_import_success', ['count' => $imported]));
+    }
+
+    public function daftaraSyncForm(DaftaraClient $daftaraClient)
+    {
+        $this->authorizeCreate();
+
+        if (! $daftaraClient->isConfigured()) {
+            return redirect()
+                ->route('clients.index')
+                ->with('error', __('dobs.daftara_not_configured'));
+        }
+
+        $daftaraClients = $daftaraClient->getClients();
+
+        $localClientNames = Client::pluck('name')
+            ->map(fn($name) => mb_strtolower(trim($name)))
+            ->toArray();
+
+        $missingClients = [];
+        foreach ($daftaraClients as $client) {
+            $normalizedName = mb_strtolower(trim($client['name']));
+            if (! in_array($normalizedName, $localClientNames, true)) {
+                $missingClients[] = $client;
+            }
+        }
+
+        return view('clients.sync', compact('missingClients'));
+    }
+
+    public function daftaraSync(Request $request)
+    {
+        $this->authorizeCreate();
+
+        $validated = $request->validate([
+            'clients' => 'required|array',
+            'clients.*.name' => 'required|string|max:255',
+            'clients.*.phone' => 'nullable|string|max:50',
+            'clients.*.email' => 'nullable|email|max:255',
+            'clients.*.address' => 'nullable|string',
+            'clients.*.notes' => 'nullable|string',
+        ]);
+
+        $imported = 0;
+        foreach ($validated['clients'] as $clientData) {
+            $normalizedName = trim($clientData['name']);
+            if (! Client::where('name', $normalizedName)->exists()) {
+                Client::create([
+                    'name' => $normalizedName,
+                    'phone' => $clientData['phone'] ?? null,
+                    'email' => $clientData['email'] ?? null,
+                    'address' => $clientData['address'] ?? null,
+                    'notes' => $clientData['notes'] ?? null,
+                ]);
+                $imported++;
+            }
+        }
+
+        return redirect()
+            ->route('clients.index')
+            ->with('success', __('dobs.flash_daftara_sync_success', ['count' => $imported]));
     }
 }
