@@ -28,9 +28,19 @@ class ClientController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $clients = Client::latest()->get();
+        $clients = Client::latest()->paginate(15)->withQueryString();
+
+        if ($request->ajax()) {
+            $canBulkDelete = (bool) auth()->user()?->canDeleteRecords();
+            return response()->json([
+                'html' => view('clients._rows', compact('clients', 'canBulkDelete'))->render(),
+                'has_more' => $clients->hasMorePages(),
+                'next_page_url' => $clients->nextPageUrl(),
+            ]);
+        }
+
         return view('clients.index', compact('clients'));
     }
 

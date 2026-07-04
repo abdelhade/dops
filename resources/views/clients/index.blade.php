@@ -95,47 +95,15 @@
                 </tr>
             </thead>
             <tbody id="clientsBulkTableBody">
-                @forelse($clients as $client)
-                    <tr>
-                        @if ($canBulkDelete)
-                            <td style="text-align: center;">
-                                <input
-                                    type="checkbox"
-                                    class="clients-bulk-checkbox clients-bulk-row-cb"
-                                    value="{{ $client->id }}"
-                                    aria-label="{{ __('dobs.bulk_select_item', ['name' => $client->name]) }}"
-                                >
-                            </td>
-                        @endif
-                        <td>{{ $loop->iteration }}</td>
-                        <td>
-                            <a href="{{ route('clients.show', $client->id) }}" style="color: white; font-weight: 600; text-decoration: none;">
-                                {{ $client->name }}
-                            </a>
-                        </td>
-                        <td>{{ $client->email ?? __('dobs.na') }}</td>
-                        <td>{{ $client->phone ?? __('dobs.na') }}</td>
-                        <td style="color: var(--text-secondary);">{{ $client->address ?? __('dobs.na') }}</td>
-                        <td>
-                            @include('partials.crud-actions', [
-                                'showRoute' => route('clients.show', $client->id),
-                                'editRoute' => route('clients.edit', $client->id),
-                                'destroyRoute' => route('clients.destroy', $client->id),
-                                'confirmMessage' => __('dobs.confirm_delete_client'),
-                            ])
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="{{ $canBulkDelete ? 7 : 6 }}" class="empty-state">
-                            <i class="fa-solid fa-user-tie"></i>
-                            {{ __('dobs.no_clients') }}
-                        </td>
-                    </tr>
-                @endforelse
+                @include('clients._rows')
             </tbody>
         </table>
     </div>
+    @if ($clients->hasPages())
+        <div id="clients-lazy-sentinel" class="clients-lazy-load-sentinel text-center py-4" style="color: var(--text-muted); font-size: 0.9rem;" data-next-page="{{ $clients->nextPageUrl() }}">
+            <i class="fa-solid fa-spinner fa-spin"></i> {{ __('dobs.report_kanban_loading') ?? 'Loading...' }}
+        </div>
+    @endif
 </div>
 @endsection
 
@@ -153,4 +121,51 @@
         </script>
         <script src="{{ asset('js/clients-bulk-actions.js') }}?v={{ @filemtime(public_path('js/clients-bulk-actions.js')) ?: 1 }}"></script>
     @endif
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const sentinel = document.getElementById('clients-lazy-sentinel');
+        const container = document.getElementById('clientsBulkTableBody');
+        
+        if (sentinel && container && window.IntersectionObserver) {
+            let isLoading = false;
+            let nextPageUrl = sentinel.dataset.nextPage;
+            
+            const observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting && !isLoading && nextPageUrl) {
+                    isLoading = true;
+                    
+                    fetch(nextPageUrl, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        container.insertAdjacentHTML('beforeend', data.html);
+                        
+                        if (data.has_more && data.next_page_url) {
+                            nextPageUrl = data.next_page_url;
+                            sentinel.dataset.nextPage = nextPageUrl;
+                        } else {
+                            nextPageUrl = null;
+                            sentinel.remove();
+                            observer.disconnect();
+                        }
+                        isLoading = false;
+                    })
+                    .catch(error => {
+                        console.error('Error loading more clients:', error);
+                        isLoading = false;
+                    });
+                }
+            }, {
+                rootMargin: '300px',
+                threshold: 0
+            });
+            
+            observer.observe(sentinel);
+        }
+    });
+    </script>
 @endsection
