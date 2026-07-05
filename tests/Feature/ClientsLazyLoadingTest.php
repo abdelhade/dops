@@ -42,4 +42,41 @@ class ClientsLazyLoadingTest extends TestCase
         ]);
         $this->assertFalse($responseAjax->json('has_more'));
     }
+
+    public function test_clients_index_can_be_filtered(): void
+    {
+        $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        Client::create([
+            'name' => 'John Doe',
+            'phone' => '111111',
+            'email' => 'john@example.com',
+            'address' => 'London',
+        ]);
+
+        Client::create([
+            'name' => 'Jane Smith',
+            'phone' => '222222',
+            'email' => 'jane@example.com',
+            'address' => 'New York',
+        ]);
+
+        // Filter by phone
+        $response = $this->actingAs($user)->get(route('clients.index', ['phone' => '111111']));
+        $response->assertOk();
+        $this->assertCount(1, $response->viewData('clients'));
+        $this->assertEquals('John Doe', $response->viewData('clients')->first()->name);
+
+        // Filter by email
+        $response = $this->actingAs($user)->get(route('clients.index', ['email' => 'jane@example.com']));
+        $response->assertOk();
+        $this->assertCount(1, $response->viewData('clients'));
+        $this->assertEquals('Jane Smith', $response->viewData('clients')->first()->name);
+
+        // Global search
+        $response = $this->actingAs($user)->get(route('clients.index', ['search' => 'London']));
+        $response->assertOk();
+        $this->assertCount(1, $response->viewData('clients'));
+        $this->assertEquals('John Doe', $response->viewData('clients')->first()->name);
+    }
 }

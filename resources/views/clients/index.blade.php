@@ -52,7 +52,63 @@
 @section('content')
 @include('partials.list-export-print', ['exportRoute' => route('clients.export')])
 
-@php($canBulkDelete = (bool) auth()->user()?->canDeleteRecords())
+@php
+    $canBulkDelete = (bool) auth()->user()?->canDeleteRecords();
+    $clientFilterKeys = ['search', 'phone', 'email'];
+    $hasActiveFilters = collect($clientFilterKeys)->contains(fn ($key) => request()->filled($key));
+    $clearFiltersUrl = route('clients.index');
+@endphp
+
+<div class="operations-filters-card glass-card no-print" style="margin-bottom: 1rem;">
+    <button
+        type="button"
+        class="btn btn-secondary btn-sm operations-filters-toggle"
+        id="clients-filters-toggle"
+        aria-expanded="{{ $hasActiveFilters ? 'true' : 'false' }}"
+        aria-controls="clients-filters-panel"
+    >
+        <i class="fa-solid fa-filter"></i>
+        <span>{{ __('dobs.filters') }}</span>
+        @if ($hasActiveFilters)
+            <span class="operations-filters-badge" aria-hidden="true"></span>
+        @endif
+        <i class="fa-solid fa-chevron-down operations-filters-chevron"></i>
+    </button>
+
+    <div
+        id="clients-filters-panel"
+        class="operations-filters-panel"
+        @unless($hasActiveFilters) hidden @endunless
+    >
+        <form method="GET" action="{{ route('clients.index') }}" class="filters-form">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 0.85rem;">{{ __('dobs.report_global_search') }}</label>
+                    <input type="text" name="search" class="form-control form-control-sm" value="{{ request('search') }}" placeholder="{{ __('dobs.report_global_search_placeholder') }}">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 0.85rem;">{{ __('dobs.phone') }}</label>
+                    <input type="text" name="phone" class="form-control form-control-sm" value="{{ request('phone') }}" placeholder="{{ __('dobs.phone') }}">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 0.85rem;">{{ __('dobs.email') }}</label>
+                    <input type="text" name="email" class="form-control form-control-sm" value="{{ request('email') }}" placeholder="{{ __('dobs.email') }}">
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-filter"></i> {{ __('dobs.report_show_results') }}
+                    </button>
+                    <a href="{{ $clearFiltersUrl }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.clear_filters') }}">
+                        <i class="fa-solid fa-rotate-left"></i> {{ __('dobs.clear_filters') }}
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
 <div
     id="clientsBulkRoot"
@@ -122,6 +178,23 @@
         <script src="{{ asset('js/clients-bulk-actions.js') }}?v={{ @filemtime(public_path('js/clients-bulk-actions.js')) ?: 1 }}"></script>
     @endif
     <script>
+    (function () {
+        const toggle = document.getElementById('clients-filters-toggle');
+        const panel = document.getElementById('clients-filters-panel');
+        if (!toggle || !panel) return;
+
+        toggle.addEventListener('click', function () {
+            const open = panel.hidden;
+            panel.hidden = !open;
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.classList.toggle('is-open', open);
+        });
+
+        if (toggle.getAttribute('aria-expanded') === 'true') {
+            toggle.classList.add('is-open');
+        }
+    })();
+
     document.addEventListener('DOMContentLoaded', function () {
         const sentinel = document.getElementById('clients-lazy-sentinel');
         const container = document.getElementById('clientsBulkTableBody');

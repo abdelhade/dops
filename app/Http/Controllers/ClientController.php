@@ -30,7 +30,28 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
-        $clients = Client::latest()->paginate(15)->withQueryString();
+        $query = Client::query();
+
+        if ($request->filled('search')) {
+            $term = '%' . $request->search . '%';
+            $query->where(function ($q) use ($term) {
+                $q->where('name', 'like', $term)
+                  ->orWhere('phone', 'like', $term)
+                  ->orWhere('email', 'like', $term)
+                  ->orWhere('address', 'like', $term)
+                  ->orWhere('notes', 'like', $term);
+            });
+        }
+
+        if ($request->filled('phone')) {
+            $query->where('phone', 'like', '%' . $request->phone . '%');
+        }
+
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+
+        $clients = $query->latest()->paginate(15)->withQueryString();
 
         if ($request->ajax()) {
             $canBulkDelete = (bool) auth()->user()?->canDeleteRecords();

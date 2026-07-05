@@ -390,6 +390,7 @@
     @include('reports._filters', [
         'filterAction' => route('reports.paper-materials-summary'),
         'clearFiltersUrl' => route('reports.paper-materials-summary'),
+        'exportExcelUrl' => route('reports.paper-materials-summary.export', request()->query()),
         'showPrintButton' => $filtersApplied,
     ])
 </div>

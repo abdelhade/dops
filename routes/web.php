@@ -74,6 +74,7 @@ Route::middleware(['auth', 'verify.delete.password'])->group(function () {
     Route::get('activities', [ActivityController::class, 'index'])->name('activities.index');
     Route::get('reports/statistics', [ReportController::class, 'statistics'])->name('reports.statistics');
     Route::get('reports/paper-materials-summary', [ReportController::class, 'paperMaterialsSummary'])->name('reports.paper-materials-summary');
+    Route::get('reports/paper-materials-summary/export', [ReportController::class, 'exportPaperMaterialsSummary'])->name('reports.paper-materials-summary.export');
     Route::get('reports/general-operations-summary', [ReportController::class, 'generalOperationsSummary'])->name('reports.general-operations-summary');
     Route::get('reports/general-operations-summary/export', [ReportController::class, 'exportGeneralOperationsSummary'])->name('reports.general-operations-summary.export');
     Route::get('reports/operations-kanban', [ReportController::class, 'operationsKanban'])->name('reports.operations-kanban');

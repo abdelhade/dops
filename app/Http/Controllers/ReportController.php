@@ -151,6 +151,73 @@ class ReportController extends Controller
         ));
      }
 
+     public function exportPaperMaterialsSummary(Request $request, SpreadsheetExporter $exporter): StreamedResponse
+     {
+         $query = $this->filteredOperationsQuery($request);
+
+         $query->whereHas('operationType', function($q) {
+             $q->where('form_mode', \App\Enums\OperationTypeMode::Offset);
+         });
+
+         $operations = $query
+             ->with([
+                 'client', 'item', 'paperType', 'operationStatus',
+                 'printingSupplier', 'ctpSupplier',
+                 'service1', 'service2', 'service3',
+             ])
+             ->orderBy('operation_date')
+             ->orderBy('id')
+             ->get();
+
+         $headers = [
+             __('dobs.operation_serial'),
+             __('dobs.col_date'),
+             __('dobs.operation_client'),
+             __('dobs.operation_related_sales_order_number'),
+             __('dobs.log_field_item_id'),
+             __('dobs.col_quantity'),
+             __('dobs.operation_statement'),
+             __('dobs.operation_printing_press'),
+             __('dobs.operation_ctp'),
+             __('dobs.operation_color_count'),
+             __('dobs.operation_paper_material'),
+             __('dobs.operation_job_size'),
+             __('dobs.operation_pull_count'),
+             __('dobs.operation_quantity_per_sheet'),
+             __('dobs.operation_service_1'),
+             __('dobs.operation_status'),
+             __('dobs.operation_notes'),
+         ];
+
+         $rows = $operations->map(function ($op) {
+             $jobSizeLabel = $op->job_size !== null
+                 ? number_format((float) $op->job_size, 0)
+                 : ($op->reportPaperDimension() ?? '');
+
+             return [
+                 $op->operation_number,
+                 $op->operation_date?->format('Y-m-d') ?? '',
+                 $op->client?->name ?? '',
+                 $op->related_sales_order_number ?? '',
+                 $op->item?->name ?? '',
+                 $op->quantity,
+                 $op->statement ?? '',
+                 $op->printingSupplier?->name ?? '',
+                 $op->ctpSupplier?->name ?? '',
+                 $op->color_count,
+                 $op->paperType?->name ?? '',
+                 $jobSizeLabel,
+                 $op->pull_count,
+                 $op->quantity_per_sheet,
+                 $op->service1?->name ?? '',
+                 $op->operationStatus?->name ?? '',
+                 $op->notes ?? '',
+             ];
+         })->all();
+
+         return $exporter->downloadXlsx('paper_materials_summary', $headers, $rows);
+     }
+
      public function exportGeneralOperationsSummary(Request $request, SpreadsheetExporter $exporter): StreamedResponse
      {
          $query = $this->filteredOperationsQuery($request);
