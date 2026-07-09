@@ -6,7 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>@yield('title', __('dobs.app_name')) - {{ __('dobs.app_tagline') }}</title>
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-    <link rel="apple-touch-icon" href="{{ asset('favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('icon-192.png') }}">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#8b5cf6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Dops">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -48,6 +53,7 @@
                         <span>{{ __('dobs.nav_dashboard') }}</span>
                     </a>
                 </li>
+                @if (auth()->user()->hasPermission('operations', 'read'))
                 <li class="nav-item {{ request()->routeIs('operations.*') ? 'active' : '' }}">
                     <a href="{{ route('operations.index') }}">
                         <i class="fa-solid fa-arrows-spin"></i>
@@ -66,48 +72,80 @@
                         <span>{{ __('dobs.nav_operation_kinds') }}</span>
                     </a>
                 </li>
+                @endif
+                
+                @if (auth()->user()->hasPermission('items', 'read'))
                 <li class="nav-item {{ request()->routeIs('items.*') ? 'active' : '' }}">
                     <a href="{{ route('items.index') }}">
                         <i class="fa-solid fa-box-open"></i>
                         <span>{{ __('dobs.nav_items') }}</span>
                     </a>
                 </li>
+                @endif
+
+                @if (auth()->user()->hasPermission('clients', 'read'))
                 <li class="nav-item {{ request()->routeIs('clients.*') ? 'active' : '' }}">
                     <a href="{{ route('clients.index') }}">
                         <i class="fa-solid fa-user-tie"></i>
                         <span>{{ __('dobs.nav_clients') }}</span>
                     </a>
                 </li>
+                @endif
+
+                @if (auth()->user()->hasPermission('categories', 'read'))
                 <li class="nav-item {{ request()->routeIs('categories.*') ? 'active' : '' }}">
                     <a href="{{ route('categories.index') }}">
                         <i class="fa-solid fa-tags"></i>
                         <span>{{ __('dobs.nav_categories') }}</span>
                     </a>
                 </li>
+                @endif
+
+                @if (auth()->user()->hasPermission('suppliers', 'read'))
                 <li class="nav-item {{ request()->routeIs('suppliers.*') ? 'active' : '' }}">
                     <a href="{{ route('suppliers.index') }}">
                         <i class="fa-solid fa-truck-field"></i>
                         <span>{{ __('dobs.nav_suppliers') }}</span>
                     </a>
                 </li>
+                @endif
+
+                @if (auth()->user()->hasPermission('paper-types', 'read'))
                 <li class="nav-item {{ request()->routeIs('paper-types.*') ? 'active' : '' }}">
                     <a href="{{ route('paper-types.index') }}">
                         <i class="fa-solid fa-scroll"></i>
                         <span>{{ __('dobs.nav_paper_types') }}</span>
                     </a>
                 </li>
+                @endif
+
+                @if (auth()->user()->hasPermission('services', 'read'))
                 <li class="nav-item {{ request()->routeIs('services.*') ? 'active' : '' }}">
                     <a href="{{ route('services.index') }}">
                         <i class="fa-solid fa-handshake"></i>
                         <span>{{ __('dobs.nav_services') }}</span>
                     </a>
                 </li>
+                @endif
+
+                @if (auth()->user()->hasPermission('operation-movements', 'read'))
+                <li class="nav-item {{ request()->routeIs('operation-movements.*') ? 'active' : '' }}">
+                    <a href="{{ route('operation-movements.index') }}">
+                        <i class="fa-solid fa-truck-ramp-box"></i>
+                        <span>{{ __('dobs.nav_operation_movements') }}</span>
+                    </a>
+                </li>
+                @endif
+
+                @if (auth()->user()->isAdmin())
                 <li class="nav-item {{ request()->routeIs('activities.*') ? 'active' : '' }}">
                     <a href="{{ route('activities.index') }}">
                         <i class="fa-solid fa-clock-rotate-left"></i>
                         <span>{{ __('dobs.nav_activities') }}</span>
                     </a>
                 </li>
+                @endif
+                @if (auth()->user()->isAdmin() || auth()->user()->isManager())
                 <li class="nav-group {{ request()->routeIs('reports.*') ? 'is-open active' : '' }}">
                     <button
                         type="button"
@@ -141,6 +179,7 @@
                         </li>
                     </ul>
                 </li>
+                @endif
                 @auth
                     @if (auth()->user()->canManageUsers())
                         <li class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
@@ -253,5 +292,14 @@
     <script src="{{ asset('js/shortcuts.js') }}"></script>
     <script src="{{ asset('js/spreadsheet-import.js') }}?v={{ @filemtime(public_path('js/spreadsheet-import.js')) ?: 1 }}"></script>
     @yield('scripts')
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker registered', reg))
+                    .catch(err => console.error('Service Worker registration failed', err));
+            });
+        }
+    </script>
 </body>
 </html>

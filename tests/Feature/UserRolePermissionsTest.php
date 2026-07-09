@@ -61,4 +61,24 @@ class UserRolePermissionsTest extends TestCase
 
         $response->assertForbidden();
     }
+
+    public function test_admin_can_assign_permissions_to_user(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $permission = \Spatie\Permission\Models\Permission::findOrCreate('operations.read');
+
+        $response = $this->actingAs($admin)->post(route('users.store'), [
+            'name' => 'New User',
+            'email' => 'newuser@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'role' => User::ROLE_DATA_ENTRY,
+            'permissions' => ['operations.read'],
+        ]);
+
+        $response->assertRedirect(route('users.index'));
+        $createdUser = User::where('email', 'newuser@example.com')->first();
+        $this->assertNotNull($createdUser);
+        $this->assertTrue($createdUser->hasDirectPermission('operations.read'));
+    }
 }

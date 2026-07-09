@@ -6,11 +6,12 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     public const ROLE_ADMIN = 'admin';
 
@@ -88,7 +89,29 @@ class User extends Authenticatable
 
     public function canManageUsers(): bool
     {
-        return $this->isAdmin();
+        if ($this->isAdmin()) {
+            return true;
+        }
+        try {
+            return $this->hasDirectPermission('users.read');
+        } catch (\Spatie\Permission\Exceptions\PermissionDoesNotExist $e) {
+            return false;
+        }
+    }
+
+    public function hasPermission(string $resource, string $action): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+        if ($this->isManager() && $action !== 'delete') {
+            return true;
+        }
+        try {
+            return $this->hasDirectPermission("{$resource}.{$action}");
+        } catch (\Spatie\Permission\Exceptions\PermissionDoesNotExist $e) {
+            return false;
+        }
     }
 
     public function roleLabel(): string
@@ -121,5 +144,10 @@ class User extends Authenticatable
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
+
+    public function services()
+    {
+        return $this->belongsToMany(Service::class);
     }
 }

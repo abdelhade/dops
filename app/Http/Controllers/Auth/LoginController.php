@@ -34,6 +34,11 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
+        $user = Auth::user();
+        if ($user && $user->isDataEntry()) {
+            return redirect()->intended(route('operation-movements.index'));
+        }
+
         return redirect()->intended(route('dashboard'));
     }
 

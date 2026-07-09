@@ -17,7 +17,8 @@ class Service extends Model implements PreventsDeletionWhenRelated
             ->where(function ($query) {
                 $query->where('service_1_id', $this->id)
                     ->orWhere('service_2_id', $this->id)
-                    ->orWhere('service_3_id', $this->id);
+                    ->orWhere('service_3_id', $this->id)
+                    ->orWhere('service_4_id', $this->id);
             })
             ->exists();
     }

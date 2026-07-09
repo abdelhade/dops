@@ -15,6 +15,11 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+        if ($user && $user->isDataEntry()) {
+            return redirect()->route('operation-movements.index');
+        }
+
         $stats = [
             'suppliers_count' => Supplier::count(),
             'items_count' => Item::count(),

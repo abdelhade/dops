@@ -70,6 +70,7 @@ Route::middleware(['auth', 'verify.delete.password'])->group(function () {
     Route::get('services/template', [ServiceController::class, 'template'])->name('services.template');
     Route::post('services/import', [ServiceController::class, 'import'])->name('services.import');
     Route::resource('services', ServiceController::class);
+    Route::resource('operation-movements', \App\Http\Controllers\OperationMovementController::class);
     Route::resource('stages', StageController::class);
     Route::get('activities', [ActivityController::class, 'index'])->name('activities.index');
     Route::get('reports/statistics', [ReportController::class, 'statistics'])->name('reports.statistics');

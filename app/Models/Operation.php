@@ -20,6 +20,18 @@ class Operation extends Model
             'job_size' => 'decimal:2',
             'stencil' => OperationStencil::class,
             'silk_unit' => OperationSilkUnit::class,
+            'printing_in_date' => 'date',
+            'printing_out_date' => 'date',
+            'service_1_in_date' => 'date',
+            'service_1_out_date' => 'date',
+            'service_2_in_date' => 'date',
+            'service_2_out_date' => 'date',
+            'service_3_in_date' => 'date',
+            'service_3_out_date' => 'date',
+            'service_4_in_date' => 'date',
+            'service_4_out_date' => 'date',
+            'entry_date' => 'date',
+            'exit_date' => 'date',
         ];
     }
 
@@ -83,9 +95,19 @@ class Operation extends Model
         return $this->belongsTo(Service::class, 'service_3_id');
     }
 
+    public function service4(): BelongsTo
+    {
+        return $this->belongsTo(Service::class, 'service_4_id');
+    }
+
     public function logs(): HasMany
     {
         return $this->hasMany(OperationLog::class)->latest();
+    }
+
+    public function movements(): HasMany
+    {
+        return $this->hasMany(OperationMovement::class);
     }
 
     public function operationStatus(): BelongsTo
@@ -118,6 +140,7 @@ class Operation extends Model
             $this->service1?->name,
             $this->service2?->name,
             $this->service3?->name,
+            $this->service4?->name,
         ])->filter()->values();
 
         return $services->isNotEmpty() ? $services->implode('+') : '';
@@ -163,5 +186,23 @@ class Operation extends Model
             : $this->operation_time->format('H:i:s');
 
         return substr($time, 0, 5);
+    }
+
+    public function assignedServiceIds(): array
+    {
+        return collect([
+            $this->service_1_id,
+            $this->service_2_id,
+            $this->service_3_id,
+            $this->service_4_id,
+        ])->filter()->map(fn($val) => (int) $val)->values()->all();
+    }
+
+    public function hasEntryMovementForService(int $serviceId): bool
+    {
+        return $this->movements()
+            ->where('service_id', $serviceId)
+            ->where('type', 'entry')
+            ->exists();
     }
 }

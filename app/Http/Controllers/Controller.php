@@ -14,23 +14,95 @@ abstract class Controller
 {
     use AuthorizesRequests, ValidatesRequests;
 
+    protected function getResourceName(): ?string
+    {
+        $className = class_basename($this);
+        $name = str_replace('Controller', '', $className);
+        $kebab = strtolower(preg_replace('/(?<!^)[A-Z]/', '-$0', $name));
+        
+        if ($kebab === 'category') return 'categories';
+        if ($kebab === 'supplier') return 'suppliers';
+        if ($kebab === 'paper-size') return 'paper-sizes';
+        if ($kebab === 'client') return 'clients';
+        if ($kebab === 'item') return 'items';
+        if ($kebab === 'material') return 'materials';
+        if ($kebab === 'paper-type') return 'paper-types';
+        if ($kebab === 'service') return 'services';
+        if ($kebab === 'stage') return 'stages';
+        if ($kebab === 'user') return 'users';
+        if ($kebab === 'operation') return 'operations';
+        if ($kebab === 'operation-movement') return 'operation-movements';
+        if ($kebab === 'operation-status') return 'operation-statuses';
+        if ($kebab === 'operation-type') return 'operation-types';
+        if ($kebab === 'operation-kind') return 'operation-kinds';
+
+        return $kebab;
+    }
+
+    protected function authorizeRead(): void
+    {
+        $user = auth()->user();
+        if (! $user) {
+            abort(403, __('dobs.unauthorized_action'));
+        }
+
+        $resource = $this->getResourceName();
+        if ($resource && $user->hasPermission($resource, 'read')) {
+            return;
+        }
+
+        if ($user->isDataEntry() && ! in_array($resource, ['operations', 'operation-movements'], true)) {
+            abort(403, __('dobs.unauthorized_action'));
+        }
+    }
+
     protected function authorizeCreate(): void
     {
-        if (! auth()->user()?->canCreateRecords()) {
+        $user = auth()->user();
+        if (! $user) {
+            abort(403, __('dobs.unauthorized_action'));
+        }
+
+        $resource = $this->getResourceName();
+        if ($resource && $user->hasPermission($resource, 'create')) {
+            return;
+        }
+
+        if (! $user->canCreateRecords()) {
             abort(403, __('dobs.unauthorized_action'));
         }
     }
 
     protected function authorizeEdit(): void
     {
-        if (! auth()->user()?->canEditRecords()) {
+        $user = auth()->user();
+        if (! $user) {
+            abort(403, __('dobs.unauthorized_action'));
+        }
+
+        $resource = $this->getResourceName();
+        if ($resource && $user->hasPermission($resource, 'update')) {
+            return;
+        }
+
+        if (! $user->canEditRecords()) {
             abort(403, __('dobs.unauthorized_action'));
         }
     }
 
     protected function authorizeDelete(): void
     {
-        if (! auth()->user()?->canDeleteRecords()) {
+        $user = auth()->user();
+        if (! $user) {
+            abort(403, __('dobs.unauthorized_action'));
+        }
+
+        $resource = $this->getResourceName();
+        if ($resource && $user->hasPermission($resource, 'delete')) {
+            return;
+        }
+
+        if (! $user->canDeleteRecords()) {
             abort(403, __('dobs.unauthorized_action'));
         }
     }

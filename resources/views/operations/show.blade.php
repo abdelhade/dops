@@ -76,6 +76,14 @@
             <span class="stat-label">{{ __('dobs.operation_kind') }}</span>
             <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->operationKind?->name ?? $dash }}</div>
         </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_general_entry_date') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->entry_date?->format('Y-m-d') ?? $dash }}</div>
+        </div>
+        <div>
+            <span class="stat-label">{{ __('dobs.operation_general_exit_date') }}</span>
+            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->exit_date?->format('Y-m-d') ?? $dash }}</div>
+        </div>
         @endif
         <div>
             <span class="stat-label">{{ $isGeneral ? __('dobs.operation_silk_final_product') : __('dobs.operation_product_1') }}</span>
@@ -97,7 +105,16 @@
         </div>
         <div>
             <span class="stat-label">{{ $isGeneral ? __('dobs.operation_silk_supplier') : __('dobs.operation_printing_press') }}</span>
-            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->printingSupplier?->name ?? $dash }}</div>
+            <div style="font-weight: 600; margin-top: 0.25rem;">
+                {{ $operation->printingSupplier?->name ?? $dash }}
+                @if($operation->printing_in_date || $operation->printing_out_date)
+                    <br>
+                    <small style="color: var(--text-muted);">
+                        ({{ __('dobs.col_in_date') }}: {{ $operation->printing_in_date?->format('Y-m-d') ?? $dash }} | 
+                         {{ __('dobs.col_out_date') }}: {{ $operation->printing_out_date?->format('Y-m-d') ?? $dash }})
+                    </small>
+                @endif
+            </div>
         </div>
         @if($isOffset)
         <div>
@@ -132,18 +149,7 @@
             <span class="stat-label">{{ __('dobs.operation_quantity_per_sheet') }}</span>
             <div style="font-weight: 600; margin-top: 0.25rem;">{{ $field($operation->quantity_per_sheet) }}</div>
         </div>
-        <div>
-            <span class="stat-label">{{ __('dobs.operation_service_1') }}</span>
-            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->service1?->name ?? $dash }}</div>
-        </div>
-        <div>
-            <span class="stat-label">{{ __('dobs.operation_service_2') }}</span>
-            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->service2?->name ?? $dash }}</div>
-        </div>
-        <div>
-            <span class="stat-label">{{ __('dobs.operation_service_3') }}</span>
-            <div style="font-weight: 600; margin-top: 0.25rem;">{{ $operation->service3?->name ?? $dash }}</div>
-        </div>
+        @endif
         @endif
         <div>
             <span class="stat-label">{{ __('dobs.operation_status') }}</span>

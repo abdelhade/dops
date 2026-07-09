@@ -396,7 +396,8 @@
                 <thead>
                     <tr>
                         <th class="col-compact">{{ __('dobs.operation_serial') }}</th>
-                        <th class="col-compact">{{ __('dobs.col_date') }}</th>
+                        <th class="col-compact">{{ __('dobs.col_in_date') }}</th>
+                        <th class="col-compact">{{ __('dobs.col_out_date') }}</th>
                         <th class="col-text">{{ __('dobs.operation_client') }}</th>
                         <th class="col-text">{{ __('dobs.operation_related_sales_order_number') }}</th>
                         <th class="col-text">{{ __('dobs.operation_silk_final_product') }}</th>
@@ -419,7 +420,8 @@
                         @endphp
                         <tr>
                             <td class="col-compact">{{ $op->operation_number }}</td>
-                            <td class="col-compact">{{ $op->operation_date?->format('Y-m-d') ?? $dash }}</td>
+                            <td class="col-compact">{{ $op->entry_date?->format('Y-m-d') ?? $op->operation_date?->format('Y-m-d') ?? $dash }}</td>
+                            <td class="col-compact">{{ $op->exit_date?->format('Y-m-d') ?? $op->operation_date?->format('Y-m-d') ?? $dash }}</td>
                             <td class="col-text">{{ $op->client?->name ?? $dash }}</td>
                             <td class="col-text">{{ $salesOrder !== '' ? $salesOrder : $dash }}</td>
                             <td class="col-text">{{ $op->item?->name ?? $dash }}</td>
@@ -435,7 +437,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="14" class="empty-state">
+                            <td colspan="15" class="empty-state">
                                 {{ __('dobs.report_no_data') }}
                             </td>
                         </tr>

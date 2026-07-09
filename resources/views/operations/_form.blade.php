@@ -192,6 +192,28 @@
         </div>
     </div>
 
+    <div class="form-row form-row-2" id="operation-printing-dates-row">
+        <div class="form-group">
+            <label for="printing_in_date" class="form-label">{{ __('dobs.operation_printing_press_in_date') }}</label>
+            <input type="date" name="printing_in_date" id="printing_in_date" class="form-control" value="{{ old('printing_in_date', $op?->printing_in_date?->format('Y-m-d')) }}">
+        </div>
+        <div class="form-group">
+            <label for="printing_out_date" class="form-label">{{ __('dobs.operation_printing_press_out_date') }}</label>
+            <input type="date" name="printing_out_date" id="printing_out_date" class="form-control" value="{{ old('printing_out_date', $op?->printing_out_date?->format('Y-m-d')) }}">
+        </div>
+    </div>
+
+    <div class="form-row form-row-2" id="operation-general-dates-row">
+        <div class="form-group">
+            <label for="entry_date" class="form-label">{{ __('dobs.operation_general_entry_date') }}</label>
+            <input type="date" name="entry_date" id="entry_date" class="form-control" value="{{ old('entry_date', $op?->entry_date?->format('Y-m-d')) }}">
+        </div>
+        <div class="form-group">
+            <label for="exit_date" class="form-label">{{ __('dobs.operation_general_exit_date') }}</label>
+            <input type="date" name="exit_date" id="exit_date" class="form-control" value="{{ old('exit_date', $op?->exit_date?->format('Y-m-d')) }}">
+        </div>
+    </div>
+
     <div class="form-row" id="operation-general-preparations-row">
         <div class="form-group">
             <label for="stencil" class="form-label">{{ $printPreparationsLabel }} <span class="text-required">*</span></label>
@@ -244,6 +266,17 @@
         </div>
     </div>
 
+    <div class="form-row form-row-2" id="operation-printing-dates-row">
+        <div class="form-group">
+            <label for="printing_in_date" class="form-label">{{ __('dobs.operation_printing_press_in_date') }}</label>
+            <input type="date" name="printing_in_date" id="printing_in_date" class="form-control" value="{{ old('printing_in_date', $op?->printing_in_date?->format('Y-m-d')) }}">
+        </div>
+        <div class="form-group">
+            <label for="printing_out_date" class="form-label">{{ __('dobs.operation_printing_press_out_date') }}</label>
+            <input type="date" name="printing_out_date" id="printing_out_date" class="form-control" value="{{ old('printing_out_date', $op?->printing_out_date?->format('Y-m-d')) }}">
+        </div>
+    </div>
+
     <div class="form-row form-row-3" id="operation-offset-metrics-row">
         <div class="form-group">
             <label for="job_size" class="form-label">{{ __('dobs.operation_job_size') }}</label>
@@ -261,18 +294,5 @@
         </div>
     </div>
 
-    <div class="form-row" id="operation-service-row">
-        <div class="form-group">
-            <label for="service_1_id" class="form-label">{{ __('dobs.operation_service_1') }}</label>
-            <select name="service_1_id" id="service_1_id" class="form-control" data-allow-create="service">
-                <option value="">{{ __('dobs.select_service') }}</option>
-                @foreach($services as $service)
-                    <option value="{{ $service->id }}" {{ (string) old('service_1_id', $op?->service_1_id) === (string) $service->id ? 'selected' : '' }}>
-                        {{ $service->name }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-    </div>
     @endif
 </div>

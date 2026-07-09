@@ -21,7 +21,7 @@ class ReportController extends Controller
     private const FILTER_KEYS = [
         'search', 'operation_number', 'date_from', 'date_to', 'client_id', 'item_id', 'quantity',
         'statement', 'printing_supplier_id', 'ctp_supplier_id', 'color_count', 'paper_type_id',
-        'job_size', 'pull_count', 'quantity_per_sheet', 'service_1_id', 'service_2_id', 'service_3_id',
+        'job_size', 'pull_count', 'quantity_per_sheet', 'service_1_id', 'service_2_id', 'service_3_id', 'service_4_id',
         'operation_status_id', 'notes', 'related_sales_order_number',
         'operation_kind_id', 'stencil', 'silk_unit'
     ];
@@ -56,7 +56,7 @@ class ReportController extends Controller
             ->with([
                 'client', 'item', 'paperType', 'operationStatus',
                 'printingSupplier', 'ctpSupplier',
-                'service1', 'service2', 'service3',
+                'service1', 'service2', 'service3', 'service4',
             ])
             ->orderBy('operation_date')
             ->orderBy('id')
@@ -163,7 +163,7 @@ class ReportController extends Controller
              ->with([
                  'client', 'item', 'paperType', 'operationStatus',
                  'printingSupplier', 'ctpSupplier',
-                 'service1', 'service2', 'service3',
+                 'service1', 'service2', 'service3', 'service4',
              ])
              ->orderBy('operation_date')
              ->orderBy('id')
@@ -235,41 +235,43 @@ class ReportController extends Controller
              ->orderBy('id')
              ->get();
 
-         $headers = [
-             __('dobs.operation_serial'),
-             __('dobs.col_date'),
-             __('dobs.operation_client'),
-             __('dobs.operation_related_sales_order_number'),
-             __('dobs.operation_silk_final_product'),
-             __('dobs.col_quantity'),
-             __('dobs.operation_kind'),
-             __('dobs.operation_silk_print_preparations'),
-             __('dobs.operation_silk_unit'),
-             __('dobs.operation_color_count'),
-             __('dobs.operation_statement'),
-             __('dobs.operation_silk_supplier'),
-             __('dobs.operation_status'),
-             __('dobs.operation_notes'),
-         ];
+          $headers = [
+              __('dobs.operation_serial'),
+              __('dobs.col_in_date'),
+              __('dobs.col_out_date'),
+              __('dobs.operation_client'),
+              __('dobs.operation_related_sales_order_number'),
+              __('dobs.operation_silk_final_product'),
+              __('dobs.col_quantity'),
+              __('dobs.operation_kind'),
+              __('dobs.operation_silk_print_preparations'),
+              __('dobs.operation_silk_unit'),
+              __('dobs.operation_color_count'),
+              __('dobs.operation_statement'),
+              __('dobs.operation_silk_supplier'),
+              __('dobs.operation_status'),
+              __('dobs.operation_notes'),
+          ];
 
-         $rows = $operations->map(function ($op) {
-             return [
-                 $op->operation_number,
-                 $op->operation_date?->format('Y-m-d') ?? '',
-                 $op->client?->name ?? '',
-                 $op->related_sales_order_number ?? '',
-                 $op->item?->name ?? '',
-                 $op->quantity,
-                 $op->operationKind?->name ?? '',
-                 $op->stencil?->label() ?? '',
-                 $op->silk_unit?->label() ?? '',
-                 $op->color_count,
-                 $op->statement ?? '',
-                 $op->printingSupplier?->name ?? '',
-                 $op->operationStatus?->name ?? '',
-                 $op->notes ?? '',
-             ];
-         })->all();
+          $rows = $operations->map(function ($op) {
+              return [
+                  $op->operation_number,
+                  $op->entry_date?->format('Y-m-d') ?? $op->operation_date?->format('Y-m-d') ?? '',
+                  $op->exit_date?->format('Y-m-d') ?? $op->operation_date?->format('Y-m-d') ?? '',
+                  $op->client?->name ?? '',
+                  $op->related_sales_order_number ?? '',
+                  $op->item?->name ?? '',
+                  $op->quantity,
+                  $op->operationKind?->name ?? '',
+                  $op->stencil?->label() ?? '',
+                  $op->silk_unit?->label() ?? '',
+                  $op->color_count,
+                  $op->statement ?? '',
+                  $op->printingSupplier?->name ?? '',
+                  $op->operationStatus?->name ?? '',
+                  $op->notes ?? '',
+              ];
+          })->all();
 
          return $exporter->downloadXlsx('general_operations_summary', $headers, $rows);
      }

@@ -38,6 +38,8 @@ class OperationController extends Controller
         'quantity',
         'statement',
         'printing_supplier_id',
+        'printing_in_date',
+        'printing_out_date',
         'ctp_supplier_id',
         'color_count',
         'paper_type_id',
@@ -45,8 +47,19 @@ class OperationController extends Controller
         'pull_count',
         'quantity_per_sheet',
         'service_1_id',
+        'service_1_in_date',
+        'service_1_out_date',
         'service_2_id',
+        'service_2_in_date',
+        'service_2_out_date',
         'service_3_id',
+        'service_3_in_date',
+        'service_3_out_date',
+        'service_4_id',
+        'service_4_in_date',
+        'service_4_out_date',
+        'entry_date',
+        'exit_date',
     ];
 
     public function index(Request $request)
@@ -55,8 +68,19 @@ class OperationController extends Controller
 
         $query = Operation::with([
             'client', 'item', 'operationStatus', 'operationType', 'operationKind', 'printingSupplier', 'ctpSupplier',
-            'paperType', 'service1', 'service2', 'service3',
+            'paperType', 'service1', 'service2', 'service3', 'service4',
         ])->where('operation_type_id', $operationType->id);
+
+        $user = auth()->user();
+        if ($user && $user->isDataEntry()) {
+            $allowedServiceIds = $user->services()->pluck('services.id')->toArray();
+            $query->where(function ($q) use ($allowedServiceIds) {
+                $q->whereIn('service_1_id', $allowedServiceIds)
+                  ->orWhereIn('service_2_id', $allowedServiceIds)
+                  ->orWhereIn('service_3_id', $allowedServiceIds)
+                  ->orWhereIn('service_4_id', $allowedServiceIds);
+            });
+        }
 
         if ($request->filled('operation_number')) {
             $query->where('operation_number', 'like', '%' . $request->operation_number . '%');
@@ -117,7 +141,13 @@ class OperationController extends Controller
         $items = Item::orderBy('name')->get();
         $suppliers = Supplier::orderBy('name')->get();
         $paperTypes = PaperType::orderBy('name')->get();
-        $services = Service::orderBy('name')->get();
+
+        if ($user && $user->isDataEntry()) {
+            $services = $user->services()->orderBy('name')->get();
+        } else {
+            $services = Service::orderBy('name')->get();
+        }
+
         $operationStatuses = OperationStatus::orderBy('sort_order')->get();
         $operationTypes = OperationType::orderBy('sort_order')->orderBy('id')->get();
 
@@ -172,6 +202,21 @@ class OperationController extends Controller
 
         $validated = $request->validate($this->validationRules());
 
+        $user = auth()->user();
+        if ($user && $user->isDataEntry()) {
+            $allowedServiceIds = $user->services()->pluck('services.id')->toArray();
+            $assignedServices = array_filter([
+                $request->input('service_1_id'),
+                $request->input('service_2_id'),
+                $request->input('service_3_id'),
+                $request->input('service_4_id'),
+            ]);
+            $intersect = array_intersect($assignedServices, $allowedServiceIds);
+            if (empty($intersect)) {
+                return back()->withErrors(['service_1_id' => __('dobs.unauthorized_action')])->withInput();
+            }
+        }
+
         try {
             DB::beginTransaction();
 
@@ -201,6 +246,15 @@ class OperationController extends Controller
 
     public function show(Operation $operation)
     {
+        $user = auth()->user();
+        if ($user && $user->isDataEntry()) {
+            $allowedServiceIds = $user->services()->pluck('services.id')->toArray();
+            $intersect = array_intersect($operation->assignedServiceIds(), $allowedServiceIds);
+            if (empty($intersect)) {
+                abort(403, __('dobs.unauthorized_action'));
+            }
+        }
+
         $operation->load([
             'client',
             'item.category',
@@ -358,6 +412,7 @@ class OperationController extends Controller
             'service1',
             'service2',
             'service3',
+            'service4',
             'operationStatus',
         ]);
 
@@ -368,6 +423,14 @@ class OperationController extends Controller
             [__('dobs.operation_type'), $operation->operationType?->name ?? ''],
             [__('dobs.operation_status'), $operation->operationStatus?->name ?? ''],
             [__('dobs.operation_date'), $operation->operation_date?->format('Y-m-d') ?? ''],
+        ];
+
+        if ($operation->isGeneral()) {
+            $rows[] = [__('dobs.operation_general_entry_date'), $operation->entry_date?->format('Y-m-d') ?? ''];
+            $rows[] = [__('dobs.operation_general_exit_date'), $operation->exit_date?->format('Y-m-d') ?? ''];
+        }
+
+        $rows = array_merge($rows, [
             [__('dobs.operation_current_time'), $operation->formattedOperationTime() ?? ''],
             [__('dobs.operation_client'), $operation->client?->name ?? ''],
             [__('dobs.operation_related_sales_order_number'), $operation->related_sales_order_number ?? ''],
@@ -376,7 +439,7 @@ class OperationController extends Controller
                 $operation->item?->name ?? '',
             ],
             [__('dobs.col_quantity'), $operation->quantity ?? ''],
-        ];
+        ]);
 
         if ($operation->isGeneral()) {
             $rows[] = [__('dobs.operation_kind'), $operation->operationKind?->name ?? ''];
@@ -388,6 +451,8 @@ class OperationController extends Controller
             $operation->isGeneral() ? __('dobs.operation_silk_supplier') : __('dobs.operation_printing_press'),
             $operation->printingSupplier?->name ?? '',
         ];
+        $rows[] = [__('dobs.operation_printing_press_in_date'), $operation->printing_in_date?->format('Y-m-d') ?? ''];
+        $rows[] = [__('dobs.operation_printing_press_out_date'), $operation->printing_out_date?->format('Y-m-d') ?? ''];
 
         if ($operation->isOffset()) {
             $rows[] = [__('dobs.operation_ctp'), $operation->ctpSupplier?->name ?? ''];
@@ -405,9 +470,6 @@ class OperationController extends Controller
                 [__('dobs.operation_job_size'), $operation->job_size ?? ''],
                 [__('dobs.operation_pull_count'), $operation->pull_count ?? ''],
                 [__('dobs.operation_quantity_per_sheet'), $operation->quantity_per_sheet ?? ''],
-                [__('dobs.operation_service_1'), $operation->service1?->name ?? ''],
-                [__('dobs.operation_service_2'), $operation->service2?->name ?? ''],
-                [__('dobs.operation_service_3'), $operation->service3?->name ?? ''],
             ]);
         }
 
@@ -481,12 +543,17 @@ class OperationController extends Controller
      */
     private function formOptions(): array
     {
+        $user = auth()->user();
+        $services = ($user && $user->isDataEntry())
+            ? $user->services()->orderBy('name')->get()
+            : Service::orderBy('name')->get();
+
         return [
             'clients' => Client::orderBy('name')->get(),
             'items' => Item::orderBy('name')->get(),
             'suppliers' => Supplier::orderBy('name')->get(),
             'paperTypes' => PaperType::orderBy('name')->get(),
-            'services' => Service::orderBy('name')->get(),
+            'services' => $services,
             'operationStatuses' => OperationStatus::orderBy('sort_order')->get(),
             'operationKinds' => OperationKind::orderBy('sort_order')->orderBy('id')->get(),
         ];
@@ -533,6 +600,8 @@ class OperationController extends Controller
             'quantity' => 'required|integer|min:1',
             'statement' => 'nullable|string',
             'printing_supplier_id' => 'nullable|exists:suppliers,id',
+            'printing_in_date' => 'nullable|date',
+            'printing_out_date' => 'nullable|date',
             'ctp_supplier_id' => 'nullable|exists:suppliers,id',
             'color_count' => 'required|integer|min:1|max:10',
             'paper_type_id' => 'nullable|exists:paper_types,id',
@@ -540,8 +609,19 @@ class OperationController extends Controller
             'pull_count' => 'nullable|integer|min:0',
             'quantity_per_sheet' => 'nullable|integer|min:0',
             'service_1_id' => 'nullable|exists:services,id',
+            'service_1_in_date' => 'nullable|date',
+            'service_1_out_date' => 'nullable|date',
             'service_2_id' => 'nullable|exists:services,id',
+            'service_2_in_date' => 'nullable|date',
+            'service_2_out_date' => 'nullable|date',
             'service_3_id' => 'nullable|exists:services,id',
+            'service_3_in_date' => 'nullable|date',
+            'service_3_out_date' => 'nullable|date',
+            'service_4_id' => 'nullable|exists:services,id',
+            'service_4_in_date' => 'nullable|date',
+            'service_4_out_date' => 'nullable|date',
+            'entry_date' => 'nullable|date',
+            'exit_date' => 'nullable|date',
             'operation_status_id' => 'required|exists:operation_statuses,id',
         ];
     }
@@ -569,6 +649,8 @@ class OperationController extends Controller
             'item_id' => null,
             'quantity' => null,
             'printing_supplier_id' => null,
+            'printing_in_date' => null,
+            'printing_out_date' => null,
             'color_count' => null,
             'paper_type_id' => null,
             'stencil' => null,
@@ -578,8 +660,19 @@ class OperationController extends Controller
             'pull_count' => null,
             'quantity_per_sheet' => null,
             'service_1_id' => null,
+            'service_1_in_date' => null,
+            'service_1_out_date' => null,
             'service_2_id' => null,
+            'service_2_in_date' => null,
+            'service_2_out_date' => null,
             'service_3_id' => null,
+            'service_3_in_date' => null,
+            'service_3_out_date' => null,
+            'service_4_id' => null,
+            'service_4_in_date' => null,
+            'service_4_out_date' => null,
+            'entry_date' => null,
+            'exit_date' => null,
         ];
 
         $attributes['item_id'] = $validated['item_id'];
@@ -587,6 +680,11 @@ class OperationController extends Controller
         $attributes['printing_supplier_id'] = $validated['printing_supplier_id'] ?? null;
         $attributes['color_count'] = $validated['color_count'];
         $attributes['paper_type_id'] = $validated['paper_type_id'] ?? null;
+
+        $attributes['printing_in_date'] = $validated['printing_in_date'] ?? null;
+        $attributes['printing_out_date'] = $validated['printing_out_date'] ?? null;
+        $attributes['entry_date'] = $validated['entry_date'] ?? null;
+        $attributes['exit_date'] = $validated['exit_date'] ?? null;
 
         if ($type->isGeneral()) {
             $attributes['operation_kind_id'] = $validated['operation_kind_id'] ?? null;
@@ -601,8 +699,17 @@ class OperationController extends Controller
         $attributes['pull_count'] = $validated['pull_count'] ?? null;
         $attributes['quantity_per_sheet'] = $this->calcQuantityPerSheet($validated);
         $attributes['service_1_id'] = $validated['service_1_id'] ?? null;
+        $attributes['service_1_in_date'] = $validated['service_1_in_date'] ?? null;
+        $attributes['service_1_out_date'] = $validated['service_1_out_date'] ?? null;
         $attributes['service_2_id'] = $validated['service_2_id'] ?? null;
+        $attributes['service_2_in_date'] = $validated['service_2_in_date'] ?? null;
+        $attributes['service_2_out_date'] = $validated['service_2_out_date'] ?? null;
         $attributes['service_3_id'] = $validated['service_3_id'] ?? null;
+        $attributes['service_3_in_date'] = $validated['service_3_in_date'] ?? null;
+        $attributes['service_3_out_date'] = $validated['service_3_out_date'] ?? null;
+        $attributes['service_4_id'] = $validated['service_4_id'] ?? null;
+        $attributes['service_4_in_date'] = $validated['service_4_in_date'] ?? null;
+        $attributes['service_4_out_date'] = $validated['service_4_out_date'] ?? null;
 
         return $attributes;
     }
