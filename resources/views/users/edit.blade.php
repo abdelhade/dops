@@ -41,7 +41,7 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label">{{ __('dobs.nav_services') }}</label>
+            <label class="form-label">الحالات</label>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; padding: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 6px;">
                 @foreach($services as $service)
                     <label style="display: flex; align-items: center; gap: 8px; color: var(--text-primary); cursor: pointer; margin: 0;">
@@ -85,7 +85,7 @@
                                 'items' => __('dobs.nav_items'),
                                 'materials' => __('dobs.nav_materials'),
                                 'suppliers' => __('dobs.nav_suppliers'),
-                                'services' => __('dobs.nav_services'),
+                                'services' => 'الحالات',
                                 'users' => __('dobs.nav_users'),
                                 'categories' => __('dobs.nav_categories'),
                             ];
