@@ -43,10 +43,10 @@
         <div class="form-group">
             <label class="form-label">الحالات</label>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; padding: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 6px;">
-                @foreach($services as $service)
+                @foreach($statuses as $status)
                     <label style="display: flex; align-items: center; gap: 8px; color: var(--text-primary); cursor: pointer; margin: 0;">
-                        <input type="checkbox" name="services[]" value="{{ $service->id }}" {{ in_array($service->id, old('services', $user->services->pluck('id')->toArray())) ? 'checked' : '' }}>
-                        {{ $service->name }}
+                        <input type="checkbox" name="statuses[]" value="{{ $status->id }}" {{ in_array($status->id, old('statuses', $user->statuses->pluck('id')->toArray())) ? 'checked' : '' }}>
+                        {{ $status->name }}
                     </label>
                 @endforeach
             </div>

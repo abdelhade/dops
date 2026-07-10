@@ -146,8 +146,8 @@ class User extends Authenticatable
         $this->notify(new \App\Notifications\ResetPasswordNotification($token));
     }
 
-    public function services()
+    public function statuses()
     {
-        return $this->belongsToMany(Service::class);
+        return $this->belongsToMany(OperationStatus::class);
     }
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Service;
+use App\Models\OperationStatus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -28,7 +28,7 @@ class UserController extends Controller
 
         return view('users.create', [
             'roles' => $this->assignableRoles(),
-            'services' => Service::orderBy('name')->get(),
+            'statuses' => OperationStatus::orderBy('sort_order')->get(),
         ]);
     }
 
@@ -41,14 +41,14 @@ class UserController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role' => ['required', Rule::in(User::ROLES)],
-            'services' => ['nullable', 'array'],
-            'services.*' => ['exists:services,id'],
+            'statuses' => ['nullable', 'array'],
+            'statuses.*' => ['exists:operation_statuses,id'],
             'permissions' => ['nullable', 'array'],
             'permissions.*' => ['exists:permissions,name'],
         ]);
 
         $user = User::create($validated);
-        $user->services()->sync($request->input('services', []));
+        $user->statuses()->sync($request->input('statuses', []));
         $user->syncPermissions($request->input('permissions', []));
 
         return redirect()
@@ -63,7 +63,7 @@ class UserController extends Controller
         return view('users.edit', [
             'user' => $user,
             'roles' => $this->assignableRoles(),
-            'services' => Service::orderBy('name')->get(),
+            'statuses' => OperationStatus::orderBy('sort_order')->get(),
         ]);
     }
 
@@ -76,8 +76,8 @@ class UserController extends Controller
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'role' => ['required', Rule::in(User::ROLES)],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'services' => ['nullable', 'array'],
-            'services.*' => ['exists:services,id'],
+            'statuses' => ['nullable', 'array'],
+            'statuses.*' => ['exists:operation_statuses,id'],
             'permissions' => ['nullable', 'array'],
             'permissions.*' => ['exists:permissions,name'],
         ]);
@@ -104,7 +104,7 @@ class UserController extends Controller
         }
 
         $user->save();
-        $user->services()->sync($request->input('services', []));
+        $user->statuses()->sync($request->input('statuses', []));
         $user->syncPermissions($request->input('permissions', []));
 
         return redirect()
