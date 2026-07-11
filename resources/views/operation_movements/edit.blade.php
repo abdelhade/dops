@@ -30,12 +30,12 @@
         </div>
 
         <div class="form-group">
-            <label for="service_id" class="form-label">{{ __('dobs.col_service') }}</label>
-            <select name="service_id" id="service_id" class="form-control">
+            <label for="operation_status_id" class="form-label">حالات العمليات</label>
+            <select name="operation_status_id" id="operation_status_id" class="form-control">
                 <option value="">{{ __('dobs.na') }}</option>
-                @foreach($services as $service)
-                    <option value="{{ $service->id }}" {{ old('service_id', $operationMovement->service_id) == $service->id ? 'selected' : '' }}>
-                        {{ $service->name }}
+                @foreach($statuses as $status)
+                    <option value="{{ $status->id }}" {{ old('operation_status_id', $operationMovement->operation_status_id) == $status->id ? 'selected' : '' }}>
+                        {{ $status->name }}
                     </option>
                 @endforeach
             </select>
@@ -70,14 +70,14 @@
     document.addEventListener('DOMContentLoaded', function () {
         const operationsData = @json($operationsData);
         const operationSelect = document.getElementById('operation_id');
-        const serviceSelect = document.getElementById('service_id');
+        const statusSelect = document.getElementById('operation_status_id');
         const typeSelect = document.getElementById('type');
 
         // Store original options
         const originalOptions = Array.from(operationSelect.options);
 
         function filterOperations(isFirstLoad = false) {
-            const serviceId = parseInt(serviceSelect.value) || null;
+            const statusId = parseInt(statusSelect.value) || null;
             const type = typeSelect.value;
             const currentValue = isFirstLoad ? '{{ $operationMovement->operation_id }}' : operationSelect.value;
 
@@ -94,16 +94,11 @@
 
                 let visible = true;
 
-                if (serviceId) {
-                    // Must be assigned to this service
-                    if (!opData.services.includes(serviceId)) {
-                        visible = false;
-                    }
-
+                if (statusId) {
                     // For start, end, exit: must have an entry movement
                     if (visible && ['start', 'end', 'exit'].includes(type)) {
                         // Allow current operation to pass even if it's already this one
-                        if (!opData.entries[serviceId] && opId !== parseInt('{{ $operationMovement->operation_id }}')) {
+                        if (!opData.entries[statusId] && opId !== parseInt('{{ $operationMovement->operation_id }}')) {
                             visible = false;
                         }
                     }
@@ -123,7 +118,7 @@
             }
         }
 
-        serviceSelect.addEventListener('change', () => filterOperations(false));
+        statusSelect.addEventListener('change', () => filterOperations(false));
         typeSelect.addEventListener('change', () => filterOperations(false));
 
         // Run once on load
