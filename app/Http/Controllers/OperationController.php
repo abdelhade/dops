@@ -72,9 +72,11 @@ class OperationController extends Controller
         ])->where('operation_type_id', $operationType->id);
 
         $user = auth()->user();
-        if ($user && $user->isDataEntry()) {
+        if ($user && !$user->isAdmin()) {
             $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
-            $query->whereIn('operation_status_id', $allowedStatusIds);
+            if ($user->isDataEntry() || count($allowedStatusIds) > 0) {
+                $query->whereIn('operation_status_id', $allowedStatusIds);
+            }
         }
 
         if ($request->filled('operation_number')) {
@@ -194,10 +196,12 @@ class OperationController extends Controller
         $validated = $request->validate($this->validationRules());
 
         $user = auth()->user();
-        if ($user && $user->isDataEntry()) {
+        if ($user && !$user->isAdmin()) {
             $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
-            if (!in_array((int)$request->input('operation_status_id'), $allowedStatusIds, true)) {
-                return back()->withErrors(['operation_status_id' => __('dobs.unauthorized_action')])->withInput();
+            if ($user->isDataEntry() || count($allowedStatusIds) > 0) {
+                if (!in_array((int)$request->input('operation_status_id'), $allowedStatusIds, true)) {
+                    return back()->withErrors(['operation_status_id' => __('dobs.unauthorized_action')])->withInput();
+                }
             }
         }
 
@@ -231,10 +235,12 @@ class OperationController extends Controller
     public function show(Operation $operation)
     {
         $user = auth()->user();
-        if ($user && $user->isDataEntry()) {
+        if ($user && !$user->isAdmin()) {
             $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
-            if (!in_array($operation->operation_status_id, $allowedStatusIds, true)) {
-                abort(403, __('dobs.unauthorized_action'));
+            if ($user->isDataEntry() || count($allowedStatusIds) > 0) {
+                if (!in_array($operation->operation_status_id, $allowedStatusIds, true)) {
+                    abort(403, __('dobs.unauthorized_action'));
+                }
             }
         }
 

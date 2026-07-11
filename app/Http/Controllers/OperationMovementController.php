@@ -20,11 +20,13 @@ class OperationMovementController extends Controller
         $user = auth()->user();
         $query = OperationMovement::with(['operation', 'operationStatus']);
 
-        if ($user && $user->isDataEntry()) {
+        if ($user && !$user->isAdmin()) {
             $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
-            $query->whereHas('operation', function($q) use ($allowedStatusIds) {
-                $q->whereIn('operation_status_id', $allowedStatusIds);
-            });
+            if ($user->isDataEntry() || count($allowedStatusIds) > 0) {
+                $query->whereHas('operation', function($q) use ($allowedStatusIds) {
+                    $q->whereIn('operation_status_id', $allowedStatusIds);
+                });
+            }
         }
 
         $movements = $query->latest('datetime')->paginate(50);
@@ -43,9 +45,11 @@ class OperationMovementController extends Controller
         $statuses = OperationStatus::orderBy('name')->get();
 
         $query = Operation::query();
-        if ($user && $user->isDataEntry()) {
+        if ($user && !$user->isAdmin()) {
             $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
-            $query->whereIn('operation_status_id', $allowedStatusIds);
+            if ($user->isDataEntry() || count($allowedStatusIds) > 0) {
+                $query->whereIn('operation_status_id', $allowedStatusIds);
+            }
         }
         $operations = $query->orderBy('id', 'desc')->get();
         
@@ -89,11 +93,13 @@ class OperationMovementController extends Controller
         $type = $request->input('type');
 
         // 1. User allowed operation validation
-        if ($operationId && $user && $user->isDataEntry()) {
+        if ($operationId && $user && !$user->isAdmin()) {
             $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
-            $operationToCheck = Operation::find($operationId);
-            if ($operationToCheck && !in_array($operationToCheck->operation_status_id, $allowedStatusIds, true)) {
-                return back()->withErrors(['operation_id' => __('dobs.unauthorized_action')])->withInput();
+            if ($user->isDataEntry() || count($allowedStatusIds) > 0) {
+                $operationToCheck = Operation::find($operationId);
+                if ($operationToCheck && !in_array($operationToCheck->operation_status_id, $allowedStatusIds, true)) {
+                    return back()->withErrors(['operation_id' => __('dobs.unauthorized_action')])->withInput();
+                }
             }
         }
 
@@ -128,9 +134,11 @@ class OperationMovementController extends Controller
         $statuses = OperationStatus::orderBy('name')->get();
 
         $query = Operation::query();
-        if ($user && $user->isDataEntry()) {
+        if ($user && !$user->isAdmin()) {
             $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
-            $query->whereIn('operation_status_id', $allowedStatusIds);
+            if ($user->isDataEntry() || count($allowedStatusIds) > 0) {
+                $query->whereIn('operation_status_id', $allowedStatusIds);
+            }
         }
         $operations = $query->orderBy('id', 'desc')->get();
 
@@ -174,11 +182,13 @@ class OperationMovementController extends Controller
         $type = $request->input('type');
 
         // 1. User allowed operation validation
-        if ($operationId && $user && $user->isDataEntry()) {
+        if ($operationId && $user && !$user->isAdmin()) {
             $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
-            $operationToCheck = Operation::find($operationId);
-            if ($operationToCheck && !in_array($operationToCheck->operation_status_id, $allowedStatusIds, true)) {
-                return back()->withErrors(['operation_id' => __('dobs.unauthorized_action')])->withInput();
+            if ($user->isDataEntry() || count($allowedStatusIds) > 0) {
+                $operationToCheck = Operation::find($operationId);
+                if ($operationToCheck && !in_array($operationToCheck->operation_status_id, $allowedStatusIds, true)) {
+                    return back()->withErrors(['operation_id' => __('dobs.unauthorized_action')])->withInput();
+                }
             }
         }
 
