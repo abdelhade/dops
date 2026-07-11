@@ -73,13 +73,8 @@ class OperationController extends Controller
 
         $user = auth()->user();
         if ($user && $user->isDataEntry()) {
-            $allowedServiceIds = $user->services()->pluck('services.id')->toArray();
-            $query->where(function ($q) use ($allowedServiceIds) {
-                $q->whereIn('service_1_id', $allowedServiceIds)
-                  ->orWhereIn('service_2_id', $allowedServiceIds)
-                  ->orWhereIn('service_3_id', $allowedServiceIds)
-                  ->orWhereIn('service_4_id', $allowedServiceIds);
-            });
+            $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
+            $query->whereIn('operation_status_id', $allowedStatusIds);
         }
 
         if ($request->filled('operation_number')) {
@@ -142,11 +137,7 @@ class OperationController extends Controller
         $suppliers = Supplier::orderBy('name')->get();
         $paperTypes = PaperType::orderBy('name')->get();
 
-        if ($user && $user->isDataEntry()) {
-            $services = $user->services()->orderBy('name')->get();
-        } else {
-            $services = Service::orderBy('name')->get();
-        }
+        $services = Service::orderBy('name')->get();
 
         $operationStatuses = OperationStatus::orderBy('sort_order')->get();
         $operationTypes = OperationType::orderBy('sort_order')->orderBy('id')->get();
@@ -204,16 +195,9 @@ class OperationController extends Controller
 
         $user = auth()->user();
         if ($user && $user->isDataEntry()) {
-            $allowedServiceIds = $user->services()->pluck('services.id')->toArray();
-            $assignedServices = array_filter([
-                $request->input('service_1_id'),
-                $request->input('service_2_id'),
-                $request->input('service_3_id'),
-                $request->input('service_4_id'),
-            ]);
-            $intersect = array_intersect($assignedServices, $allowedServiceIds);
-            if (empty($intersect)) {
-                return back()->withErrors(['service_1_id' => __('dobs.unauthorized_action')])->withInput();
+            $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
+            if (!in_array((int)$request->input('operation_status_id'), $allowedStatusIds, true)) {
+                return back()->withErrors(['operation_status_id' => __('dobs.unauthorized_action')])->withInput();
             }
         }
 
@@ -248,9 +232,8 @@ class OperationController extends Controller
     {
         $user = auth()->user();
         if ($user && $user->isDataEntry()) {
-            $allowedServiceIds = $user->services()->pluck('services.id')->toArray();
-            $intersect = array_intersect($operation->assignedServiceIds(), $allowedServiceIds);
-            if (empty($intersect)) {
+            $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
+            if (!in_array($operation->operation_status_id, $allowedStatusIds, true)) {
                 abort(403, __('dobs.unauthorized_action'));
             }
         }
@@ -543,10 +526,7 @@ class OperationController extends Controller
      */
     private function formOptions(): array
     {
-        $user = auth()->user();
-        $services = ($user && $user->isDataEntry())
-            ? $user->services()->orderBy('name')->get()
-            : Service::orderBy('name')->get();
+        $services = Service::orderBy('name')->get();
 
         return [
             'clients' => Client::orderBy('name')->get(),

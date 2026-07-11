@@ -21,8 +21,10 @@ class OperationMovementController extends Controller
         $query = OperationMovement::with(['operation', 'service']);
 
         if ($user && $user->isDataEntry()) {
-            $allowedServiceIds = $user->services()->pluck('services.id')->toArray();
-            $query->whereIn('service_id', $allowedServiceIds);
+            $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
+            $query->whereHas('operation', function($q) use ($allowedStatusIds) {
+                $q->whereIn('operation_status_id', $allowedStatusIds);
+            });
         }
 
         $movements = $query->latest('datetime')->paginate(50);
@@ -38,21 +40,12 @@ class OperationMovementController extends Controller
         $this->authorizeCreate();
 
         $user = auth()->user();
-        if ($user && $user->services()->exists()) {
-            $services = $user->services()->orderBy('name')->get();
-        } else {
-            $services = Service::orderBy('name')->get();
-        }
+        $services = Service::orderBy('name')->get();
 
         $query = Operation::query();
-        if ($user && $user->services()->exists()) {
-            $allowedServiceIds = $user->services()->pluck('services.id')->toArray();
-            $query->where(function ($q) use ($allowedServiceIds) {
-                $q->whereIn('service_1_id', $allowedServiceIds)
-                  ->orWhereIn('service_2_id', $allowedServiceIds)
-                  ->orWhereIn('service_3_id', $allowedServiceIds)
-                  ->orWhereIn('service_4_id', $allowedServiceIds);
-            });
+        if ($user && $user->isDataEntry()) {
+            $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
+            $query->whereIn('operation_status_id', $allowedStatusIds);
         }
         $operations = $query->orderBy('id', 'desc')->get();
         
@@ -96,11 +89,12 @@ class OperationMovementController extends Controller
         $operationId = (int) $request->input('operation_id');
         $type = $request->input('type');
 
-        // 1. User allowed service validation
-        if ($serviceId && $user && $user->services()->exists()) {
-            $allowedServiceIds = $user->services()->pluck('services.id')->toArray();
-            if (! in_array($serviceId, $allowedServiceIds, true)) {
-                return back()->withErrors(['service_id' => __('dobs.unauthorized_action')])->withInput();
+        // 1. User allowed operation validation
+        if ($operationId && $user && $user->isDataEntry()) {
+            $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
+            $operationToCheck = Operation::find($operationId);
+            if ($operationToCheck && !in_array($operationToCheck->operation_status_id, $allowedStatusIds, true)) {
+                return back()->withErrors(['operation_id' => __('dobs.unauthorized_action')])->withInput();
             }
         }
 
@@ -108,13 +102,6 @@ class OperationMovementController extends Controller
         if ($serviceId) {
             $operation = Operation::find($operationId);
             if ($operation) {
-                if ($user && $user->services()->exists()) {
-                    $allowedServiceIds = $user->services()->pluck('services.id')->toArray();
-                    $intersect = array_intersect($operation->assignedServiceIds(), $allowedServiceIds);
-                    if (empty($intersect)) {
-                        return back()->withErrors(['operation_id' => __('dobs.unauthorized_action')])->withInput();
-                    }
-                }
 
                 if (! in_array($serviceId, $operation->assignedServiceIds(), true)) {
                     return back()->withErrors(['operation_id' => __('dobs.operation_does_not_contain_service')])->withInput();
@@ -144,21 +131,12 @@ class OperationMovementController extends Controller
         $this->authorizeEdit();
 
         $user = auth()->user();
-        if ($user && $user->services()->exists()) {
-            $services = $user->services()->orderBy('name')->get();
-        } else {
-            $services = Service::orderBy('name')->get();
-        }
+        $services = Service::orderBy('name')->get();
 
         $query = Operation::query();
-        if ($user && $user->services()->exists()) {
-            $allowedServiceIds = $user->services()->pluck('services.id')->toArray();
-            $query->where(function ($q) use ($allowedServiceIds) {
-                $q->whereIn('service_1_id', $allowedServiceIds)
-                  ->orWhereIn('service_2_id', $allowedServiceIds)
-                  ->orWhereIn('service_3_id', $allowedServiceIds)
-                  ->orWhereIn('service_4_id', $allowedServiceIds);
-            });
+        if ($user && $user->isDataEntry()) {
+            $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
+            $query->whereIn('operation_status_id', $allowedStatusIds);
         }
         $operations = $query->orderBy('id', 'desc')->get();
 
@@ -202,11 +180,12 @@ class OperationMovementController extends Controller
         $operationId = (int) $request->input('operation_id');
         $type = $request->input('type');
 
-        // 1. User allowed service validation
-        if ($serviceId && $user && $user->services()->exists()) {
-            $allowedServiceIds = $user->services()->pluck('services.id')->toArray();
-            if (! in_array($serviceId, $allowedServiceIds, true)) {
-                return back()->withErrors(['service_id' => __('dobs.unauthorized_action')])->withInput();
+        // 1. User allowed operation validation
+        if ($operationId && $user && $user->isDataEntry()) {
+            $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
+            $operationToCheck = Operation::find($operationId);
+            if ($operationToCheck && !in_array($operationToCheck->operation_status_id, $allowedStatusIds, true)) {
+                return back()->withErrors(['operation_id' => __('dobs.unauthorized_action')])->withInput();
             }
         }
 
@@ -214,13 +193,6 @@ class OperationMovementController extends Controller
         if ($serviceId) {
             $operation = Operation::find($operationId);
             if ($operation) {
-                if ($user && $user->services()->exists()) {
-                    $allowedServiceIds = $user->services()->pluck('services.id')->toArray();
-                    $intersect = array_intersect($operation->assignedServiceIds(), $allowedServiceIds);
-                    if (empty($intersect)) {
-                        return back()->withErrors(['operation_id' => __('dobs.unauthorized_action')])->withInput();
-                    }
-                }
 
                 if (! in_array($serviceId, $operation->assignedServiceIds(), true)) {
                     return back()->withErrors(['operation_id' => __('dobs.operation_does_not_contain_service')])->withInput();
