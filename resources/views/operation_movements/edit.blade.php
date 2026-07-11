@@ -68,61 +68,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const operationsData = @json($operationsData);
-        const operationSelect = document.getElementById('operation_id');
-        const statusSelect = document.getElementById('operation_status_id');
-        const typeSelect = document.getElementById('type');
-
-        // Store original options
-        const originalOptions = Array.from(operationSelect.options);
-
-        function filterOperations(isFirstLoad = false) {
-            const statusId = parseInt(statusSelect.value) || null;
-            const type = typeSelect.value;
-            const currentValue = isFirstLoad ? '{{ $operationMovement->operation_id }}' : operationSelect.value;
-
-            // Clear current options except the placeholder
-            operationSelect.innerHTML = '';
-            operationSelect.appendChild(originalOptions[0]); // placeholder
-
-            originalOptions.forEach(opt => {
-                if (!opt.value) return;
-
-                const opId = parseInt(opt.value);
-                const opData = operationsData.find(o => o.id === opId);
-                if (!opData) return;
-
-                let visible = true;
-
-                if (statusId) {
-                    // For start, end, exit: must have an entry movement
-                    if (visible && ['start', 'end', 'exit'].includes(type)) {
-                        // Allow current operation to pass even if it's already this one
-                        if (!opData.entries[statusId] && opId !== parseInt('{{ $operationMovement->operation_id }}')) {
-                            visible = false;
-                        }
-                    }
-                }
-
-                if (visible) {
-                    operationSelect.appendChild(opt);
-                }
-            });
-
-            // Restore selection if still available
-            const optionExists = Array.from(operationSelect.options).some(opt => opt.value === currentValue);
-            if (optionExists) {
-                operationSelect.value = currentValue;
-            } else {
-                operationSelect.value = '';
-            }
-        }
-
-        statusSelect.addEventListener('change', () => filterOperations(false));
-        typeSelect.addEventListener('change', () => filterOperations(false));
-
-        // Run once on load
-        filterOperations(true);
+        // No frontend filtering for operations required based on user request.
     });
 </script>
 @endsection

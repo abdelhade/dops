@@ -113,10 +113,6 @@
         const nextStatusSelect = document.getElementById('next_status_id');
         const detailsCard = document.getElementById('operation_details_card');
 
-        // Store original options for both selects
-        const originalOperationOptions = Array.from(operationSelect.options);
-        const originalStatusOptions = Array.from(statusSelect.options);
-
         function updateDetailsCard() {
             const opId = parseInt(operationSelect.value);
             if (!opId) {
@@ -140,52 +136,8 @@
 
         operationSelect.addEventListener('change', updateDetailsCard);
 
-        function filterOperations() {
-            const statusId = parseInt(statusSelect.value) || null;
-            const type = typeSelect.value;
-            const currentValue = operationSelect.value;
-
-            // Clear current options except the placeholder
-            operationSelect.innerHTML = '';
-            operationSelect.appendChild(originalOperationOptions[0].cloneNode(true)); // placeholder
-
-            originalOperationOptions.forEach(opt => {
-                if (!opt.value) return;
-
-                const opId = parseInt(opt.value);
-                const opData = operationsData.find(o => o.id === opId);
-                if (!opData) return;
-
-                let visible = true;
-
-                if (statusId) {
-                    // For start, end, exit: must have an entry movement
-                    if (visible && ['start', 'end', 'exit'].includes(type)) {
-                        if (!opData.entries[statusId]) {
-                            visible = false;
-                        }
-                    }
-                }
-
-                if (visible) {
-                    operationSelect.appendChild(opt.cloneNode(true));
-                }
-            });
-
-            // Restore selection if still available
-            const optionExists = Array.from(operationSelect.options).some(opt => opt.value === currentValue);
-            operationSelect.value = optionExists ? currentValue : '';
-            updateDetailsCard();
-        }
-
-        // When status changes: filter operations
-        statusSelect.addEventListener('change', function () {
-            filterOperations();
-        });
-
-        // When type changes: re-filter operations and toggle next status
+        // When type changes: toggle next status
         typeSelect.addEventListener('change', function () {
-            filterOperations();
             if (this.value === 'exit') {
                 nextStatusGroup.style.display = 'block';
                 nextStatusSelect.required = true;
