@@ -51,12 +51,16 @@ class OperationMovementController extends Controller
                 $query->whereIn('operation_status_id', $allowedStatusIds);
             }
         }
-        $operations = $query->orderBy('id', 'desc')->get();
+        $operations = $query->with(['client', 'item'])->orderBy('id', 'desc')->get();
         
         $operationsData = $operations->map(function ($op) {
             return [
                 'id' => $op->id,
                 'operation_number' => $op->operation_number,
+                'client_name' => $op->client->name ?? '',
+                'item_name' => $op->item->name ?? '',
+                'quantity' => $op->quantity ?? '',
+                'statement' => $op->statement ?? $op->notes ?? '',
                 'entries' => $op->movements()->where('type', 'entry')->pluck('operation_status_id')->mapWithKeys(function ($sid) {
                     return [$sid => true];
                 })->all(),
@@ -85,6 +89,7 @@ class OperationMovementController extends Controller
             'operation_status_id' => 'nullable|exists:operation_statuses,id',
             'type' => 'required|string|in:entry,start,end,exit',
             'datetime' => 'required|date',
+            'next_status_id' => 'nullable|required_if:type,exit|exists:operation_statuses,id',
         ]);
 
         $user = auth()->user();
@@ -116,7 +121,38 @@ class OperationMovementController extends Controller
             }
         }
 
-        OperationMovement::create($validated);
+        try {
+            \Illuminate\Support\Facades\DB::beginTransaction();
+
+            OperationMovement::create([
+                'operation_id' => $validated['operation_id'],
+                'operation_status_id' => $validated['operation_status_id'],
+                'type' => $validated['type'],
+                'datetime' => $validated['datetime'],
+            ]);
+
+            if ($type === 'exit' && !empty($validated['next_status_id'])) {
+                $nextStatusId = (int) $validated['next_status_id'];
+                
+                OperationMovement::create([
+                    'operation_id' => $operationId,
+                    'operation_status_id' => $nextStatusId,
+                    'type' => 'entry',
+                    'datetime' => date('Y-m-d H:i:s', strtotime($validated['datetime']) + 1),
+                ]);
+
+                $operationToUpdate = Operation::find($operationId);
+                if ($operationToUpdate) {
+                    // Update the operation's status to the new status
+                    $operationToUpdate->update(['operation_status_id' => $nextStatusId]);
+                }
+            }
+
+            \Illuminate\Support\Facades\DB::commit();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return back()->with('error', __('dobs.flash_operation_update_error', ['message' => $e->getMessage()]))->withInput();
+        }
 
         return redirect()
             ->route('operation-movements.index')
@@ -140,12 +176,16 @@ class OperationMovementController extends Controller
                 $query->whereIn('operation_status_id', $allowedStatusIds);
             }
         }
-        $operations = $query->orderBy('id', 'desc')->get();
+        $operations = $query->with(['client', 'item'])->orderBy('id', 'desc')->get();
 
         $operationsData = $operations->map(function ($op) {
             return [
                 'id' => $op->id,
                 'operation_number' => $op->operation_number,
+                'client_name' => $op->client->name ?? '',
+                'item_name' => $op->item->name ?? '',
+                'quantity' => $op->quantity ?? '',
+                'statement' => $op->statement ?? $op->notes ?? '',
                 'entries' => $op->movements()->where('type', 'entry')->pluck('operation_status_id')->mapWithKeys(function ($sid) {
                     return [$sid => true];
                 })->all(),
