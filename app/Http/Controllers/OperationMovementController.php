@@ -49,6 +49,7 @@ class OperationMovementController extends Controller
             $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
             if ($user->isDataEntry() || count($allowedStatusIds) > 0) {
                 $query->whereIn('operation_status_id', $allowedStatusIds);
+                $statuses = $statuses->whereIn('id', $allowedStatusIds);
             }
         }
         $operations = $query->with(['client', 'item'])->orderBy('id', 'desc')->get();
@@ -174,6 +175,7 @@ class OperationMovementController extends Controller
             $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
             if ($user->isDataEntry() || count($allowedStatusIds) > 0) {
                 $query->whereIn('operation_status_id', $allowedStatusIds);
+                $statuses = $statuses->whereIn('id', $allowedStatusIds);
             }
         }
         $operations = $query->with(['client', 'item'])->orderBy('id', 'desc')->get();
