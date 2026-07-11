@@ -6,7 +6,7 @@
 @section('header_subtitle', __('dobs.operation_types_subtitle'))
 
 @section('header_actions')
-    @if (auth()->user()?->canCreateRecords())
+    @if (auth()->user()?->hasPermission('operation-types', 'create'))
         <a href="{{ route('operation-types.create') }}" class="btn btn-primary">
             <i class="fa-solid fa-plus"></i> {{ __('dobs.new_operation_type') }}
         </a>
@@ -46,12 +46,12 @@
                             @endif
                         </td>
                         <td>
-                            @if (auth()->user()?->canEditRecords())
+                            @if (auth()->user()?->hasPermission('operation-types', 'update'))
                                 <a href="{{ route('operation-types.edit', $type) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.edit') }}">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
                             @endif
-                            @if (!$type->is_system && auth()->user()?->canDeleteRecords())
+                            @if (!$type->is_system && auth()->user()?->hasPermission('operation-types', 'delete'))
                                 <form
                                     action="{{ route('operation-types.destroy', $type) }}"
                                     method="POST"

@@ -6,7 +6,7 @@
 @section('header_subtitle', __('dobs.materials_subtitle'))
 
 @section('header_actions')
-    @if (auth()->user()?->canCreateRecords())
+    @if (auth()->user()?->hasPermission('materials', 'create'))
         <a href="{{ route('materials.create') }}" class="btn btn-primary">
             <i class="fa-solid fa-plus"></i> {{ __('dobs.new_material') }}
         </a>

@@ -25,7 +25,7 @@
             $isCompleted = in_array(strtolower($operation->operationStatus->name), ['completed', 'مكتمل', 'منتهي']);
         }
     @endphp
-    @if (!$isCompleted && auth()->user()?->canEditRecords())
+    @if (!$isCompleted && auth()->user()?->hasPermission('operations', 'update'))
         <a href="{{ route('operations.edit', $operation->id) }}" class="btn btn-primary">
             <i class="fa-solid fa-pen-to-square"></i> {{ __('dobs.edit_operation') }}
         </a>

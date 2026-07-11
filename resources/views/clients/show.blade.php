@@ -10,7 +10,7 @@
     <a href="{{ route('clients.index') }}" class="btn btn-secondary">
         <i class="fa-solid fa-arrow-right"></i> {{ __('dobs.back') }}
     </a>
-    @if (auth()->user()?->canEditRecords())
+    @if (auth()->user()?->hasPermission('clients', 'update'))
         <a href="{{ route('clients.edit', $client->id) }}" class="btn btn-primary">
             <i class="fa-solid fa-pen-to-square"></i> {{ __('dobs.edit') }}
         </a>

@@ -6,7 +6,7 @@
 @section('header_subtitle', __('dobs.items_subtitle'))
 
 @section('header_actions')
-    @if (auth()->user()?->canCreateRecords())
+    @if (auth()->user()?->hasPermission('items', 'create'))
         <a href="{{ route('items.create') }}" class="btn btn-primary">
             <i class="fa-solid fa-plus"></i> {{ __('dobs.new_item') }}
         </a>

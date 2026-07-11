@@ -3,6 +3,7 @@
     'editRoute' => null,
     'destroyRoute' => null,
     'confirmMessage' => null,
+    'resource' => null,
 ])
 
 <div class="actions-cell">
@@ -12,13 +13,13 @@
         </a>
     @endif
 
-    @if ($editRoute && auth()->user()?->canEditRecords())
+    @if ($editRoute && (!$resource || auth()->user()?->hasPermission($resource, 'update')))
         <a href="{{ $editRoute }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.edit') }}">
             <i class="fa-solid fa-pen-to-square"></i>
         </a>
     @endif
 
-    @if ($destroyRoute && auth()->user()?->canDeleteRecords())
+    @if ($destroyRoute && (!$resource || auth()->user()?->hasPermission($resource, 'delete')))
         <form
             action="{{ $destroyRoute }}"
             method="POST"

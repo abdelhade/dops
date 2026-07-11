@@ -6,7 +6,7 @@
 @section('header_subtitle', __('dobs.services_subtitle'))
 
 @section('header_actions')
-    @if (auth()->user()?->canCreateRecords())
+    @if (auth()->user()?->hasPermission('services', 'create'))
         <a href="{{ route('services.create') }}" class="btn btn-primary">
             <i class="fa-solid fa-plus"></i> {{ __('dobs.new_service') }}
         </a>

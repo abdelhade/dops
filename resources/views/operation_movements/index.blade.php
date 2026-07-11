@@ -6,7 +6,7 @@
 @section('header_subtitle', __('dobs.operation_movements_subtitle'))
 
 @section('header_actions')
-    @if (auth()->user()?->canCreateRecords())
+    @if (auth()->user()?->hasPermission('operation-movements', 'create'))
         <a href="{{ route('operation-movements.create') }}" class="btn btn-primary">
             <i class="fa-solid fa-plus"></i> {{ __('dobs.new_operation_movement') }}
         </a>

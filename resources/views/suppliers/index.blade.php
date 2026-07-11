@@ -6,7 +6,7 @@
 @section('header_subtitle', __('dobs.suppliers_subtitle'))
 
 @section('header_actions')
-    @if (auth()->user()?->canCreateRecords())
+    @if (auth()->user()?->hasPermission('suppliers', 'create'))
         <a href="{{ route('suppliers.create') }}" class="btn btn-primary">
             <i class="fa-solid fa-plus"></i> {{ __('dobs.new_supplier') }}
         </a>

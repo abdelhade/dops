@@ -47,11 +47,7 @@ abstract class Controller
         }
 
         $resource = $this->getResourceName();
-        if ($resource && $user->hasPermission($resource, 'read')) {
-            return;
-        }
-
-        if ($user->isDataEntry() && ! in_array($resource, ['operations', 'operation-movements'], true)) {
+        if (! $resource || ! $user->hasPermission($resource, 'read')) {
             abort(403, __('dobs.unauthorized_action'));
         }
     }
@@ -64,11 +60,7 @@ abstract class Controller
         }
 
         $resource = $this->getResourceName();
-        if ($resource && $user->hasPermission($resource, 'create')) {
-            return;
-        }
-
-        if (! $user->canCreateRecords()) {
+        if (! $resource || ! $user->hasPermission($resource, 'create')) {
             abort(403, __('dobs.unauthorized_action'));
         }
     }
@@ -81,11 +73,7 @@ abstract class Controller
         }
 
         $resource = $this->getResourceName();
-        if ($resource && $user->hasPermission($resource, 'update')) {
-            return;
-        }
-
-        if (! $user->canEditRecords()) {
+        if (! $resource || ! $user->hasPermission($resource, 'update')) {
             abort(403, __('dobs.unauthorized_action'));
         }
     }
@@ -98,11 +86,7 @@ abstract class Controller
         }
 
         $resource = $this->getResourceName();
-        if ($resource && $user->hasPermission($resource, 'delete')) {
-            return;
-        }
-
-        if (! $user->canDeleteRecords()) {
+        if (! $resource || ! $user->hasPermission($resource, 'delete')) {
             abort(403, __('dobs.unauthorized_action'));
         }
     }

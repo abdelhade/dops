@@ -6,7 +6,7 @@
 @section('header_subtitle', __('dobs.stages_subtitle'))
 
 @section('header_actions')
-    @if (auth()->user()?->canCreateRecords())
+    @if (auth()->user()?->hasPermission('stages', 'create'))
         <a href="{{ route('stages.create') }}" class="btn btn-primary">
             <i class="fa-solid fa-plus"></i> {{ __('dobs.new_stage') }}
         </a>

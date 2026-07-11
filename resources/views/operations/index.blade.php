@@ -18,7 +18,7 @@
             </select>
         </form>
 
-        @if (auth()->user()?->canCreateRecords())
+        @if (auth()->user()?->hasPermission('operations', 'create'))
             <a href="{{ route('operations.create', ['operation_type' => $operationType->slug]) }}" class="btn btn-primary">
                 <i class="fa-solid fa-plus"></i> {{ __('dobs.new_operation') }}
             </a>

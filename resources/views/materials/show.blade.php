@@ -10,7 +10,7 @@
     <a href="{{ route('materials.index') }}" class="btn btn-secondary">
         <i class="fa-solid fa-arrow-right"></i> {{ __('dobs.back') }}
     </a>
-    @if (auth()->user()?->canEditRecords())
+    @if (auth()->user()?->hasPermission('materials', 'update'))
         <a href="{{ route('materials.edit', $material->id) }}" class="btn btn-primary">
             <i class="fa-solid fa-pen-to-square"></i> {{ __('dobs.edit') }}
         </a>

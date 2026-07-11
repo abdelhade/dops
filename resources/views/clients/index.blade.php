@@ -6,7 +6,7 @@
 @section('header_subtitle', __('dobs.clients_subtitle'))
 
 @section('header_actions')
-    @if (auth()->user()?->canCreateRecords())
+    @if (auth()->user()?->hasPermission('clients', 'create'))
         <a href="{{ route('clients.daftara.sync-form') }}" class="btn btn-secondary" style="margin-left: 0.5rem; margin-right: 0.5rem;">
             <i class="fa-solid fa-cloud-arrow-down"></i> {{ __('dobs.daftara_sync') }}
         </a>
@@ -53,7 +53,7 @@
 @include('partials.list-export-print', ['exportRoute' => route('clients.export')])
 
 @php
-    $canBulkDelete = (bool) auth()->user()?->canDeleteRecords();
+    $canBulkDelete = (bool) auth()->user()?->hasPermission('clients', 'delete');
     $clientFilterKeys = ['search', 'phone', 'email'];
     $hasActiveFilters = collect($clientFilterKeys)->contains(fn ($key) => request()->filled($key));
     $clearFiltersUrl = route('clients.index');
@@ -164,7 +164,7 @@
 @endsection
 
 @section('scripts')
-    @if (auth()->user()?->canDeleteRecords())
+    @if (auth()->user()?->hasPermission('clients', 'delete'))
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
         <script>
             window.CLIENTS_BULK_LANG = {

@@ -6,7 +6,7 @@
 @section('header_subtitle', __('dobs.operation_kinds_subtitle'))
 
 @section('header_actions')
-    @if (auth()->user()?->canCreateRecords())
+    @if (auth()->user()?->hasPermission('operation-kinds', 'create'))
         <a href="{{ route('operation-kinds.create') }}" class="btn btn-primary">
             <i class="fa-solid fa-plus"></i> {{ __('dobs.new_operation_kind') }}
         </a>

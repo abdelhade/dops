@@ -10,7 +10,7 @@
     <a href="{{ route('paper-types.index') }}" class="btn btn-secondary">
         <i class="fa-solid fa-arrow-right"></i> {{ __('dobs.back') }}
     </a>
-    @if (auth()->user()?->canEditRecords())
+    @if (auth()->user()?->hasPermission('paper-types', 'update'))
         <a href="{{ route('paper-types.edit', $paperType->id) }}" class="btn btn-primary">
             <i class="fa-solid fa-pen-to-square"></i> {{ __('dobs.edit') }}
         </a>

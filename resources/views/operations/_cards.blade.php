@@ -25,7 +25,7 @@
             </div>
 
             <div class="operation-card-status">
-                @if (auth()->user()?->canEditRecords())
+                @if (auth()->user()?->hasPermission('operations', 'update'))
                     <form
                         action="{{ route('operations.update-status', $op) }}"
                         method="POST"
@@ -140,17 +140,17 @@
                 <i class="fa-solid fa-eye"></i>
                 {{ __('dobs.view') }}
             </a>
-            @if (!$isCompleted && auth()->user()?->canEditRecords())
+            @if (!$isCompleted && auth()->user()?->hasPermission('operations', 'update'))
                 <a href="{{ route('operations.edit', $op->id) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.edit') }}">
                     <i class="fa-solid fa-pen-to-square"></i>
                 </a>
             @endif
-            @if (auth()->user()?->canCreateRecords())
+            @if (auth()->user()?->hasPermission('operations', 'create'))
                 <a href="{{ route('operations.create', ['copy_from' => $op->id, 'operation_type' => $operationType->slug]) }}" class="btn btn-secondary btn-sm" title="{{ __('dobs.copy_operation') }}">
                     <i class="fa-solid fa-copy"></i>
                 </a>
             @endif
-            @if (auth()->user()?->canDeleteRecords())
+            @if (auth()->user()?->hasPermission('operations', 'delete'))
                 <form
                     action="{{ route('operations.destroy', $op->id) }}"
                     method="POST"

@@ -6,7 +6,7 @@
 @section('header_subtitle', __('dobs.paper_types_subtitle'))
 
 @section('header_actions')
-    @if (auth()->user()?->canCreateRecords())
+    @if (auth()->user()?->hasPermission('paper-types', 'create'))
         <a href="{{ route('paper-types.create') }}" class="btn btn-primary">
             <i class="fa-solid fa-plus"></i> {{ __('dobs.new_paper_type') }}
         </a>
