@@ -198,10 +198,10 @@ class Operation extends Model
         ])->filter()->map(fn($val) => (int) $val)->values()->all();
     }
 
-    public function hasEntryMovementForService(int $serviceId): bool
+    public function hasEntryMovementForStatus(int $statusId): bool
     {
         return $this->movements()
-            ->where('service_id', $serviceId)
+            ->where('operation_status_id', $statusId)
             ->where('type', 'entry')
             ->exists();
     }

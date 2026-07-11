@@ -20,8 +20,8 @@ class OperationMovement extends Model
         return $this->belongsTo(Operation::class);
     }
 
-    public function service()
+    public function operationStatus()
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsTo(OperationStatus::class);
     }
 }

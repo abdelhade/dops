@@ -29,12 +29,12 @@
         </div>
 
         <div class="form-group">
-            <label for="service_id" class="form-label">حالات العمليات</label>
-            <select name="service_id" id="service_id" class="form-control">
+            <label for="operation_status_id" class="form-label">حالات العمليات</label>
+            <select name="operation_status_id" id="operation_status_id" class="form-control">
                 <option value="">{{ __('dobs.na') }}</option>
-                @foreach($services as $service)
-                    <option value="{{ $service->id }}" {{ old('service_id') == $service->id ? 'selected' : '' }}>
-                        {{ $service->name }}
+                @foreach($statuses as $status)
+                    <option value="{{ $status->id }}" {{ old('operation_status_id') == $status->id ? 'selected' : '' }}>
+                        {{ $status->name }}
                     </option>
                 @endforeach
             </select>
@@ -69,52 +69,15 @@
     document.addEventListener('DOMContentLoaded', function () {
         const operationsData = @json($operationsData);
         const operationSelect = document.getElementById('operation_id');
-        const serviceSelect = document.getElementById('service_id');
+        const statusSelect = document.getElementById('operation_status_id');
         const typeSelect = document.getElementById('type');
 
         // Store original options for both selects
         const originalOperationOptions = Array.from(operationSelect.options);
-        const originalServiceOptions = Array.from(serviceSelect.options);
-
-        // Track which select the user changed last to avoid circular filtering
-        let lastChangedBy = null;
-
-        function filterServices() {
-            const opId = parseInt(operationSelect.value) || null;
-            const currentServiceValue = serviceSelect.value;
-
-            // Clear service options
-            serviceSelect.innerHTML = '';
-            serviceSelect.appendChild(originalServiceOptions[0].cloneNode(true)); // placeholder
-
-            originalServiceOptions.forEach(opt => {
-                if (!opt.value) return;
-
-                const sId = parseInt(opt.value);
-                let visible = true;
-
-                if (opId) {
-                    const opData = operationsData.find(o => o.id === opId);
-                    if (opData) {
-                        const assignedServices = opData.services.map(Number);
-                        if (!assignedServices.includes(sId)) {
-                            visible = false;
-                        }
-                    }
-                }
-
-                if (visible) {
-                    serviceSelect.appendChild(opt.cloneNode(true));
-                }
-            });
-
-            // Restore selection if still available
-            const optionExists = Array.from(serviceSelect.options).some(opt => opt.value === currentServiceValue);
-            serviceSelect.value = optionExists ? currentServiceValue : '';
-        }
+        const originalStatusOptions = Array.from(statusSelect.options);
 
         function filterOperations() {
-            const serviceId = parseInt(serviceSelect.value) || null;
+            const statusId = parseInt(statusSelect.value) || null;
             const type = typeSelect.value;
             const currentValue = operationSelect.value;
 
@@ -131,16 +94,10 @@
 
                 let visible = true;
 
-                if (serviceId) {
-                    // Must be assigned to this service
-                    const assignedServices = opData.services.map(Number);
-                    if (!assignedServices.includes(serviceId)) {
-                        visible = false;
-                    }
-
+                if (statusId) {
                     // For start, end, exit: must have an entry movement
                     if (visible && ['start', 'end', 'exit'].includes(type)) {
-                        if (!opData.entries[serviceId]) {
+                        if (!opData.entries[statusId]) {
                             visible = false;
                         }
                     }
@@ -156,16 +113,8 @@
             operationSelect.value = optionExists ? currentValue : '';
         }
 
-        // When operation changes: filter services, then re-filter operations
-        operationSelect.addEventListener('change', function () {
-            lastChangedBy = 'operation';
-            filterServices();
-            // Don't re-filter operations when operation itself was changed
-        });
-
-        // When service changes: filter operations
-        serviceSelect.addEventListener('change', function () {
-            lastChangedBy = 'service';
+        // When status changes: filter operations
+        statusSelect.addEventListener('change', function () {
             filterOperations();
         });
 

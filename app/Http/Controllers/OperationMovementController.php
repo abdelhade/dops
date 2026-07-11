@@ -6,7 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Operation;
 use App\Models\OperationMovement;
-use App\Models\Service;
+use App\Models\OperationStatus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -18,7 +18,7 @@ class OperationMovementController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $query = OperationMovement::with(['operation', 'service']);
+        $query = OperationMovement::with(['operation', 'operationStatus']);
 
         if ($user && $user->isDataEntry()) {
             $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
@@ -40,7 +40,7 @@ class OperationMovementController extends Controller
         $this->authorizeCreate();
 
         $user = auth()->user();
-        $services = Service::orderBy('name')->get();
+        $statuses = OperationStatus::orderBy('name')->get();
 
         $query = Operation::query();
         if ($user && $user->isDataEntry()) {
@@ -53,9 +53,8 @@ class OperationMovementController extends Controller
             return [
                 'id' => $op->id,
                 'operation_number' => $op->operation_number,
-                'services' => $op->assignedServiceIds(),
-                'entries' => collect($op->assignedServiceIds())->mapWithKeys(function ($sid) use ($op) {
-                    return [$sid => $op->hasEntryMovementForService((int) $sid)];
+                'entries' => $op->movements()->where('type', 'entry')->pluck('operation_status_id')->mapWithKeys(function ($sid) {
+                    return [$sid => true];
                 })->all(),
             ];
         });
@@ -67,7 +66,7 @@ class OperationMovementController extends Controller
             'exit' => __('dobs.type_exit'),
         ];
 
-        return view('operation_movements.create', compact('operations', 'services', 'types', 'operationsData'));
+        return view('operation_movements.create', compact('operations', 'statuses', 'types', 'operationsData'));
     }
 
     /**
@@ -79,13 +78,13 @@ class OperationMovementController extends Controller
 
         $validated = $request->validate([
             'operation_id' => 'required|exists:operations,id',
-            'service_id' => 'nullable|exists:services,id',
+            'operation_status_id' => 'nullable|exists:operation_statuses,id',
             'type' => 'required|string|in:entry,start,end,exit',
             'datetime' => 'required|date',
         ]);
 
         $user = auth()->user();
-        $serviceId = $request->input('service_id') ? (int) $request->input('service_id') : null;
+        $statusId = $request->input('operation_status_id') ? (int) $request->input('operation_status_id') : null;
         $operationId = (int) $request->input('operation_id');
         $type = $request->input('type');
 
@@ -98,18 +97,13 @@ class OperationMovementController extends Controller
             }
         }
 
-        // 2. Operation and service connection & state validation
-        if ($serviceId) {
+        // 2. Operation and status connection & state validation
+        if ($statusId) {
             $operation = Operation::find($operationId);
             if ($operation) {
-
-                if (! in_array($serviceId, $operation->assignedServiceIds(), true)) {
-                    return back()->withErrors(['operation_id' => __('dobs.operation_does_not_contain_service')])->withInput();
-                }
-
                 // If movement type is start, end, or exit, it must have an entry movement
                 if (in_array($type, ['start', 'end', 'exit'], true)) {
-                    if (! $operation->hasEntryMovementForService($serviceId)) {
+                    if (! $operation->hasEntryMovementForStatus($statusId)) {
                         return back()->withErrors(['operation_id' => __('dobs.operation_must_have_entry_movement')])->withInput();
                     }
                 }
@@ -131,7 +125,7 @@ class OperationMovementController extends Controller
         $this->authorizeEdit();
 
         $user = auth()->user();
-        $services = Service::orderBy('name')->get();
+        $statuses = OperationStatus::orderBy('name')->get();
 
         $query = Operation::query();
         if ($user && $user->isDataEntry()) {
@@ -144,9 +138,8 @@ class OperationMovementController extends Controller
             return [
                 'id' => $op->id,
                 'operation_number' => $op->operation_number,
-                'services' => $op->assignedServiceIds(),
-                'entries' => collect($op->assignedServiceIds())->mapWithKeys(function ($sid) use ($op) {
-                    return [$sid => $op->hasEntryMovementForService((int) $sid)];
+                'entries' => $op->movements()->where('type', 'entry')->pluck('operation_status_id')->mapWithKeys(function ($sid) {
+                    return [$sid => true];
                 })->all(),
             ];
         });
@@ -158,7 +151,7 @@ class OperationMovementController extends Controller
             'exit' => __('dobs.type_exit'),
         ];
 
-        return view('operation_movements.edit', compact('operationMovement', 'operations', 'services', 'types', 'operationsData'));
+        return view('operation_movements.edit', compact('operationMovement', 'operations', 'statuses', 'types', 'operationsData'));
     }
 
     /**
@@ -170,13 +163,13 @@ class OperationMovementController extends Controller
 
         $validated = $request->validate([
             'operation_id' => 'required|exists:operations,id',
-            'service_id' => 'nullable|exists:services,id',
+            'operation_status_id' => 'nullable|exists:operation_statuses,id',
             'type' => 'required|string|in:entry,start,end,exit',
             'datetime' => 'required|date',
         ]);
 
         $user = auth()->user();
-        $serviceId = $request->input('service_id') ? (int) $request->input('service_id') : null;
+        $statusId = $request->input('operation_status_id') ? (int) $request->input('operation_status_id') : null;
         $operationId = (int) $request->input('operation_id');
         $type = $request->input('type');
 
@@ -189,18 +182,13 @@ class OperationMovementController extends Controller
             }
         }
 
-        // 2. Operation and service connection & state validation
-        if ($serviceId) {
+        // 2. Operation and status connection & state validation
+        if ($statusId) {
             $operation = Operation::find($operationId);
             if ($operation) {
-
-                if (! in_array($serviceId, $operation->assignedServiceIds(), true)) {
-                    return back()->withErrors(['operation_id' => __('dobs.operation_does_not_contain_service')])->withInput();
-                }
-
                 // If movement type is start, end, or exit, it must have an entry movement
                 if (in_array($type, ['start', 'end', 'exit'], true)) {
-                    if (! $operation->hasEntryMovementForService($serviceId)) {
+                    if (! $operation->hasEntryMovementForStatus($statusId)) {
                         return back()->withErrors(['operation_id' => __('dobs.operation_must_have_entry_movement')])->withInput();
                     }
                 }

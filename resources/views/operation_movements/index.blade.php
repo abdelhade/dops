@@ -21,7 +21,7 @@
                 <tr>
                     <th style="width: 5%">{{ __('dobs.col_id') }}</th>
                     <th style="width: 25%">{{ __('dobs.col_operation') }}</th>
-                    <th style="width: 25%">{{ __('dobs.col_service') }}</th>
+                    <th style="width: 25%">{{ __('dobs.col_status') }}</th>
                     <th style="width: 20%">{{ __('dobs.col_movement_type') }}</th>
                     <th style="width: 15%">{{ __('dobs.col_datetime') }}</th>
                     <th style="width: 10%; text-align: left;">{{ __('dobs.col_actions') }}</th>
@@ -37,10 +37,8 @@
                             </a>
                         </td>
                         <td>
-                            @if ($movement->service)
-                                <a href="{{ route('services.show', $movement->service->id) }}" style="color: white; text-decoration: none;">
-                                    {{ $movement->service->name }}
-                                </a>
+                            @if ($movement->operationStatus)
+                                {{ $movement->operationStatus->name }}
                             @else
                                 <span class="badge badge-secondary" style="background-color: var(--bg-modifier-accent); color: var(--text-muted); padding: 4px 8px; border-radius: 4px; font-size: 11px;">
                                     {{ __('dobs.na') }}
