@@ -41,6 +41,7 @@
                         </td>
                         <td>
                             @include('partials.crud-actions', [
+                'resource' => 'stages',
                                 'showRoute' => route('stages.show', $stage->id),
                                 'editRoute' => route('stages.edit', $stage->id),
                                 'destroyRoute' => route('stages.destroy', $stage->id),

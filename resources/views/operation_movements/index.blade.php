@@ -73,6 +73,7 @@
                         </td>
                         <td>
                             @include('partials.crud-actions', [
+                'resource' => 'operation-movements',
                                 'editRoute' => route('operation-movements.edit', $movement->id),
                                 'destroyRoute' => route('operation-movements.destroy', $movement->id),
                                 'confirmMessage' => __('dobs.confirm_delete_operation_movement'),

@@ -21,6 +21,7 @@
         <td style="color: var(--text-secondary);">{{ $client->address ?? __('dobs.na') }}</td>
         <td>
             @include('partials.crud-actions', [
+                'resource' => 'clients',
                 'showRoute' => route('clients.show', $client->id),
                 'editRoute' => route('clients.edit', $client->id),
                 'destroyRoute' => route('clients.destroy', $client->id),

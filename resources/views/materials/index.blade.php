@@ -42,6 +42,7 @@
                         <td style="color: var(--text-secondary);">{{ Str::limit($material->description, 50) ?: __('dobs.dash') }}</td>
                         <td>
                             @include('partials.crud-actions', [
+                'resource' => 'materials',
                                 'showRoute' => route('materials.show', $material->id),
                                 'editRoute' => route('materials.edit', $material->id),
                                 'destroyRoute' => route('materials.destroy', $material->id),

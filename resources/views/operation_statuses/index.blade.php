@@ -61,6 +61,7 @@
                         </td>
                         <td>
                             @include('partials.crud-actions', [
+                'resource' => 'operation-statuses',
                                 'editRoute' => route('operation-statuses.edit', $status->id),
                                 'destroyRoute' => route('operation-statuses.destroy', $status->id),
                                 'confirmMessage' => __('dobs.confirm_delete_status'),

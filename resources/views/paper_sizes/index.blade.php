@@ -39,6 +39,7 @@
                         <td>{{ $ps->height ? number_format($ps->height, 2) . ' ' . __('dobs.mm_unit') : __('dobs.na') }}</td>
                         <td>
                             @include('partials.crud-actions', [
+                'resource' => 'paper-sizes',
                                 'showRoute' => route('paper-sizes.show', $ps->id),
                                 'editRoute' => route('paper-sizes.edit', $ps->id),
                                 'destroyRoute' => route('paper-sizes.destroy', $ps->id),

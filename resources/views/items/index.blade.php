@@ -84,6 +84,7 @@
                         </td>
                         <td>
                             @include('partials.crud-actions', [
+                'resource' => 'items',
                                 'showRoute' => route('items.show', $item->id),
                                 'editRoute' => route('items.edit', $item->id),
                                 'destroyRoute' => route('items.destroy', $item->id),

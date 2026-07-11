@@ -35,6 +35,7 @@
                         <td style="color: var(--text-secondary);">{{ Str::limit($kind->description, 60) ?: __('dobs.dash') }}</td>
                         <td>
                             @include('partials.crud-actions', [
+                'resource' => 'operation-kinds',
                                 'editRoute' => route('operation-kinds.edit', $kind),
                                 'destroyRoute' => route('operation-kinds.destroy', $kind),
                                 'confirmMessage' => __('dobs.confirm_delete_operation_kind'),

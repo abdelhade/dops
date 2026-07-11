@@ -39,6 +39,7 @@
                         <td>{{ $paperType->finish ?? __('dobs.na') }}</td>
                         <td>
                             @include('partials.crud-actions', [
+                'resource' => 'paper-types',
                                 'showRoute' => route('paper-types.show', $paperType->id),
                                 'editRoute' => route('paper-types.edit', $paperType->id),
                                 'destroyRoute' => route('paper-types.destroy', $paperType->id),

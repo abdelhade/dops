@@ -29,7 +29,7 @@
         </div>
 
         <div class="form-group">
-            <label for="service_id" class="form-label">{{ __('dobs.col_service') }}</label>
+            <label for="service_id" class="form-label">حالات العمليات</label>
             <select name="service_id" id="service_id" class="form-control">
                 <option value="">{{ __('dobs.na') }}</option>
                 @foreach($services as $service)

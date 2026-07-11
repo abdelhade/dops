@@ -41,6 +41,7 @@
                         <td style="color: var(--text-secondary);">{{ $supplier->address ?? __('dobs.na') }}</td>
                         <td>
                             @include('partials.crud-actions', [
+                'resource' => 'suppliers',
                                 'showRoute' => route('suppliers.show', $supplier->id),
                                 'editRoute' => route('suppliers.edit', $supplier->id),
                                 'destroyRoute' => route('suppliers.destroy', $supplier->id),

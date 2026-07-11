@@ -10,24 +10,25 @@ foreach ($iterator as $file) {
         $content = file_get_contents($file->getPathname());
         $original = $content;
 
-        // Determine resource name from path
         $pathParts = explode(DIRECTORY_SEPARATOR, $file->getPathname());
         $folder = $pathParts[count($pathParts) - 2];
         
         $resource = str_replace('_', '-', $folder);
         
-        // If it's a generic partial, skip for now, we will handle them manually or specially
         if ($folder === 'partials' || $folder === 'layouts' || $folder === 'reports') {
             continue;
         }
 
-        $content = str_replace('canCreateRecords()', "hasPermission('$resource', 'create')", $content);
-        $content = str_replace('canEditRecords()', "hasPermission('$resource', 'update')", $content);
-        $content = str_replace('canDeleteRecords()', "hasPermission('$resource', 'delete')", $content);
+        // Add 'resource' => 'xxx', to @include('partials.crud-actions', [
+        if (strpos($content, "@include('partials.crud-actions', [") !== false) {
+            if (strpos($content, "'resource' =>") === false) {
+                $content = str_replace("@include('partials.crud-actions', [", "@include('partials.crud-actions', [\n                'resource' => '$resource',", $content);
+            }
+        }
 
         if ($content !== $original) {
             file_put_contents($file->getPathname(), $content);
-            echo "Updated {$file->getPathname()}\n";
+            echo "Updated {$file->getPathname()} with crud-actions resource\n";
         }
     }
 }
