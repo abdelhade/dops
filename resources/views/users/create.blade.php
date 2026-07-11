@@ -84,7 +84,7 @@
                                 'items' => __('dobs.nav_items'),
                                 'materials' => __('dobs.nav_materials'),
                                 'suppliers' => __('dobs.nav_suppliers'),
-                                'services' => 'الحالات',
+                                'operation-statuses' => __('dobs.nav_operation_statuses') ?? 'الحالات',
                                 'users' => __('dobs.nav_users'),
                                 'categories' => __('dobs.nav_categories'),
                             ];

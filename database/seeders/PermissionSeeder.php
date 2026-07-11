@@ -19,7 +19,7 @@ class PermissionSeeder extends Seeder
             'items',
             'materials',
             'suppliers',
-            'services',
+            'operation-statuses',
             'users',
             'categories',
         ];

@@ -60,12 +60,18 @@
                         <span>{{ __('dobs.nav_operations') }}</span>
                     </a>
                 </li>
+                @endif
+
+                @if (auth()->user()->hasPermission('operation-statuses', 'read'))
                 <li class="nav-item {{ request()->routeIs('operation-statuses.*') ? 'active' : '' }}">
                     <a href="{{ route('operation-statuses.index') }}">
                         <i class="fa-solid fa-clipboard-list"></i>
                         <span>{{ __('dobs.nav_operation_statuses') }}</span>
                     </a>
                 </li>
+                @endif
+
+                @if (auth()->user()->hasPermission('operation-kinds', 'read'))
                 <li class="nav-item {{ request()->routeIs('operation-kinds.*') ? 'active' : '' }}">
                     <a href="{{ route('operation-kinds.index') }}">
                         <i class="fa-solid fa-tags"></i>
