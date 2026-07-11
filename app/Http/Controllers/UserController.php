@@ -44,7 +44,7 @@ class UserController extends Controller
             'statuses' => ['nullable', 'array'],
             'statuses.*' => ['exists:operation_statuses,id'],
             'permissions' => ['nullable', 'array'],
-            'permissions.*' => ['exists:permissions,name'],
+            'permissions.*' => [Rule::exists(\Spatie\Permission\Models\Permission::class, 'name')],
         ]);
 
         $user = User::create($validated);
@@ -79,7 +79,7 @@ class UserController extends Controller
             'statuses' => ['nullable', 'array'],
             'statuses.*' => ['exists:operation_statuses,id'],
             'permissions' => ['nullable', 'array'],
-            'permissions.*' => ['exists:permissions,name'],
+            'permissions.*' => [Rule::exists(\Spatie\Permission\Models\Permission::class, 'name')],
         ]);
 
         if ($user->isAdmin() && $validated['role'] !== User::ROLE_ADMIN) {
