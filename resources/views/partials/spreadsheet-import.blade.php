@@ -1,4 +1,4 @@
-@if (auth()->user()?->canCreateRecords())
+@if (!isset($resource) || auth()->user()?->hasPermission($resource, 'create'))
     @php($importInputId = 'import_file_' . ($importId ?? 'default'))
     @if (!empty($compact))
         <div class="spreadsheet-import-compact" style="max-width: {{ $maxWidth ?? '850px' }};">

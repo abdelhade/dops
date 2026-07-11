@@ -388,7 +388,7 @@
         loadUrl: @json(route('reports.operations-kanban.load')),
         statusUpdateUrlTemplate: @json(route('operations.update-status', ['operation' => '__ID__'])),
         csrfToken: @json(csrf_token()),
-        canDrag: @json((bool) auth()->user()?->canEditRecords()),
+        canDrag: @json((bool) auth()->user()?->hasPermission('operations', 'update')),
         dash: @json(__('dobs.dash')),
     };
     window.OPS_KANBAN_LANG = {

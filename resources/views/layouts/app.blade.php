@@ -283,7 +283,7 @@
         </main>
     </div>
 
-    @if (auth()->user()?->canDeleteRecords())
+    @if (auth()->user()?->isAdmin())
         @include('partials.delete-password-modal')
         <script>
             window.DOBS_DELETE_LANG = {

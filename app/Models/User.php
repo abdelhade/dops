@@ -70,18 +70,25 @@ class User extends Authenticatable
         return $this->role === self::ROLE_DATA_ENTRY;
     }
 
+    /**
+     * @deprecated Use hasPermission($resource, 'create') instead.
+     */
     public function canCreateRecords(): bool
     {
         return in_array($this->role, [self::ROLE_ADMIN, self::ROLE_MANAGER, self::ROLE_DATA_ENTRY], true);
     }
 
-    /** Admin and manager only; data entry cannot edit. */
+    /** 
+     * @deprecated Use hasPermission($resource, 'update') instead.
+     */
     public function canEditRecords(): bool
     {
         return in_array($this->role, [self::ROLE_ADMIN, self::ROLE_MANAGER], true);
     }
 
-    /** Admin only; manager and data entry cannot delete. */
+    /** 
+     * @deprecated Use hasPermission($resource, 'delete') instead.
+     */
     public function canDeleteRecords(): bool
     {
         return $this->isAdmin();
