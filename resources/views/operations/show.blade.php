@@ -150,7 +150,6 @@
             <div style="font-weight: 600; margin-top: 0.25rem;">{{ $field($operation->quantity_per_sheet) }}</div>
         </div>
         @endif
-        @endif
         <div>
             <span class="stat-label">{{ __('dobs.operation_status') }}</span>
             <div style="margin-top: 0.35rem;">

@@ -111,14 +111,9 @@ class OperationMovementController extends Controller
 
         // 2. Operation and status connection & state validation
         if ($statusId) {
-            $operation = Operation::find($operationId);
-            if ($operation) {
-                // If movement type is start, end, or exit, it must have an entry movement
-                if (in_array($type, ['start', 'end', 'exit'], true)) {
-                    if (! $operation->hasEntryMovementForStatus($statusId)) {
-                        return back()->withErrors(['operation_id' => __('dobs.operation_must_have_entry_movement')])->withInput();
-                    }
-                }
+            $validationErrorResponse = $this->validateMovementLogic($operationId, $statusId, $type, $validated['datetime']);
+            if ($validationErrorResponse) {
+                return $validationErrorResponse;
             }
         }
 
@@ -236,14 +231,9 @@ class OperationMovementController extends Controller
 
         // 2. Operation and status connection & state validation
         if ($statusId) {
-            $operation = Operation::find($operationId);
-            if ($operation) {
-                // If movement type is start, end, or exit, it must have an entry movement
-                if (in_array($type, ['start', 'end', 'exit'], true)) {
-                    if (! $operation->hasEntryMovementForStatus($statusId)) {
-                        return back()->withErrors(['operation_id' => __('dobs.operation_must_have_entry_movement')])->withInput();
-                    }
-                }
+            $validationErrorResponse = $this->validateMovementLogic($operationId, $statusId, $type, $validated['datetime'], $operationMovement->id);
+            if ($validationErrorResponse) {
+                return $validationErrorResponse;
             }
         }
 
@@ -260,5 +250,56 @@ class OperationMovementController extends Controller
     public function destroy(OperationMovement $operationMovement): RedirectResponse
     {
         return $this->destroyRecord($operationMovement, 'operation-movements.index', 'dobs.flash_operation_movement_deleted');
+    }
+    /**
+     * Validate the chronological and sequence logic of the movement.
+     */
+    private function validateMovementLogic(int $operationId, int $statusId, string $type, string $datetime, ?int $ignoreMovementId = null): ?RedirectResponse
+    {
+        $query = OperationMovement::where('operation_id', $operationId);
+        
+        if ($ignoreMovementId) {
+            $query->where('id', '!=', $ignoreMovementId);
+        }
+
+        $latestMovement = (clone $query)->orderBy('datetime', 'desc')->first();
+
+        // 1. Chronological Validation
+        if ($latestMovement && \Carbon\Carbon::parse($datetime)->lt($latestMovement->datetime)) {
+            return back()->withErrors(['datetime' => __('dobs.movement_datetime_must_be_after_latest')])->withInput();
+        }
+
+        // 2. Sequence Validation within the specific status
+        $latestStatusMovement = (clone $query)->where('operation_status_id', $statusId)
+                                              ->orderBy('datetime', 'desc')
+                                              ->first();
+
+        $latestType = $latestStatusMovement ? $latestStatusMovement->type : null;
+
+        if ($type === 'entry') {
+            if ($latestType && $latestType !== 'exit') {
+                 return back()->withErrors(['type' => __('dobs.movement_cannot_entry_already_inside')])->withInput();
+            }
+        } elseif (in_array($type, ['start', 'end', 'exit'], true)) {
+            if (! $latestType) {
+                 return back()->withErrors(['operation_id' => __('dobs.operation_must_have_entry_movement')])->withInput();
+            }
+            
+            if ($type === 'start') {
+                if ($latestType !== 'entry') {
+                    return back()->withErrors(['type' => __('dobs.movement_start_requires_entry')])->withInput();
+                }
+            } elseif ($type === 'end') {
+                if ($latestType !== 'start') {
+                    return back()->withErrors(['type' => __('dobs.movement_end_requires_start')])->withInput();
+                }
+            } elseif ($type === 'exit') {
+                if (!in_array($latestType, ['entry', 'end'])) {
+                    return back()->withErrors(['type' => __('dobs.movement_exit_requires_end_or_entry')])->withInput();
+                }
+            }
+        }
+
+        return null; // Valid
     }
 }
