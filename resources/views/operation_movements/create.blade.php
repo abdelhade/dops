@@ -19,7 +19,7 @@
             <label class="form-label d-block text-muted small mb-2">المراحل المسموحة لك</label>
             <div class="d-flex flex-wrap gap-2">
                 @forelse($statuses as $status)
-                    <span class="badge" style="background-color: {{ $status->color ?? '#6c757d' }}; font-size: 0.9rem; padding: 0.5em 0.8em;">
+                    <span class="badge status-filter-badge" data-id="{{ $status->id }}" style="background-color: {{ $status->color ?? '#6c757d' }}; font-size: 0.9rem; padding: 0.5em 0.8em; cursor: pointer; transition: all 0.2s ease;">
                         {{ $status->name }}
                     </span>
                 @empty
@@ -28,7 +28,7 @@
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group d-none">
             <label for="operation_status_id" class="form-label">حالات العمليات</label>
             <select name="operation_status_id" id="operation_status_id" class="form-control">
                 <option value="">{{ __('dobs.na') }}</option>
@@ -127,10 +127,42 @@
 
         // Backup all options for filtering
         const allOperationOptions = Array.from(operationSelect.options);
+        const filterBadges = document.querySelectorAll('.status-filter-badge');
+
+        filterBadges.forEach(badge => {
+            badge.addEventListener('click', function() {
+                const statusId = this.getAttribute('data-id');
+                
+                // Toggle if clicked again
+                if (statusSelect.value === statusId) {
+                    statusSelect.value = '';
+                } else {
+                    statusSelect.value = statusId;
+                }
+                
+                // Trigger change to run the filtering logic
+                statusSelect.dispatchEvent(new Event('change'));
+            });
+        });
 
         statusSelect.addEventListener('change', function() {
             const selectedStatusId = this.value;
             const currentSelectedOpId = operationSelect.value;
+            
+            // Update badge visuals
+            filterBadges.forEach(badge => {
+                if (badge.getAttribute('data-id') === selectedStatusId) {
+                    badge.style.opacity = '1';
+                    badge.style.transform = 'scale(1.05)';
+                    badge.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
+                    badge.style.border = '2px solid white';
+                } else {
+                    badge.style.opacity = selectedStatusId ? '0.4' : '1';
+                    badge.style.transform = 'scale(1)';
+                    badge.style.boxShadow = 'none';
+                    badge.style.border = 'none';
+                }
+            });
             
             // Clear current options
             operationSelect.innerHTML = '';
