@@ -42,7 +42,7 @@ class OperationMovementController extends Controller
         $this->authorizeCreate();
 
         $user = auth()->user();
-        $statuses = OperationStatus::orderBy('name')->get();
+        $statuses = OperationStatus::orderBy('sort_order')->get();
 
         $query = Operation::query();
         if ($user && !$user->isAdmin()) {
@@ -163,7 +163,7 @@ class OperationMovementController extends Controller
         $this->authorizeEdit();
 
         $user = auth()->user();
-        $statuses = OperationStatus::orderBy('name')->get();
+        $statuses = OperationStatus::orderBy('sort_order')->get();
 
         $query = Operation::query();
         if ($user && !$user->isAdmin()) {

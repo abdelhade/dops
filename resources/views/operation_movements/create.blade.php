@@ -15,6 +15,18 @@
 <div class="glass-card" style="max-width: 600px; margin: 0 auto;">
     <form action="{{ route('operation-movements.store') }}" method="POST">
         @csrf
+        <div class="mb-4">
+            <label class="form-label d-block text-muted small mb-2">المراحل المسموحة لك</label>
+            <div class="d-flex flex-wrap gap-2">
+                @forelse($statuses as $status)
+                    <span class="badge" style="background-color: {{ $status->color ?? '#6c757d' }}; font-size: 0.9rem; padding: 0.5em 0.8em;">
+                        {{ $status->name }}
+                    </span>
+                @empty
+                    <span class="text-muted small">لا توجد مراحل مسموحة</span>
+                @endforelse
+            </div>
+        </div>
 
         <div class="form-group">
             <label for="operation_id" class="form-label">{{ __('dobs.col_operation') }} <span style="color: var(--color-danger)">*</span></label>
