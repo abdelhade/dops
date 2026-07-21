@@ -599,7 +599,7 @@ return [
     'status_is_end' => 'حالة نهائية',
     'status_is_end_hint' => 'العملية تُعتبر منتهية عند هذه الحالة',
     'status_is_end_unique' => 'لا يمكن تعيين أكثر من حالة نهائية واحدة.',
-    'status_is_phase' => 'حالة مرحلية',
+    'status_phase_order' => 'ترتيب المرحلة',
     'yes' => 'نعم',
     'no' => 'لا',
     'save_status' => 'حفظ الحالة',

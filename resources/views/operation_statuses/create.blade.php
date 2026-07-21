@@ -51,12 +51,9 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">{{ __('dobs.status_is_phase') }}</label>
-                <div style="display: flex; align-items: center; gap: 0.5rem; min-height: 42px;">
-                    <input type="checkbox" name="is_phase" value="1" id="is_phase" {{ old('is_phase') ? 'checked' : '' }}>
-                    <label for="is_phase" style="margin: 0; cursor: pointer;">{{ __('dobs.status_is_phase') }}</label>
-                </div>
-                @error('is_phase')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                <label class="form-label">{{ __('dobs.status_phase_order') }}</label>
+                <input type="number" name="phase_order" class="form-control @error('phase_order') is-invalid @enderror" value="{{ old('phase_order') }}">
+                @error('phase_order')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
             </div>
             
             <div class="form-group" style="grid-column: 1 / -1;">

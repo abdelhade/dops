@@ -14,13 +14,13 @@ class OperationStatus extends Model implements PreventsDeletionWhenRelated
         'sort_order',
         'days',
         'is_end',
-        'is_phase',
+        'phase_order',
         'description',
     ];
 
     protected $casts = [
         'is_end' => 'boolean',
-        'is_phase' => 'boolean',
+        'phase_order' => 'integer',
     ];
 
     public function operations(): HasMany

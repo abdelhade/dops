@@ -25,7 +25,7 @@
                     <th style="width: 10%">{{ __('dobs.sort_order') }}</th>
                     <th style="width: 10%">{{ __('dobs.status_days') }}</th>
                     <th style="width: 10%">{{ __('dobs.status_is_end') }}</th>
-                    <th style="width: 10%">{{ __('dobs.status_is_phase') }}</th>
+                    <th style="width: 10%">{{ __('dobs.status_phase_order') }}</th>
                     <th style="width: 15%; text-align: left;">{{ __('dobs.col_actions') }}</th>
                 </tr>
             </thead>
@@ -61,11 +61,9 @@
                             @endif
                         </td>
                         <td>
-                            @if ($status->is_phase)
-                                <span class="badge badge-success">{{ __('dobs.yes') }}</span>
-                            @else
-                                <span class="badge badge-secondary">{{ __('dobs.no') }}</span>
-                            @endif
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 24px;">
+                                <input type="number" class="form-control update-phase-order-btn" data-id="{{ $status->id }}" value="{{ $status->phase_order }}" style="width: 70px; text-align: center;">
+                            </div>
                         </td>
                         <td>
                             @include('partials.crud-actions', [
@@ -88,4 +86,43 @@
         </table>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const csrfToken = '{{ csrf_token() }}';
+        document.querySelectorAll('.update-phase-order-btn').forEach(input => {
+            let originalValue = input.value;
+            input.addEventListener('change', function () {
+                const statusId = this.dataset.id;
+                const phaseOrder = this.value;
+                
+                fetch(`/operation-statuses/${statusId}/update-phase-order`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ phase_order: phaseOrder })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        originalValue = phaseOrder;
+                    } else {
+                        alert('حدث خطأ أثناء التحديث.');
+                        this.value = originalValue;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('حدث خطأ أثناء الاتصال بالخادم.');
+                    this.value = originalValue;
+                });
+            });
+        });
+    });
+</script>
 @endsection

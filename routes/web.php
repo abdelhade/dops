@@ -80,6 +80,7 @@ Route::middleware(['auth', 'verify.delete.password'])->group(function () {
     Route::get('reports/general-operations-summary/export', [ReportController::class, 'exportGeneralOperationsSummary'])->name('reports.general-operations-summary.export');
     Route::get('reports/operations-kanban', [ReportController::class, 'operationsKanban'])->name('reports.operations-kanban');
     Route::get('reports/operations-kanban/load', [ReportController::class, 'operationsKanbanLoad'])->name('reports.operations-kanban.load');
+    Route::patch('operation-statuses/{operation_status}/update-phase-order', [OperationStatusController::class, 'updatePhaseOrder'])->name('operation-statuses.update-phase-order');
     Route::resource('operation-statuses', OperationStatusController::class)->except(['show']);
     Route::resource('operation-types', OperationTypeController::class)->except(['show']);
     Route::resource('operation-kinds', OperationKindController::class)->except(['show']);
