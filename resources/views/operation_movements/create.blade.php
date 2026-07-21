@@ -29,11 +29,23 @@
         </div>
 
         <div class="form-group">
+            <label for="operation_status_id" class="form-label">حالات العمليات</label>
+            <select name="operation_status_id" id="operation_status_id" class="form-control">
+                <option value="">{{ __('dobs.na') }}</option>
+                @foreach($statuses as $status)
+                    <option value="{{ $status->id }}" {{ old('operation_status_id') == $status->id ? 'selected' : '' }}>
+                        {{ $status->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="form-group">
             <label for="operation_id" class="form-label">{{ __('dobs.col_operation') }} <span style="color: var(--color-danger)">*</span></label>
             <select name="operation_id" id="operation_id" class="form-control" required>
                 <option value="">{{ __('dobs.na') }}</option>
                 @foreach($operations as $operation)
-                    <option value="{{ $operation->id }}" {{ old('operation_id') == $operation->id ? 'selected' : '' }}>
+                    <option value="{{ $operation->id }}" data-status-id="{{ $operation->operation_status_id }}" {{ old('operation_id') == $operation->id ? 'selected' : '' }}>
                         {{ $operation->operation_number }} 
                         @if($operation->client) - {{ $operation->client->name }} @endif 
                         @if($operation->item) - {{ $operation->item->name }} @endif
@@ -64,18 +76,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="form-group">
-            <label for="operation_status_id" class="form-label">حالات العمليات</label>
-            <select name="operation_status_id" id="operation_status_id" class="form-control">
-                <option value="">{{ __('dobs.na') }}</option>
-                @foreach($statuses as $status)
-                    <option value="{{ $status->id }}" {{ old('operation_status_id') == $status->id ? 'selected' : '' }}>
-                        {{ $status->name }}
-                    </option>
-                @endforeach
-            </select>
         </div>
 
         <div class="form-group">
@@ -125,6 +125,41 @@
         const nextStatusSelect = document.getElementById('next_status_id');
         const detailsCard = document.getElementById('operation_details_card');
 
+        // Backup all options for filtering
+        const allOperationOptions = Array.from(operationSelect.options);
+
+        statusSelect.addEventListener('change', function() {
+            const selectedStatusId = this.value;
+            const currentSelectedOpId = operationSelect.value;
+            
+            // Clear current options
+            operationSelect.innerHTML = '';
+            // Add the default 'N/A' option
+            operationSelect.appendChild(allOperationOptions[0]); 
+            
+            let hasValidSelected = false;
+
+            for (let i = 1; i < allOperationOptions.length; i++) {
+                const opt = allOperationOptions[i];
+                const optStatusId = opt.getAttribute('data-status-id');
+                
+                // Show if no status is selected OR if it matches the selected status
+                if (!selectedStatusId || optStatusId === selectedStatusId) {
+                    operationSelect.appendChild(opt);
+                    if (opt.value === currentSelectedOpId) {
+                        hasValidSelected = true;
+                    }
+                }
+            }
+            
+            if (!hasValidSelected) {
+                operationSelect.value = '';
+                updateDetailsCard();
+            } else {
+                operationSelect.value = currentSelectedOpId;
+            }
+        });
+
         function updateDetailsCard() {
             const opId = parseInt(operationSelect.value);
             if (!opId) {
@@ -165,6 +200,12 @@
             nextStatusGroup.style.display = 'block';
             nextStatusSelect.required = true;
         }
+        
+        // Initial filtering
+        if (statusSelect.value) {
+            statusSelect.dispatchEvent(new Event('change'));
+        }
+        
         if (operationSelect.value) {
             updateDetailsCard();
         }

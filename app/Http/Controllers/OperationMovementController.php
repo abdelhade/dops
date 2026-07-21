@@ -57,6 +57,7 @@ class OperationMovementController extends Controller
         $operationsData = $operations->map(function ($op) {
             return [
                 'id' => $op->id,
+                'operation_status_id' => $op->operation_status_id,
                 'operation_number' => $op->operation_number,
                 'client_name' => $op->client->name ?? '',
                 'item_name' => $op->item->name ?? '',
@@ -178,6 +179,7 @@ class OperationMovementController extends Controller
         $operationsData = $operations->map(function ($op) {
             return [
                 'id' => $op->id,
+                'operation_status_id' => $op->operation_status_id,
                 'operation_number' => $op->operation_number,
                 'client_name' => $op->client->name ?? '',
                 'item_name' => $op->item->name ?? '',
