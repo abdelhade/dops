@@ -30,17 +30,7 @@
             </div>
         </div>
 
-        <div class="form-group d-none">
-            <label for="operation_status_id" class="form-label">حالات العمليات</label>
-            <select name="operation_status_id" id="operation_status_id" class="form-control">
-                <option value="">{{ __('dobs.na') }}</option>
-                @foreach($statuses as $status)
-                    <option value="{{ $status->id }}" {{ old('operation_status_id', $operationMovement->operation_status_id) == $status->id ? 'selected' : '' }}>
-                        {{ $status->name }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
+        <input type="hidden" name="operation_status_id" id="operation_status_id" value="{{ old('operation_status_id', $operationMovement->operation_status_id) }}">
 
         <div class="form-group">
             <label for="operation_id" class="form-label">{{ __('dobs.col_operation') }} <span style="color: var(--color-danger)">*</span></label>
