@@ -31,10 +31,12 @@ class OperationStatusController extends Controller
             'sort_order' => 'required|integer',
             'days' => 'required|integer|min:1',
             'is_end' => 'nullable|boolean',
+            'is_phase' => 'nullable|boolean',
             'description' => 'nullable|string',
         ]);
 
         $validated['is_end'] = $request->boolean('is_end');
+        $validated['is_phase'] = $request->boolean('is_phase');
 
         if ($validated['is_end'] && OperationStatus::where('is_end', true)->exists()) {
             return back()
@@ -63,10 +65,12 @@ class OperationStatusController extends Controller
             'sort_order' => 'required|integer',
             'days' => 'required|integer|min:1',
             'is_end' => 'nullable|boolean',
+            'is_phase' => 'nullable|boolean',
             'description' => 'nullable|string',
         ]);
 
         $validated['is_end'] = $request->boolean('is_end');
+        $validated['is_phase'] = $request->boolean('is_phase');
 
         if ($validated['is_end'] && OperationStatus::where('is_end', true)->where('id', '!=', $operationStatus->id)->exists()) {
             return back()

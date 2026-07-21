@@ -25,7 +25,8 @@
                     <th style="width: 10%">{{ __('dobs.sort_order') }}</th>
                     <th style="width: 10%">{{ __('dobs.status_days') }}</th>
                     <th style="width: 10%">{{ __('dobs.status_is_end') }}</th>
-                    <th style="width: 25%; text-align: left;">{{ __('dobs.col_actions') }}</th>
+                    <th style="width: 10%">{{ __('dobs.status_is_phase') }}</th>
+                    <th style="width: 15%; text-align: left;">{{ __('dobs.col_actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -60,6 +61,13 @@
                             @endif
                         </td>
                         <td>
+                            @if ($status->is_phase)
+                                <span class="badge badge-success">{{ __('dobs.yes') }}</span>
+                            @else
+                                <span class="badge badge-secondary">{{ __('dobs.no') }}</span>
+                            @endif
+                        </td>
+                        <td>
                             @include('partials.crud-actions', [
                 'resource' => 'operation-statuses',
                                 'editRoute' => route('operation-statuses.edit', $status->id),
@@ -70,7 +78,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="empty-state">
+                        <td colspan="8" class="empty-state">
                             <i class="fa-solid fa-bars-progress"></i>
                             {{ __('dobs.no_statuses') }}
                         </td>
