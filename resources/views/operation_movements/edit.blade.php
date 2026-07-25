@@ -206,6 +206,24 @@
             document.getElementById('detail_last_status').textContent = opData.global_latest_status_name || '-';
             document.getElementById('detail_last_movement').textContent = opData.global_latest_movement_type ? getMovementTypeName(opData.global_latest_movement_type) : '-';
             
+            // Auto update status if missing
+            if (!statusSelect.value) {
+                statusSelect.value = opData.operation_status_id;
+                filterBadges.forEach(badge => {
+                    if (badge.getAttribute('data-id') == opData.operation_status_id) {
+                        badge.style.opacity = '1';
+                        badge.style.transform = 'scale(1.05)';
+                        badge.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
+                        badge.style.border = '2px solid white';
+                    } else {
+                        badge.style.opacity = '0.4';
+                        badge.style.transform = 'scale(1)';
+                        badge.style.boxShadow = 'none';
+                        badge.style.border = 'none';
+                    }
+                });
+            }
+
             if (event && event.type === 'change') {
                 let nextType = 'entry';
                 if (opData.latest_movement_type) {

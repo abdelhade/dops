@@ -89,8 +89,10 @@ class OperationMovementController extends Controller
             'end' => __('dobs.type_end'),
             'exit' => __('dobs.type_exit'),
         ];
+        
+        $allStatuses = OperationStatus::orderBy('sort_order')->get();
 
-        return view('operation_movements.create', compact('operations', 'statuses', 'types', 'operationsData'));
+        return view('operation_movements.create', compact('operations', 'statuses', 'allStatuses', 'types', 'operationsData'));
     }
 
     /**
@@ -102,7 +104,7 @@ class OperationMovementController extends Controller
 
         $validated = $request->validate([
             'operation_id' => 'required|exists:operations,id',
-            'operation_status_id' => 'nullable|exists:operation_statuses,id',
+            'operation_status_id' => 'required|exists:operation_statuses,id',
             'type' => 'required|string|in:entry,start,end,exit',
             'datetime' => 'required|date',
             'next_status_id' => 'nullable|required_if:type,exit|exists:operation_statuses,id',
@@ -126,7 +128,7 @@ class OperationMovementController extends Controller
 
         // 2. Operation and status connection & state validation
         if ($statusId) {
-            $validationErrorResponse = $this->validateMovementLogic($operationId, $statusId, $type, $validated['datetime']);
+            $validationErrorResponse = $this->validateMovementLogic($operationId, $statusId, $type, $validated['datetime'], null, $validated['next_status_id'] ?? null);
             if ($validationErrorResponse) {
                 return $validationErrorResponse;
             }
@@ -225,8 +227,10 @@ class OperationMovementController extends Controller
             'end' => __('dobs.type_end'),
             'exit' => __('dobs.type_exit'),
         ];
+        
+        $allStatuses = OperationStatus::orderBy('sort_order')->get();
 
-        return view('operation_movements.edit', compact('operationMovement', 'operations', 'statuses', 'types', 'operationsData'));
+        return view('operation_movements.edit', compact('operationMovement', 'operations', 'statuses', 'allStatuses', 'types', 'operationsData'));
     }
 
     /**
@@ -238,7 +242,7 @@ class OperationMovementController extends Controller
 
         $validated = $request->validate([
             'operation_id' => 'required|exists:operations,id',
-            'operation_status_id' => 'nullable|exists:operation_statuses,id',
+            'operation_status_id' => 'required|exists:operation_statuses,id',
             'type' => 'required|string|in:entry,start,end,exit',
             'datetime' => 'required|date',
         ]);
@@ -284,7 +288,7 @@ class OperationMovementController extends Controller
     /**
      * Validate the chronological and sequence logic of the movement.
      */
-    private function validateMovementLogic(int $operationId, int $statusId, string $type, string $datetime, ?int $ignoreMovementId = null): ?RedirectResponse
+    private function validateMovementLogic(int $operationId, int $statusId, string $type, string $datetime, ?int $ignoreMovementId = null, ?int $nextStatusId = null): ?RedirectResponse
     {
         $query = OperationMovement::where('operation_id', $operationId);
         
@@ -326,6 +330,25 @@ class OperationMovementController extends Controller
             } elseif ($type === 'exit') {
                 if (!in_array($latestType, ['entry', 'end'])) {
                     return back()->withErrors(['type' => __('dobs.movement_exit_requires_end_or_entry')])->withInput();
+                }
+
+                if ($nextStatusId) {
+                    if ($nextStatusId === $statusId) {
+                        return back()->withErrors(['next_status_id' => 'لا يمكن التحويل لنفس المرحلة'])->withInput();
+                    }
+                    
+                    $currentStatus = \App\Models\OperationStatus::find($statusId);
+                    $nextStatus = \App\Models\OperationStatus::find($nextStatusId);
+                    
+                    if ($currentStatus && $nextStatus) {
+                        $allStatuses = \App\Models\OperationStatus::orderBy('sort_order')->get();
+                        $currentIndex = $allStatuses->search(fn($s) => $s->id === $currentStatus->id);
+                        $expectedNextStatus = $allStatuses->get($currentIndex + 1);
+                        
+                        if (!$expectedNextStatus || $expectedNextStatus->id !== $nextStatus->id) {
+                            return back()->withErrors(['next_status_id' => 'يجب اختيار المرحلة التالية بالتسلسل الصحيح'])->withInput();
+                        }
+                    }
                 }
             }
         }

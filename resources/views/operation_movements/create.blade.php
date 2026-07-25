@@ -116,6 +116,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const operationsData = @json($operationsData);
+        const allStatusesData = @json($allStatuses);
         const operationSelect = document.getElementById('operation_id');
         const statusSelect = document.getElementById('operation_status_id');
         const typeSelect = document.getElementById('type');
@@ -220,6 +221,40 @@
             
             document.getElementById('detail_last_status').textContent = opData.global_latest_status_name || '-';
             document.getElementById('detail_last_movement').textContent = opData.global_latest_movement_type ? getMovementTypeName(opData.global_latest_movement_type) : '-';
+            
+            // Auto update status if missing
+            if (!statusSelect.value) {
+                statusSelect.value = opData.operation_status_id;
+                filterBadges.forEach(badge => {
+                    if (badge.getAttribute('data-id') == opData.operation_status_id) {
+                        badge.style.opacity = '1';
+                        badge.style.transform = 'scale(1.05)';
+                        badge.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
+                        badge.style.border = '2px solid white';
+                    } else {
+                        badge.style.opacity = '0.4';
+                        badge.style.transform = 'scale(1)';
+                        badge.style.boxShadow = 'none';
+                        badge.style.border = 'none';
+                    }
+                });
+            }
+
+            // Update next_status_id to only show the logical next status
+            const currentStatusId = parseInt(opData.operation_status_id);
+            const currentIndex = allStatusesData.findIndex(s => s.id === currentStatusId);
+            const nextStatus = currentIndex !== -1 && currentIndex + 1 < allStatusesData.length ? allStatusesData[currentIndex + 1] : null;
+            
+            if (nextStatusSelect) {
+                nextStatusSelect.innerHTML = '<option value="">{{ __('dobs.na') }}</option>';
+                if (nextStatus) {
+                    const option = document.createElement('option');
+                    option.value = nextStatus.id;
+                    option.textContent = nextStatus.name;
+                    nextStatusSelect.appendChild(option);
+                    nextStatusSelect.value = nextStatus.id;
+                }
+            }
             
             if (event && event.type === 'change') {
                 let nextType = 'entry';
