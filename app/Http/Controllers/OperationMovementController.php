@@ -128,7 +128,7 @@ class OperationMovementController extends Controller
 
         // 2. Operation and status connection & state validation
         if ($statusId) {
-            $validationErrorResponse = $this->validateMovementLogic($operationId, $statusId, $type, $validated['datetime'], null, $validated['next_status_id'] ?? null);
+            $validationErrorResponse = $this->validateMovementLogic($operationId, $statusId, $type, $validated['datetime'], null, isset($validated['next_status_id']) ? (int) $validated['next_status_id'] : null);
             if ($validationErrorResponse) {
                 return $validationErrorResponse;
             }
