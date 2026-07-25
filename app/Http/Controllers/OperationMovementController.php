@@ -53,7 +53,7 @@ class OperationMovementController extends Controller
             }
         }
         $operations = $query->with(['client', 'item', 'movements' => function($q) {
-            $q->orderBy('datetime', 'desc');
+            $q->orderBy('datetime', 'desc')->orderBy('id', 'desc');
         }])->orderBy('id', 'desc')->get();
         
         $operationsData = $operations->map(function ($op) use ($statuses) {
@@ -191,7 +191,7 @@ class OperationMovementController extends Controller
             }
         }
         $operations = $query->with(['client', 'item', 'movements' => function($q) {
-            $q->orderBy('datetime', 'desc');
+            $q->orderBy('datetime', 'desc')->orderBy('id', 'desc');
         }])->orderBy('id', 'desc')->get();
 
         $operationsData = $operations->map(function ($op) use ($statuses) {
@@ -296,7 +296,7 @@ class OperationMovementController extends Controller
             $query->where('id', '!=', $ignoreMovementId);
         }
 
-        $latestMovement = (clone $query)->orderBy('datetime', 'desc')->first();
+        $latestMovement = (clone $query)->orderBy('datetime', 'desc')->orderBy('id', 'desc')->first();
 
         // 1. Chronological Validation
         if ($latestMovement && \Carbon\Carbon::parse($datetime)->lt($latestMovement->datetime)) {
@@ -306,6 +306,7 @@ class OperationMovementController extends Controller
         // 2. Sequence Validation within the specific status
         $latestStatusMovement = (clone $query)->where('operation_status_id', $statusId)
                                               ->orderBy('datetime', 'desc')
+                                              ->orderBy('id', 'desc')
                                               ->first();
 
         $latestType = $latestStatusMovement ? $latestStatusMovement->type : null;
