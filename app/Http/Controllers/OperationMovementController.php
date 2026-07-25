@@ -52,9 +52,20 @@ class OperationMovementController extends Controller
                 $statuses = $statuses->whereIn('id', $allowedStatusIds);
             }
         }
-        $operations = $query->with(['client', 'item'])->orderBy('id', 'desc')->get();
+        $operations = $query->with(['client', 'item', 'movements' => function($q) {
+            $q->orderBy('datetime', 'desc');
+        }])->orderBy('id', 'desc')->get();
         
-        $operationsData = $operations->map(function ($op) {
+        $operationsData = $operations->map(function ($op) use ($statuses) {
+            $latestMovement = $op->movements->first();
+            $latestStatusMovement = $op->movements->where('operation_status_id', $op->operation_status_id)->first();
+            
+            $latestStatusName = '';
+            if ($latestMovement) {
+                $status = $statuses->firstWhere('id', $latestMovement->operation_status_id);
+                $latestStatusName = $status ? $status->name : '';
+            }
+
             return [
                 'id' => $op->id,
                 'operation_status_id' => $op->operation_status_id,
@@ -63,7 +74,10 @@ class OperationMovementController extends Controller
                 'item_name' => $op->item->name ?? '',
                 'quantity' => $op->quantity ?? '',
                 'statement' => $op->statement ?? $op->notes ?? '',
-                'entries' => $op->movements()->where('type', 'entry')->pluck('operation_status_id')->mapWithKeys(function ($sid) {
+                'latest_movement_type' => $latestStatusMovement ? $latestStatusMovement->type : null,
+                'global_latest_movement_type' => $latestMovement ? $latestMovement->type : null,
+                'global_latest_status_name' => $latestStatusName,
+                'entries' => $op->movements->where('type', 'entry')->pluck('operation_status_id')->mapWithKeys(function ($sid) {
                     return [$sid => true];
                 })->all(),
             ];
@@ -174,9 +188,20 @@ class OperationMovementController extends Controller
                 $statuses = $statuses->whereIn('id', $allowedStatusIds);
             }
         }
-        $operations = $query->with(['client', 'item'])->orderBy('id', 'desc')->get();
+        $operations = $query->with(['client', 'item', 'movements' => function($q) {
+            $q->orderBy('datetime', 'desc');
+        }])->orderBy('id', 'desc')->get();
 
-        $operationsData = $operations->map(function ($op) {
+        $operationsData = $operations->map(function ($op) use ($statuses) {
+            $latestMovement = $op->movements->first();
+            $latestStatusMovement = $op->movements->where('operation_status_id', $op->operation_status_id)->first();
+            
+            $latestStatusName = '';
+            if ($latestMovement) {
+                $status = $statuses->firstWhere('id', $latestMovement->operation_status_id);
+                $latestStatusName = $status ? $status->name : '';
+            }
+
             return [
                 'id' => $op->id,
                 'operation_status_id' => $op->operation_status_id,
@@ -185,7 +210,10 @@ class OperationMovementController extends Controller
                 'item_name' => $op->item->name ?? '',
                 'quantity' => $op->quantity ?? '',
                 'statement' => $op->statement ?? $op->notes ?? '',
-                'entries' => $op->movements()->where('type', 'entry')->pluck('operation_status_id')->mapWithKeys(function ($sid) {
+                'latest_movement_type' => $latestStatusMovement ? $latestStatusMovement->type : null,
+                'global_latest_movement_type' => $latestMovement ? $latestMovement->type : null,
+                'global_latest_status_name' => $latestStatusName,
+                'entries' => $op->movements->where('type', 'entry')->pluck('operation_status_id')->mapWithKeys(function ($sid) {
                     return [$sid => true];
                 })->all(),
             ];

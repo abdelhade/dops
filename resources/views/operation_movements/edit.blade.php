@@ -44,6 +44,38 @@
             </select>
         </div>
 
+        <div id="operation_details_card" class="card mt-3 mb-4" style="display: none; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px;">
+            <div class="card-body p-3">
+                <h6 class="card-title mb-2" style="color: var(--color-primary); font-weight: bold;" id="detail_op_number"></h6>
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <small class="text-muted d-block">{{ __('dobs.operation_client') }}</small>
+                        <span id="detail_client"></span>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <small class="text-muted d-block">المنتج</small>
+                        <span id="detail_item"></span>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <small class="text-muted d-block">{{ __('dobs.col_quantity') }}</small>
+                        <span id="detail_qty"></span>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <small class="text-muted d-block">{{ __('dobs.operation_statement') }}</small>
+                        <span id="detail_statement"></span>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <small class="text-muted d-block">آخر حالة</small>
+                        <span id="detail_last_status"></span>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <small class="text-muted d-block">آخر حركة</small>
+                        <span id="detail_last_movement"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="form-group">
             <label for="type" class="form-label">{{ __('dobs.col_movement_type') }} <span style="color: var(--color-danger)">*</span></label>
             <select name="type" id="type" class="form-control" required>
@@ -71,8 +103,11 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const operationsData = @json($operationsData);
         const operationSelect = document.getElementById('operation_id');
         const statusSelect = document.getElementById('operation_status_id');
+        const typeSelect = document.getElementById('type');
+        const detailsCard = document.getElementById('operation_details_card');
 
         // Backup all options for filtering
         const allOperationOptions = Array.from(operationSelect.options);
@@ -140,9 +175,61 @@
             }
         });
 
+        function getMovementTypeName(type) {
+            const types = {
+                'entry': '{{ __('dobs.type_entry') }}',
+                'start': '{{ __('dobs.type_start') }}',
+                'end': '{{ __('dobs.type_end') }}',
+                'exit': '{{ __('dobs.type_exit') }}'
+            };
+            return types[type] || '-';
+        }
+
+        function updateDetailsCard(event) {
+            const opId = parseInt(operationSelect.value);
+            if (!opId) {
+                detailsCard.style.display = 'none';
+                return;
+            }
+            const opData = operationsData.find(o => o.id === opId);
+            if (!opData) {
+                detailsCard.style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('detail_op_number').textContent = opData.operation_number;
+            document.getElementById('detail_client').textContent = opData.client_name || '-';
+            document.getElementById('detail_item').textContent = opData.item_name || '-';
+            document.getElementById('detail_qty').textContent = opData.quantity || '-';
+            document.getElementById('detail_statement').textContent = opData.statement || '-';
+            
+            document.getElementById('detail_last_status').textContent = opData.global_latest_status_name || '-';
+            document.getElementById('detail_last_movement').textContent = opData.global_latest_movement_type ? getMovementTypeName(opData.global_latest_movement_type) : '-';
+            
+            if (event && event.type === 'change') {
+                let nextType = 'entry';
+                if (opData.latest_movement_type) {
+                    if (opData.latest_movement_type === 'entry') nextType = 'start';
+                    else if (opData.latest_movement_type === 'start') nextType = 'end';
+                    else if (opData.latest_movement_type === 'end') nextType = 'exit';
+                    else if (opData.latest_movement_type === 'exit') nextType = 'entry'; 
+                }
+                typeSelect.value = nextType;
+                typeSelect.dispatchEvent(new Event('change'));
+            }
+
+            detailsCard.style.display = 'block';
+        }
+
+        operationSelect.addEventListener('change', updateDetailsCard);
+
         // Initial filtering
         if (statusSelect.value) {
             statusSelect.dispatchEvent(new Event('change'));
+        }
+        
+        if (operationSelect.value) {
+            updateDetailsCard();
         }
     });
 </script>

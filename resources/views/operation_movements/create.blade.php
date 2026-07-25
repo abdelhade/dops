@@ -64,6 +64,14 @@
                         <small class="text-muted d-block">{{ __('dobs.operation_statement') }}</small>
                         <span id="detail_statement"></span>
                     </div>
+                    <div class="col-md-6 mb-2">
+                        <small class="text-muted d-block">آخر حالة</small>
+                        <span id="detail_last_status"></span>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <small class="text-muted d-block">آخر حركة</small>
+                        <span id="detail_last_movement"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -182,7 +190,17 @@
             }
         });
 
-        function updateDetailsCard() {
+        function getMovementTypeName(type) {
+            const types = {
+                'entry': '{{ __('dobs.type_entry') }}',
+                'start': '{{ __('dobs.type_start') }}',
+                'end': '{{ __('dobs.type_end') }}',
+                'exit': '{{ __('dobs.type_exit') }}'
+            };
+            return types[type] || '-';
+        }
+
+        function updateDetailsCard(event) {
             const opId = parseInt(operationSelect.value);
             if (!opId) {
                 detailsCard.style.display = 'none';
@@ -200,6 +218,21 @@
             document.getElementById('detail_qty').textContent = opData.quantity || '-';
             document.getElementById('detail_statement').textContent = opData.statement || '-';
             
+            document.getElementById('detail_last_status').textContent = opData.global_latest_status_name || '-';
+            document.getElementById('detail_last_movement').textContent = opData.global_latest_movement_type ? getMovementTypeName(opData.global_latest_movement_type) : '-';
+            
+            if (event && event.type === 'change') {
+                let nextType = 'entry';
+                if (opData.latest_movement_type) {
+                    if (opData.latest_movement_type === 'entry') nextType = 'start';
+                    else if (opData.latest_movement_type === 'start') nextType = 'end';
+                    else if (opData.latest_movement_type === 'end') nextType = 'exit';
+                    else if (opData.latest_movement_type === 'exit') nextType = 'entry'; 
+                }
+                typeSelect.value = nextType;
+                typeSelect.dispatchEvent(new Event('change'));
+            }
+
             detailsCard.style.display = 'block';
         }
 
