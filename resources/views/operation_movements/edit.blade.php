@@ -21,7 +21,7 @@
             <label class="form-label d-block text-muted small mb-2">المراحل المسموحة لك</label>
             <div class="d-flex flex-wrap gap-2">
                 @forelse($statuses as $status)
-                    <span class="badge status-filter-badge" data-id="{{ $status->id }}" style="background-color: {{ $status->color ?? '#6c757d' }}; font-size: 0.9rem; padding: 0.5em 0.8em; cursor: pointer; transition: all 0.2s ease;">
+                    <span class="badge status-filter-badge" data-id="{{ $status->id }}" style="background-color: {{ $status->color ?? 'var(--text-muted)' }}; font-size: 0.9rem; padding: 0.5em 0.8em; cursor: pointer; transition: all 0.2s ease;">
                         {{ $status->name }}
                     </span>
                 @empty

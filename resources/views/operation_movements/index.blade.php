@@ -55,11 +55,11 @@
                                     default => $movement->type,
                                 };
                                 $badgeColor = match ($movement->type) {
-                                    'entry' => '#3b82f6', // blue
-                                    'start' => '#f59e0b', // orange
-                                    'end' => '#10b981',   // green
-                                    'exit' => '#ef4444',  // red
-                                    default => '#6b7280',
+                                    'entry' => 'var(--color-info)',
+                                    'start' => 'var(--color-warning)',
+                                    'end' => 'var(--color-success)',
+                                    'exit' => 'var(--color-danger)',
+                                    default => 'var(--text-muted)',
                                 };
                             @endphp
                             <span class="badge" style="background-color: {{ $badgeColor }}; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 500; font-size: 12px;">
