@@ -15,10 +15,10 @@ class OperationMovementController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
-        $query = OperationMovement::with(['operation', 'operationStatus']);
+        $query = OperationMovement::with(['operation.client', 'operationStatus']);
 
         if ($user && !$user->isAdmin()) {
             $allowedStatusIds = $user->statuses()->pluck('operation_statuses.id')->toArray();
@@ -29,9 +29,45 @@ class OperationMovementController extends Controller
             }
         }
 
-        $movements = $query->latest('datetime')->paginate(50);
+        if ($request->filled('operation_number')) {
+            $query->whereHas('operation', function($q) use ($request) {
+                $q->where('operation_number', 'like', '%' . $request->operation_number . '%');
+            });
+        }
 
-        return view('operation_movements.index', compact('movements'));
+        if ($request->filled('client_name')) {
+            $query->whereHas('operation.client', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->client_name . '%');
+            });
+        }
+
+        if ($request->filled('operation_status_id')) {
+            $query->where('operation_status_id', $request->operation_status_id);
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('datetime', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('datetime', '<=', $request->date_to);
+        }
+
+        $movements = $query->latest('datetime')->paginate(50)->withQueryString();
+        
+        $statuses = OperationStatus::orderBy('sort_order')->get();
+        $types = [
+            'entry' => __('dobs.type_entry'),
+            'start' => __('dobs.type_start'),
+            'end' => __('dobs.type_end'),
+            'exit' => __('dobs.type_exit'),
+        ];
+
+        return view('operation_movements.index', compact('movements', 'statuses', 'types'));
     }
 
     /**
